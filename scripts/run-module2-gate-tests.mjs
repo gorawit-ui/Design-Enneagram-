@@ -128,25 +128,33 @@ if (specText.includes(".webp")) {
       + "Asset Gate E passed on PNG and the pilot tests assert a PNG signature.");
   }
 }
+// The base family has its own contract, separate from the living pilot's 1122x1402 / 750 KB:
+// runtime export 1024x1024 WebP, <=180 KB preferred, hard gate 250 KB.
+const BASE_CANVAS = { width: 1024, height: 1024 };
+const BASE_HARD_KB = 250;
 const oversize = [];
+const wrongCanvas = [];
 for (const relative of baseFound) {
-  const size = fs.statSync(path.join(ASSET_ROOT, relative)).size;
-  if (size > 750 * 1024) oversize.push(`${relative} (${Math.round(size / 1024)} KB)`);
+  const absolute = path.join(ASSET_ROOT, relative);
+  const kb = Math.round(fs.statSync(absolute).size / 1024);
+  if (kb > BASE_HARD_KB) oversize.push(`${relative} (${kb} KB)`);
+  const head = Buffer.alloc(33);
+  const fd = fs.openSync(absolute, "r");
+  fs.readSync(fd, head, 0, 33, 0);
+  fs.closeSync(fd);
+  if (head.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
+    const w = head.readUInt32BE(16);
+    const h = head.readUInt32BE(20);
+    if (w !== BASE_CANVAS.width || h !== BASE_CANVAS.height) wrongCanvas.push(`${relative} (${w}x${h})`);
+  }
 }
 if (oversize.length) {
-  findings.push(`base asset(s) exceed the 750 KB budget the living pilot is held to: `
-    + `${oversize.join(", ")}`);
+  findings.push(`base asset(s) exceed the ${BASE_HARD_KB} KB hard gate the base-asset spec sets `
+    + `(180 KB preferred): ${oversize.join(", ")}`);
 }
-const dims = new Set();
-for (const relative of baseFound) {
-  const head = Buffer.alloc(33);
-  const fd = fs.openSync(path.join(ASSET_ROOT, relative), "r");
-  fs.readSync(fd, head, 0, 33, 0); fs.closeSync(fd);
-  dims.add(`${head.readUInt32BE(16)}x${head.readUInt32BE(20)}`);
-}
-if (dims.size > 1) {
-  findings.push(`base assets are not canvas-consistent: ${[...dims].join(", ")}. The living pilot `
-    + "is uniformly 1122x1402.");
+if (wrongCanvas.length) {
+  findings.push(`base asset(s) are not the specified ${BASE_CANVAS.width}x${BASE_CANVAS.height} `
+    + `runtime canvas: ${wrongCanvas.join(", ")}`);
 }
 
 // --- Report -------------------------------------------------------------------------------------
