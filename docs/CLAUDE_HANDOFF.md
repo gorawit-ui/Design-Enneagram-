@@ -1,14 +1,13 @@
 # Claude Handoff — Core 2 Living Character Pilot
 
-**Last updated:** 2026-09-07 (session 3 — Asset Gate E recorded PASS)
-**Branch:** `feat/core2-living-character-integration` · **PR:** #2 (open, CI green, unreviewed)
-**Base:** `main` @ `b794900` — fast-forward possible
-**Asset Gate E:** **PASS** (2026-09-07) · six of seven gates still `NOT RUN` · overall **NO-GO**
-**Production deployment:** **NOT ALLOWED** — see [Deployment status](#deployment-status)
+**Last updated:** 2026-09-07 (session 4 — all gates signed, PR #2 merged)
+**Gates:** all seven **PASS** · overall decision **GO** (2026-09-07)
+**Production deployment:** **ALLOWED** by the release decision — read the signing conditions in the
+session 4 addendum before relying on it
 
-> Sections 1–4 below are the original session-1 record and are kept for history. Where they
-> conflict with a later addendum, **the newest addendum is authoritative** — in particular B1, B2,
-> B3 and the Gate E verdict have all changed since section 4 was written.
+> Sections 1–4 below are the original session-1 record, kept for history. Where they conflict with
+> a later addendum, **the newest addendum is authoritative** — B1, B2, B3, the Gate E verdict, the
+> release decision and the deployment status have all changed since section 4 was written.
 
 ---
 
@@ -307,15 +306,19 @@ so `gate:responsive` can run in CI instead of on demand.
 
 ## Deployment status
 
-**Still NOT allowed** — but for a different reason than before.
+**Superseded — see the session 4 addendum at the end of this document.** All seven gates were
+signed on 2026-09-07 and the overall decision is now `GO`. The paragraphs below record the state
+before that decision.
 
-Gate E is no longer the blocker. The blockers now are that **six of the seven gates remain
-`NOT RUN`**, and the plan's overall decision still reads `NO-GO until the pilot passes all gates`.
-The Gate E decision itself says it does not authorize implementation, deployment or expansion; the
-plan requires those to be authorized separately.
-
-Do not merge to `main` and do not deploy until the Front-end engineering gate and the UAT/release
-gate pass and the Products Owner changes the overall decision.
+> **Still NOT allowed** — but for a different reason than before.
+>
+> Gate E is no longer the blocker. The blockers now are that **six of the seven gates remain
+> `NOT RUN`**, and the plan's overall decision still reads `NO-GO until the pilot passes all gates`.
+> The Gate E decision itself says it does not authorize implementation, deployment or expansion; the
+> plan requires those to be authorized separately.
+>
+> Do not merge to `main` and do not deploy until the Front-end engineering gate and the UAT/release
+> gate pass and the Products Owner changes the overall decision.
 
 ---
 
@@ -371,3 +374,61 @@ The human review is now load-bearing, so it is recorded as such: any future chan
 requires the visual/parity/bias review to be repeated. The automated gates deliberately cannot
 substitute for it, and `gate:e` will fail if a future edit leaves a gate document citing evidence
 that no longer exists.
+
+---
+
+# Session 4 addendum — 2026-09-07 · all gates signed, PR #2 merged
+
+## Release decision
+
+All seven gates were signed **PASS** on 2026-09-07 and the overall decision changed from
+`NO-GO until the pilot passes all gates` to **`GO`**. Recorded in
+`docs/MBTI_POSE_ACTION_LIVING_CHARACTER_SYSTEM_PLAN.md`.
+
+| Gate | Status |
+|---|---|
+| PO scope · BA behaviour · SA contract · UX/UI pose | PASS |
+| Asset Gate E | PASS |
+| Front-end engineering | PASS |
+| UAT/release | PASS |
+| **Overall** | **GO** |
+
+## Signing conditions — the part a future reader needs
+
+Every gate was signed by one person, the work owner, who holds all seven roles on this project.
+PR #2 was authored by that same person, so GitHub could not accept an approval from them; it was
+**self-merged with that fact recorded**, not merged on an implied approval.
+
+One criterion is weaker than its wording asks for. The plan's **Bias PASS** requires an
+*independent* review. That review was done by the person who also produced the assets, so it was
+not independent in the sense the criterion describes. The gate is PASS on the work owner's
+decision — recorded as such, with the condition written into the plan's release table rather than
+left for someone to discover later.
+
+The cheapest way to close that gap later, without reopening any gate: have someone who did not
+build it look at `outputs/CORE2_POSE_ACTION_GATE_E_360.png` and `_390.png`. HR and Privacy are
+named as Gate E co-owners.
+
+## Deployment
+
+`GO` authorises release. Note what ships: `NEXT_PUBLIC_LIVING_CHARACTER_PILOT` is unset by default,
+so **the Core 2 pilot renders for participants** whose result is Core 2 × INTJ/ISTJ/ENFP/ESFP with
+non-ambiguous confidence. To withdraw it in any environment, set the variable to `off` and rebuild —
+no code change, no effect on scoring.
+
+## What did not change, across all four sessions
+
+Scoring, questions, challenge selection, profile, consent, confidence, Wing, A/T behaviour, the
+existing neutral fallback, and the 12 approved assets. `app/lib/scoring.ts`,
+`assessment-data.ts`, `assessment-fixtures.ts`, `profile-contract.ts`, `character-system.ts`,
+`result-insights.ts` and `living-character-resolver.ts` are untouched since `c04f994`.
+
+## Standing guards for whoever picks this up
+
+- `npm test` — scoring isolation, the 12-asset scope guard (fails on expansion toward 27 or 432),
+  the full fallback matrix, and the Asset Gate E technical criterion.
+- `npm run gate:e` also fails if a gate document cites an evidence file that no longer exists.
+- `npm run gate:responsive` — 360 px, 390 px and desktop. Run it before any UI or CSS change is
+  called done; it is not in CI.
+- Any change to the 12 assets requires the visual/parity/bias review to be repeated. The automated
+  gates deliberately cannot substitute for it.

@@ -584,14 +584,34 @@ logic leakage is **FAIL**; there is no partial release pass.
 
 | Gate | Owner | Plan evidence | Current status |
 |---|---|---|---|
-| PO scope gate | Products Owner | One-page brief and four-family decision above | NOT RUN |
-| BA behavior gate | Sr. Business Analyst | 16-row matrix, traceability, edge cases above | NOT RUN |
-| SA contract gate | Sr. System Analyst | Schema, resolver, assets, fallbacks, tests above | NOT RUN |
-| UX/UI pose gate | Sr. UX/UI Designer | Four pose boards and four storyboards above | NOT RUN |
+| PO scope gate | Products Owner | One-page brief and four-family decision above | **PASS** (2026-09-07) |
+| BA behavior gate | Sr. Business Analyst | 16-row matrix, traceability, edge cases above | **PASS** (2026-09-07) |
+| SA contract gate | Sr. System Analyst | Schema, resolver, assets, fallbacks, tests above | **PASS** (2026-09-07) |
+| UX/UI pose gate | Sr. UX/UI Designer | Four pose boards and four storyboards above | **PASS** (2026-09-07) |
 | Asset Gate E | Design/QA/HR-Privacy | 12-asset technical, visual, parity, bias and UX evidence — see `outputs/CORE2_POSE_ACTION_PILOT_GATE_E.md` | **PASS** (2026-09-07) |
-| Front-end engineering gate | Sr. Front-end Developer | Readiness checklist; future implementation evidence | NOT RUN |
-| UAT/release gate | Products Owner | All signed evidence and regression results | NOT RUN |
-| **Overall decision** | Products Owner | All gates required | **NO-GO until the pilot passes all gates** |
+| Front-end engineering gate | Sr. Front-end Developer | PR #2: green CI, four test suites, two executable gates | **PASS** (2026-09-07) |
+| UAT/release gate | Products Owner | All signed evidence and regression results | **PASS** (2026-09-07) |
+| **Overall decision** | Products Owner | All gates required | **GO** (2026-09-07) |
+
+### Signing conditions — recorded for future readers
+
+All seven gates were signed on 2026-09-07 by the work owner, who holds every role in this table
+for this project. There was no second reviewer and no independent approval on PR #2, which the
+same person authored; GitHub cannot accept a self-approval, so the PR was self-merged with that
+fact recorded rather than an approval implied.
+
+This matters for one criterion specifically. The plan's **Bias PASS** asks that an *independent*
+review find no intelligence, weakness, dominance, employability, body-type, ability, rank,
+attractiveness, gender-value, diagnostic, distress or fixed-trait implication. That review was
+performed by the work owner, who also produced the assets, so it was not independent in the sense
+the criterion describes. The gate is recorded PASS on the work owner's decision; the condition
+under which it was given is recorded here so a later reader is not misled about the strength of
+that evidence.
+
+If this pilot is put in front of employees, an independent look at
+`outputs/CORE2_POSE_ACTION_GATE_E_360.png` and `_390.png` by someone who did not build it — HR or
+Privacy are named as Gate E co-owners above — remains the cheapest way to close that gap. It does
+not require reopening any gate.
 
 ## Plan definition-of-done record
 
