@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Gate E live-run screenshots (regenerate with: npm run gate:responsive)
+/outputs/gate-e/

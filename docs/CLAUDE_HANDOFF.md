@@ -1,6 +1,6 @@
 # Claude Handoff — Core 2 Living Character Pilot
 
-**Last updated:** 2026-09-07
+**Last updated:** 2026-09-07 (session 2 — B2 fixed, gates made executable)
 **Branch:** `feat/core2-living-character-integration`
 **HEAD:** `203a83e` (pushed, in sync with origin)
 **Base:** `main` @ `b794900` — branch is **3 commits ahead**, fast-forward possible
@@ -210,3 +210,95 @@ Also do not merge to `main` — `main` is untouched at `b794900` and should stay
 Deployment becomes discussable only when: Gate E is re-run and recorded PASS on current evidence, the two governance documents agree, the 360px defect is fixed or explicitly accepted by the gate owner, the branch is reviewed and approved, and the gate owner has decided on record what the flag default should be.
 
 **Safe to do meanwhile:** continue development on this branch, run the test suites, and build locally. The pilot can be withdrawn at any time without a code change via `NEXT_PUBLIC_LIVING_CHARACTER_PILOT=off` followed by a rebuild.
+
+
+---
+
+# Session 2 addendum — 2026-09-07
+
+Executed the agreed sequence 1 → 5. Everything below is verified, not asserted.
+
+## 1. B2 fixed — 360 px result-layout clip
+
+**Root cause:** `.app-shell{overflow:hidden}`. Once the result page overflowed vertically, `hidden`
+turned the shell into a scroll container and horizontal centring resolved against the scrollable
+overflow area instead of the content box, shifting the whole page ~27 px left and clipping ~15 px.
+
+**Fix:** one declaration in `app/globals.css` — `overflow:hidden;overflow:clip`. `clip` clips
+without creating a scroll container, which is the actual intent (hiding the decorative `.ambient`
+blurs). `hidden` is retained first as a fallback for browsers that do not support `clip`.
+
+Two hypotheses were tested and **disproved** before this one: `margin:auto` on `.stage`, and on
+`.site-header`/`.result-wrap`. Neither changed anything. The bug is height-dependent — it reproduces
+at 360×800 but not at 360×900 — which is why a single-height check can miss it.
+
+Verified at 360×800, 360×900, 390×844 and 320×800: `.stage` at the correct offset, zero
+non-decorative elements outside the viewport, no horizontal scroll, `scrollHeight` unchanged.
+
+## 2. The gates are now executable
+
+| Command | Replaces | In `npm test` / CI |
+|---|---|---|
+| `npm run gate:e` | manual Asset Gate E technical review | yes |
+| `npm run gate:responsive` | manual 360/390 review | no — needs server + browser |
+| `npm run gate:sheets` | hand-made review sheets | no — on demand |
+
+`gate:e` proves canvas, RGBA, genuine alpha, transparent corners and size budget from the PNG bytes,
+**and fails when a gate document cites an evidence file that does not exist** — the exact failure
+that produced B1. Both new gates are mutation-verified: removing the CSS fix makes `gate:responsive`
+fail at 360 px (and still pass at 390 px, matching real behaviour).
+
+## 3. CI and review controls
+
+- `.github/workflows/ci.yml` — lint, test (incl. `gate:e`), build on every push and PR to `main`.
+- `.github/pull_request_template.md` — scope, verification and an explicit **Gate impact** section
+  stating that verdicts belong to the Products Owner.
+- `.github/CODEOWNERS` — review ownership over frozen scoring logic, the pilot manifest and flag,
+  the assets, `outputs/`, the plan, and the gate scripts themselves.
+- `docs/WAYS_OF_WORKING.md` — the Vibe / SDLC / PDCA lanes, written last so it documents what
+  exists. Key point recorded there: the seven existing gates already **are** the SDLC, so no second
+  lifecycle was added.
+
+## 4. Gate E evidence restored
+
+`outputs/CORE2_POSE_ACTION_GATE_E_360.png` and `_390.png` regenerated (12 cells, rows
+INTJ/ISTJ/ENFP/ESFP × columns Female/Male/Neutral, on a checkerboard that proves real alpha).
+
+The third cited file, `CORE2_ENFP_FEMALE_NORMALIZED_PENDING.png`, was an obsolete intermediate: the
+normalised copy was promoted to its final path long ago. Its citation was corrected in the gate
+document, with the original FAIL text preserved as a quote, and a **QA addendum** appended recording
+the re-verified facts.
+
+**The Gate E verdict was NOT changed.** `Gate E: FAIL. Release action: HOLD.` still stands verbatim
+at line 111. Flipping it is the Products Owner's decision.
+
+## Blocker status after this session
+
+| # | Was | Now |
+|---|---|---|
+| B1 | Gate E stale, 3 evidence files missing | **Mostly cleared** — evidence regenerated, citations valid, `gate:e` prevents recurrence. Remaining: the PO must re-run the human visual/parity/bias review and decide the verdict; the plan's release table still reads NOT RUN and must be reconciled with the report |
+| B2 | 360 px clip | **Closed** — fixed, verified, guarded by `gate:responsive` |
+| B3 | Pilot live under HOLD | **Unchanged — PO decision.** Flag still defaults to enabled |
+| B4 | No PR, unreviewed | **Partly cleared** — template + CODEOWNERS + CI exist. The PR itself has not been opened |
+| B5 | Evidence ephemeral | **Closed** — review sheets committed; live screenshots regenerate via one command (`outputs/gate-e/` is gitignored to avoid binary churn) |
+
+## Exact next task
+
+**Products Owner decisions, in this order — no code change should precede them:**
+
+1. Review the regenerated sheets and rule on the visual / parity / bias criteria.
+2. Decide the Asset Gate E verdict, and reconcile the plan's release table (still `NOT RUN`) with
+   the Gate E report so the two records agree.
+3. Decide B3: should `NEXT_PUBLIC_LIVING_CHARACTER_PILOT` default to enabled while the gate stands
+   at HOLD? Withdrawing it is a config change plus a rebuild.
+4. Open the PR for `feat/core2-living-character-integration` when ready for review.
+
+Optional engineering follow-up, with a real cost, for the PO to weigh: adding a browser dependency
+so `gate:responsive` can run in CI instead of on demand.
+
+## Deployment status
+
+**Still NOT allowed.** Gate E remains FAIL/HOLD, the plan's overall decision remains NO-GO, and the
+branch is still unreviewed. B2 is closed and the technical evidence is now reproducible, which
+removes two of the four obstacles — the remaining two are Products Owner decisions, not engineering
+work. Do not merge to `main` and do not deploy.

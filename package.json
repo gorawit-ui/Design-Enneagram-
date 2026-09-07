@@ -7,9 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node scripts/run-scoring-tests.mjs && node scripts/run-character-resolver-tests.mjs && node scripts/run-living-character-pilot-tests.mjs",
+    "test": "node scripts/run-scoring-tests.mjs && node scripts/run-character-resolver-tests.mjs && node scripts/run-living-character-pilot-tests.mjs && node scripts/run-asset-gate-tests.mjs",
     "test:scoring": "node scripts/run-scoring-tests.mjs",
-    "test:pilot": "node scripts/run-living-character-pilot-tests.mjs"
+    "test:pilot": "node scripts/run-living-character-pilot-tests.mjs",
+    "gate:e": "node scripts/run-asset-gate-tests.mjs",
+    "gate:responsive": "node scripts/run-responsive-gate-tests.mjs",
+    "gate:sheets": "node scripts/generate-gate-e-sheets.mjs"
   },
   "dependencies": {
     "next": "16.3.3",

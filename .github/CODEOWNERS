@@ -1,0 +1,28 @@
+# Review ownership for the TDFB Personality Quest.
+#
+# Gate verdicts and release decisions belong to the Products Owner. Engineering may produce
+# evidence and fix defects, but flipping a gate verdict requires the owner's review.
+
+# Default owner for everything not matched below.
+*                                           @gorawit-ui
+
+# Frozen assessment logic. Changing any of these needs an explicit, reviewed decision:
+# scoring, question bank, the participant profile/consent contract, and result narrative.
+/app/lib/scoring.ts                         @gorawit-ui
+/app/lib/assessment-data.ts                 @gorawit-ui
+/app/lib/assessment-fixtures.ts             @gorawit-ui
+/app/lib/profile-contract.ts                @gorawit-ui
+/app/lib/result-insights.ts                 @gorawit-ui
+
+# Core 2 pilot: the approved 12-asset manifest, the release flag, and the assets themselves.
+/app/lib/living-character-resolver.ts       @gorawit-ui
+/app/lib/living-character-flag.ts           @gorawit-ui
+/public/character-assets/                   @gorawit-ui
+
+# Gate records and release decisions.
+/outputs/                                   @gorawit-ui
+/docs/MBTI_POSE_ACTION_LIVING_CHARACTER_SYSTEM_PLAN.md  @gorawit-ui
+
+# The executable gates themselves.
+/scripts/                                   @gorawit-ui
+/.github/workflows/                         @gorawit-ui
