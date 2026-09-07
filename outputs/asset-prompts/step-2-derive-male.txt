@@ -1,0 +1,22 @@
+แนบไฟล์ Female master ที่อนุมัติแล้วของ core นี้มาพร้อมข้อความนี้
+
+ใช้ไฟล์ที่แนบมาเป็น reference หลัก แก้เฉพาะใบหน้าและผม ให้อ่านเป็น male presentation
+- ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง เท่าเดิม
+- ทำทีละภาพ
+- ถ้าทำ neutral ให้แนบไฟล์ master ตัวเดิมอีกครั้ง ห้ามแนบไฟล์ male ที่เพิ่งได้มา
+
+---
+
+Using the attached approved Female master as the exact reference, change ONLY the face and hair
+to read as male presentation.
+
+Keep IDENTICAL and unchanged: pose, gaze direction and target, shoulder line, arm positions,
+which hand holds what, finger placement, foot stance, wardrobe, prop shape and position,
+background motif and its placement, lighting direction and intensity, canvas position, scale,
+crop, and expression intensity.
+
+Do not change body build, height, shoulder width, or silhouette. Do not add or remove any prop or
+motif. Do not restyle the wardrobe. Do not alter the expression's intensity — only the face's
+presentation.
+
+Canvas stays square 1024 x 1024. Background stays true transparent RGBA.

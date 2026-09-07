@@ -1,3 +1,12 @@
+สร้างภาพ 1 ภาพ ตาม spec ด้านล่างนี้
+- ขนาด square 1024x1024
+- PNG พื้นหลังโปร่งใสจริง (transparent alpha) ไม่ใช่พื้นขาว และไม่ใช่ลายหมากรุกที่วาดเป็น pixel
+- ส่งไฟล์ให้ดาวน์โหลดได้ที่ความละเอียดเต็ม
+- ทำทีละภาพ อย่าสร้างหลายเวอร์ชันให้เลือก
+- ห้ามเพิ่ม lighting drama, ห้ามเพิ่มรายละเอียดให้ "ดูดีขึ้น" และห้ามเปลี่ยนท่าให้ "ดูมั่นใจขึ้น"
+
+---
+
 Polished, warm, semi-realistic 3D character illustration of a single adult, full body,
 standing, centred on a fully transparent background.
 
@@ -13,7 +22,7 @@ background motif. Never use colour alone to signal anything.
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
 
-CANVAS: square, 2048 x 2048 px or larger. PNG with true transparent RGBA.
+CANVAS: square, 1024 x 1024 px. PNG with true transparent RGBA.
 Leave at least 8% empty transparent margin on all four sides.
 Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
 Face, both hands, both feet and the prop are all fully visible and unclipped.

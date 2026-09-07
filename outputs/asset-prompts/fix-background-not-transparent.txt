@@ -1,4 +1,11 @@
+แนบภาพที่ได้มาพร้อมข้อความนี้
+
+พื้นหลังยังไม่โปร่งใสจริง ช่วยแก้ตามนี้
+
+---
+
 Remove only the baked checkerboard or background pixels from the attached image.
 Produce genuine alpha transparency. Preserve fine edges, hair strands and prop edges exactly.
 No halo, no fringe, no colour bleed at the silhouette.
 Do not alter the character, prop, motif, lighting, or framing in any way.
+Keep the canvas square 1024 x 1024.

@@ -55,9 +55,9 @@ Output paths: `public/character-assets/enneagram-{core}/{female|male|neutral}` a
 > **Finish:** equal lighting, detail density and apparent production value across all cores and
 > presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
 >
-> **Framing:** square canvas. Face, both hands, both feet and the prop are all fully visible and
-> unclipped. Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
-> Leave at least 8% empty transparent margin on all four sides.
+> **Framing:** square canvas, 1024 × 1024. Face, both hands, both feet and the prop are all fully
+> visible and unclipped. Keep the face, prop and identifying silhouette inside the central 76% of
+> the canvas. Leave at least 8% empty transparent margin on all four sides.
 >
 > **Background:** true transparent RGBA. No checkerboard pattern rendered as pixels, no white
 > plate, no vignette, no floor shadow touching the canvas edge.
@@ -138,7 +138,8 @@ motif, lighting, or framing in any way.
 Technical, per asset. The base-asset contract differs from the pose pilot's — do not reuse the
 pilot's numbers:
 
-- [ ] Master exported square, **at least 2048 × 2048**, transparent
+- [ ] Generated square **1024 × 1024**, transparent — the model's native square and exactly the
+      runtime target. See the canvas deviation in §6 before treating this as a master.
 - [ ] Runtime export **1024 × 1024**, transparent, sRGB
 - [ ] **≤ 180 KB preferred, 250 KB hard gate** (the pose pilot's 750 KB budget does not apply here)
 - [ ] Genuine alpha: fully transparent pixels present, fully opaque pixels present, all four
@@ -174,6 +175,13 @@ Both are live and both change what to generate. Settle them first or 24 assets m
 Every asset on disk is `.png`, including the 12 that Asset Gate E passed and whose tests assert a
 PNG signature. Migrating those 12 would invalidate a passed gate. Either align the spec to PNG, or
 keep WebP for the base family only and accept two formats. **Decide before generating.**
+
+**Master resolution.** The spec asks for a master of 2048 × 2048 or larger. Hosted image
+generation returns fixed native sizes (1024 × 1024, 1024 × 1536, 1536 × 1024), so asking for 2048
+gets a silently downsized image or a lossy upscale — which is how the pilot ended up at the
+non-native 1122 × 1402 and 1072 × 1467. These prompts ask for 1024 × 1024 instead: native, sharp,
+and identical to the runtime target. That leaves **no ≥2048 master**, which is a real deviation.
+Either relax the master requirement, or produce masters with a tool that renders at 2048.
 
 **Core 5.** Its three existing assets are off-spec on all three counts: `1122×1402`, `1072×1467`
 and `1024×1536` instead of `1024×1024`; PNG instead of WebP; and 901 KB, 1096 KB and 1803 KB

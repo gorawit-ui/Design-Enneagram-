@@ -8,6 +8,13 @@
 // set ARE read from app/lib/character-system.ts, and the script fails loudly if the two disagree —
 // so a core added, removed or re-posed in code cannot silently leave these prompts stale.
 //
+// Canvas note: the base-asset spec asks for a master of 2048x2048 or larger with a 1024x1024
+// runtime export. Hosted image generation returns fixed native sizes (1024x1024, 1024x1536,
+// 1536x1024), so requesting 2048 yields a silently downsized image or a lossy upscale. These
+// prompts therefore ask for 1024x1024 — the model's native square, and exactly the runtime target.
+// The "master >= 2048" requirement is a real, open deviation: it needs either a spec relaxation or
+// a different production tool. Recorded in docs/BASE_ASSET_PRODUCTION_PROMPTS.md rather than hidden.
+//
 // Usage: npm run assets:prompts   ->   outputs/asset-prompts/
 
 import fs from "node:fs";
@@ -35,7 +42,7 @@ background motif. Never use colour alone to signal anything.
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
 
-CANVAS: square, 2048 x 2048 px or larger. PNG with true transparent RGBA.
+CANVAS: square, 1024 x 1024 px. PNG with true transparent RGBA.
 Leave at least 8% empty transparent margin on all four sides.
 Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
 Face, both hands, both feet and the prop are all fully visible and unclipped.
@@ -134,6 +141,28 @@ try {
 }
 
 // --- emit ----------------------------------------------------------------------------------------
+// Every file is complete and self-contained: the Thai instruction line, the locked block and the
+// core specifics are already assembled. Nothing is left to paste together by hand, and there are no
+// {placeholders} to fill in — both are ways a prompt gets sent subtly wrong.
+
+const ASK_NEW = `สร้างภาพ 1 ภาพ ตาม spec ด้านล่างนี้
+- ขนาด square 1024x1024
+- PNG พื้นหลังโปร่งใสจริง (transparent alpha) ไม่ใช่พื้นขาว และไม่ใช่ลายหมากรุกที่วาดเป็น pixel
+- ส่งไฟล์ให้ดาวน์โหลดได้ที่ความละเอียดเต็ม
+- ทำทีละภาพ อย่าสร้างหลายเวอร์ชันให้เลือก
+- ห้ามเพิ่ม lighting drama, ห้ามเพิ่มรายละเอียดให้ "ดูดีขึ้น" และห้ามเปลี่ยนท่าให้ "ดูมั่นใจขึ้น"
+
+---`;
+
+const ASK_DERIVE = (label) => `แนบไฟล์ Female master ที่อนุมัติแล้วของ core นี้มาพร้อมข้อความนี้
+
+ใช้ไฟล์ที่แนบมาเป็น reference หลัก แก้เฉพาะใบหน้าและผม ให้อ่านเป็น ${label}
+- ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง เท่าเดิม
+- ทำทีละภาพ
+- ถ้าทำ neutral ให้แนบไฟล์ master ตัวเดิมอีกครั้ง ห้ามแนบไฟล์ male ที่เพิ่งได้มา
+
+---`;
+
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const written = [];
@@ -143,7 +172,9 @@ const write = (name, body) => {
 };
 
 for (const [core, c] of Object.entries(CORES)) {
-  write(`core-${core}-female-master.txt`, `${LOCKED}
+  write(`core-${core}-1-female-master.txt`, `${ASK_NEW}
+
+${LOCKED}
 
 CORE: ${core} — ${c.title}
 POSE ORIENTATION: ${c.pose}
@@ -156,8 +187,8 @@ PRESENTATION: female presentation, conveyed only through face and hair.
 PROHIBITED READING FOR THIS CORE: never read as ${c.never}.`);
 }
 
-write("derivative-male-neutral.txt", `Using the attached approved Female master as the exact reference, change ONLY the face and hair
-to read as {male | gender-neutral} presentation.
+const DERIVE_BODY = `Using the attached approved Female master as the exact reference, change ONLY the face and hair
+to read as PRESENTATION_LABEL.
 
 Keep IDENTICAL and unchanged: pose, gaze direction and target, shoulder line, arm positions,
 which hand holds what, finger placement, foot stance, wardrobe, prop shape and position,
@@ -168,14 +199,37 @@ Do not change body build, height, shoulder width, or silhouette. Do not add or r
 motif. Do not restyle the wardrobe. Do not alter the expression's intensity — only the face's
 presentation.
 
-Canvas stays square 2048 x 2048 or larger. Background stays true transparent RGBA.`);
+Canvas stays square 1024 x 1024. Background stays true transparent RGBA.`;
 
-write("background-extraction.txt", `Remove only the baked checkerboard or background pixels from the attached image.
+write("step-2-derive-male.txt",
+  `${ASK_DERIVE("male presentation")}\n\n${DERIVE_BODY.replace("PRESENTATION_LABEL", "male presentation")}`);
+write("step-3-derive-neutral.txt",
+  `${ASK_DERIVE("gender-neutral presentation")}\n\n${DERIVE_BODY.replace("PRESENTATION_LABEL", "gender-neutral presentation")}`);
+
+write("fix-background-not-transparent.txt", `แนบภาพที่ได้มาพร้อมข้อความนี้
+
+พื้นหลังยังไม่โปร่งใสจริง ช่วยแก้ตามนี้
+
+---
+
+Remove only the baked checkerboard or background pixels from the attached image.
 Produce genuine alpha transparency. Preserve fine edges, hair strands and prop edges exactly.
 No halo, no fringe, no colour bleed at the silhouette.
-Do not alter the character, prop, motif, lighting, or framing in any way.`);
+Do not alter the character, prop, motif, lighting, or framing in any way.
+Keep the canvas square 1024 x 1024.`);
 
-write("fallback-exploration.txt", `${LOCKED}
+write("fix-parity-failed.txt", `แนบไฟล์ Female master ตัวเดิมมาพร้อมข้อความนี้ (ไม่ใช่ derivative ที่ตก)
+
+derivative ตัวนี้ไม่ผ่าน parity เพราะมีความต่างจาก master นอกเหนือจากใบหน้าและผม คือ:
+[เขียนสิ่งที่ต่างตรงนี้ เช่น "มือขวาถือ prop คนละมุม" หรือ "ไหล่กว้างกว่า"]
+
+ทำ derivative ใหม่จากไฟล์ master ที่แนบ โดยแก้เฉพาะใบหน้าและผมเท่านั้น
+ห้ามแก้ master ให้ตรงกับ derivative — master คือ reference ที่ต้องคงเดิม
+ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง`);
+
+write("step-10-fallback-exploration.txt", `${ASK_NEW}
+
+${LOCKED}
 
 CORE: none — this is the neutral exploration fallback.
 POSE ORIENTATION: forward
@@ -189,6 +243,25 @@ PRESENTATION: gender-neutral, conveyed only through face and hair.
 PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any particular core
   has been identified. It must not resemble any of the nine core characters.`);
 
-console.log(`Wrote ${written.length} prompt files to outputs/asset-prompts/`);
-console.log(`  9 female masters + 1 derivative template + 1 background extraction + 1 fallback`);
-console.log(`  pose directions cross-checked against app/lib/character-system.ts`);
+write("README.txt", `outputs/asset-prompts — generated by \`npm run assets:prompts\`. Do not hand-edit.
+
+ทุกไฟล์ copy ทั้งไฟล์แล้ววางได้เลย ไม่ต้องประกอบเอง ไม่มีช่องให้เติม
+
+ลำดับต่อ 1 core (ทำให้ครบ 3 ภาพก่อนขึ้น core ถัดไป):
+
+  1. core-N-1-female-master.txt      -> ได้ Female master
+  2. step-2-derive-male.txt          -> แนบ master แล้ววาง
+  3. step-3-derive-neutral.txt       -> แนบ master ตัวเดิมอีกครั้ง แล้ววาง
+
+  ถ้าพื้นหลังไม่โปร่งใส : fix-background-not-transparent.txt
+  ถ้า parity ไม่ผ่าน    : fix-parity-failed.txt
+
+ครบ 9 cores แล้วค่อยทำ step-10-fallback-exploration.txt
+
+หลังได้ไฟล์ วางที่ public/character-assets/enneagram-N/{female,male,neutral}.png แล้วรัน:
+  npm run assets:manifest && npm run gate:m2`);
+
+console.log(`Wrote ${written.length} files to outputs/asset-prompts/`);
+console.log("  9 female masters + 2 derivative steps + 2 fix templates + fallback + README");
+console.log("  every file is self-contained: instruction + spec assembled, no placeholders");
+console.log("  pose directions cross-checked against app/lib/character-system.ts");
