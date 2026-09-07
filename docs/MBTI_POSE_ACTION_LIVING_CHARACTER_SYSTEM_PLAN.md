@@ -588,7 +588,7 @@ logic leakage is **FAIL**; there is no partial release pass.
 | BA behavior gate | Sr. Business Analyst | 16-row matrix, traceability, edge cases above | NOT RUN |
 | SA contract gate | Sr. System Analyst | Schema, resolver, assets, fallbacks, tests above | NOT RUN |
 | UX/UI pose gate | Sr. UX/UI Designer | Four pose boards and four storyboards above | NOT RUN |
-| Asset Gate E | Design/QA/HR-Privacy | Future 12-asset technical, visual, parity, and bias evidence | NOT RUN |
+| Asset Gate E | Design/QA/HR-Privacy | 12-asset technical, visual, parity, bias and UX evidence — see `outputs/CORE2_POSE_ACTION_PILOT_GATE_E.md` | **PASS** (2026-09-07) |
 | Front-end engineering gate | Sr. Front-end Developer | Readiness checklist; future implementation evidence | NOT RUN |
 | UAT/release gate | Products Owner | All signed evidence and regression results | NOT RUN |
 | **Overall decision** | Products Owner | All gates required | **NO-GO until the pilot passes all gates** |

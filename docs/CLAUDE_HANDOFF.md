@@ -1,10 +1,14 @@
 # Claude Handoff — Core 2 Living Character Pilot
 
-**Last updated:** 2026-09-07 (session 2 — B2 fixed, gates made executable)
-**Branch:** `feat/core2-living-character-integration`
-**HEAD:** `203a83e` (pushed, in sync with origin)
-**Base:** `main` @ `b794900` — branch is **3 commits ahead**, fast-forward possible
+**Last updated:** 2026-09-07 (session 3 — Asset Gate E recorded PASS)
+**Branch:** `feat/core2-living-character-integration` · **PR:** #2 (open, CI green, unreviewed)
+**Base:** `main` @ `b794900` — fast-forward possible
+**Asset Gate E:** **PASS** (2026-09-07) · six of seven gates still `NOT RUN` · overall **NO-GO**
 **Production deployment:** **NOT ALLOWED** — see [Deployment status](#deployment-status)
+
+> Sections 1–4 below are the original session-1 record and are kept for history. Where they
+> conflict with a later addendum, **the newest addendum is authoritative** — in particular B1, B2,
+> B3 and the Gate E verdict have all changed since section 4 was written.
 
 ---
 
@@ -276,29 +280,94 @@ at line 111. Flipping it is the Products Owner's decision.
 
 | # | Was | Now |
 |---|---|---|
-| B1 | Gate E stale, 3 evidence files missing | **Mostly cleared** — evidence regenerated, citations valid, `gate:e` prevents recurrence. Remaining: the PO must re-run the human visual/parity/bias review and decide the verdict; the plan's release table still reads NOT RUN and must be reconciled with the report |
+| B1 | Gate E stale, 3 evidence files missing | **Closed** in session 3 — evidence regenerated, citations valid, `gate:e` prevents recurrence, and the verdict is now PASS with the plan's release table reconciled |
 | B2 | 360 px clip | **Closed** — fixed, verified, guarded by `gate:responsive` |
-| B3 | Pilot live under HOLD | **Unchanged — PO decision.** Flag still defaults to enabled |
-| B4 | No PR, unreviewed | **Partly cleared** — template + CODEOWNERS + CI exist. The PR itself has not been opened |
+| B3 | Pilot live under HOLD | **Closed** in session 3 — the premise was "enabled while the gate says HOLD". Gate E is now PASS, so the enabled default is consistent with the gate. The flag still exists as the withdrawal mechanism |
+| B4 | No PR, unreviewed | **Partly cleared** — PR #2 is open with green CI; nobody has reviewed the diff yet, and CODEOWNERS cannot force it on a self-authored PR |
 | B5 | Evidence ephemeral | **Closed** — review sheets committed; live screenshots regenerate via one command (`outputs/gate-e/` is gitignored to avoid binary churn) |
 
 ## Exact next task
 
-**Products Owner decisions, in this order — no code change should precede them:**
+**Asset Gate E is PASS as of 2026-09-07** (see the session 3 addendum below). The remaining gates
+are other people's, and none of them is engineering work:
 
-1. Review the regenerated sheets and rule on the visual / parity / bias criteria.
-2. Decide the Asset Gate E verdict, and reconcile the plan's release table (still `NOT RUN`) with
-   the Gate E report so the two records agree.
-3. Decide B3: should `NEXT_PUBLIC_LIVING_CHARACTER_PILOT` default to enabled while the gate stands
-   at HOLD? Withdrawing it is a config change plus a rebuild.
-4. Open the PR for `feat/core2-living-character-integration` when ready for review.
+1. **Front-end engineering gate** — still `NOT RUN`. Owner: Sr. Front-end Developer. The
+   implementation evidence it needs now exists (PR #2, green CI, four test suites, two executable
+   gates), so this is a review, not a build.
+2. **UAT/release gate** — still `NOT RUN`. Owner: Products Owner. Needs all signed evidence and
+   regression results.
+3. **PO scope · BA behaviour · SA contract · UX/UI pose gates** — all still `NOT RUN`. These were
+   never run even though the Plan phase produced their evidence; someone has to actually sign them.
+4. **Review and merge PR #2.** Note that `.github/CODEOWNERS` names the PR's own author, so it
+   cannot force a review on this PR — a second reviewer or branch protection on `main` is needed
+   for that, and both are repo/org settings Claude cannot change.
 
 Optional engineering follow-up, with a real cost, for the PO to weigh: adding a browser dependency
 so `gate:responsive` can run in CI instead of on demand.
 
 ## Deployment status
 
-**Still NOT allowed.** Gate E remains FAIL/HOLD, the plan's overall decision remains NO-GO, and the
-branch is still unreviewed. B2 is closed and the technical evidence is now reproducible, which
-removes two of the four obstacles — the remaining two are Products Owner decisions, not engineering
-work. Do not merge to `main` and do not deploy.
+**Still NOT allowed** — but for a different reason than before.
+
+Gate E is no longer the blocker. The blockers now are that **six of the seven gates remain
+`NOT RUN`**, and the plan's overall decision still reads `NO-GO until the pilot passes all gates`.
+The Gate E decision itself says it does not authorize implementation, deployment or expansion; the
+plan requires those to be authorized separately.
+
+Do not merge to `main` and do not deploy until the Front-end engineering gate and the UAT/release
+gate pass and the Products Owner changes the overall decision.
+
+---
+
+# Session 3 addendum — 2026-09-07 · Asset Gate E PASS
+
+## Decision recorded
+
+The Products Owner reviewed the regenerated 12-cell sheets and ruled **Visual, Parity and Bias =
+PASS**. With the automated categories already green, all six acceptance categories now pass and
+Asset Gate E is recorded **PASS**.
+
+| Category | Verdict | Determined by |
+|---|---|---|
+| Technical | PASS | `npm run gate:e` — from the PNG bytes |
+| Visual | PASS | Products Owner review |
+| Parity | PASS | Products Owner review |
+| Bias | PASS | Products Owner review |
+| UX | PASS | `npm run gate:responsive` — 360 px, 390 px, desktop |
+| Logic | PASS | `npm test` |
+
+Recorded in two places, kept consistent:
+
+- `outputs/CORE2_POSE_ACTION_PILOT_GATE_E.md` — verdict replaced with PASS plus the category table.
+  The original FAIL/HOLD text is **preserved verbatim as a quoted "superseded record"**, not
+  deleted, and the note that its one recorded blocker was resolved on the exact terms it set.
+- `docs/MBTI_POSE_ACTION_LIVING_CHARACTER_SYSTEM_PLAN.md` — the Asset Gate E row only, now
+  `**PASS** (2026-09-07)`. One line changed; the six other gate rows and the overall decision were
+  deliberately left untouched.
+
+## Desktop gap closed before recording the verdict
+
+The plan's UX PASS names **three** widths: "360 px, 390 px, and desktop". `gate:responsive` covered
+only two, so recording a PASS would have meant claiming a category whose evidence was incomplete —
+which the plan itself counts as FAIL ("Missing evidence … is FAIL; there is no partial release
+pass"). Desktop (1280×800) was added first and passed: 9/9 cells across three widths and three
+presentations.
+
+Two output-accuracy defects in the gate script were fixed at the same time: the row label printed
+`desktoppx`, and the success message hardcoded "360px and 390px", which would have kept printing a
+stale claim as widths were added. The summary now derives the width list from the viewport table.
+
+## What Gate E PASS does and does not authorize
+
+**Does:** approves the Core 2 pilot template, per the plan's Act step.
+
+**Does not:** authorize implementation, deployment, or expansion beyond the 12 approved assets. The
+plan requires those separately. Six of seven gates remain `NOT RUN` and the overall decision still
+reads `NO-GO until the pilot passes all gates`.
+
+## Guard against silent drift
+
+The human review is now load-bearing, so it is recorded as such: any future change to the assets
+requires the visual/parity/bias review to be repeated. The automated gates deliberately cannot
+substitute for it, and `gate:e` will fail if a future edit leaves a gate document citing evidence
+that no longer exists.

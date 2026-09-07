@@ -23,9 +23,11 @@ const OUT_DIR = path.join(projectRoot, "outputs/gate-e");
 // 18 foundation questions, then challenges c-at (option 0) and c-core-2 (option 3).
 const ANSWERS = [1, 0, 2, 3, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 3];
 
+// The plan's UX PASS names three widths: 360 px, 390 px, and desktop.
 const VIEWPORTS = [
-  { w: 360, h: 800, label: "360" },
-  { w: 390, h: 844, label: "390" },
+  { w: 360, h: 800, label: "360px" },
+  { w: 390, h: 844, label: "390px" },
+  { w: 1280, h: 800, label: "desktop" },
 ];
 const PRESENTATIONS = [
   { thai: "ผู้หญิง", key: "female" },
@@ -139,10 +141,10 @@ try {
       ];
       const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
       if (failed.length) {
-        failures.push(`${vp.label}px/${presentation.key}: ${failed.join("; ")}`
+        failures.push(`${vp.label}/${presentation.key}: ${failed.join("; ")}`
           + (measured.offenders.length ? ` [outside: ${[...new Set(measured.offenders)].slice(0, 4).join(", ")}]` : ""));
       }
-      rows.push(`  ${vp.label}px ${presentation.key.padEnd(7)} img ${measured.img.width}x${measured.img.height}`
+      rows.push(`  ${vp.label.padEnd(7)} ${presentation.key.padEnd(7)} img ${measured.img.width}x${measured.img.height}`
         + ` @${measured.img.left}  offenders=${measured.offenders.length}  scrollX=${measured.canScrollX}`
         + `  ${failed.length ? "FAIL" : "PASS"}`);
       await context.close();
@@ -155,5 +157,6 @@ try {
 console.log(rows.join("\n"));
 console.log(`\nEvidence written to ${path.relative(projectRoot, OUT_DIR)}/`);
 assert.equal(failures.length, 0, `Gate E responsive criterion FAILED:\n  - ${failures.join("\n  - ")}`);
-console.log("Gate E responsive criterion PASSED: 360px and 390px, all three presentations — "
-  + "no horizontal overflow, no content clipped outside the viewport, character readable and approved.");
+console.log(`Gate E responsive criterion PASSED at ${VIEWPORTS.map((v) => v.label).join(", ")}, `
+  + "all three presentations — no horizontal overflow, no content clipped outside the viewport, "
+  + "character readable and rendered from the approved asset.");
