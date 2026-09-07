@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
+import { Noto_Sans_Thai, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Guild Within — Personality Expedition",
-  description: "กิจกรรมสำรวจแนวโน้ม MBTI และ Enneagram สำหรับการทำงานร่วมกัน",
-};
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="th">
-      <body>{children}</body>
-    </html>
-  );
-}
+const notoSansThai = Noto_Sans_Thai({ variable: "--font-thai", subsets: ["thai", "latin"] });
+const playfair = Playfair_Display({ variable: "--font-display", subsets: ["latin"] });
+export const metadata: Metadata = { title: "TDFB Personality Quest", description: "ค้นพบรูปแบบการคิด แรงขับภายใน และวิธีเติบโตในแบบของคุณ" };
+export default function RootLayout({ children }: LayoutProps<"/">) { return <html lang="th" className={`${notoSansThai.variable} ${playfair.variable}`}><body>{children}</body></html>; }
