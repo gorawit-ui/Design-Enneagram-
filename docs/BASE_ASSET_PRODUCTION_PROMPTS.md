@@ -47,7 +47,12 @@ Output paths: `public/character-assets/enneagram-{core}/{female|male|neutral}` a
 > Body shape carries no personality, competence, gender or status meaning.
 >
 > **Wardrobe (identical for every core and every presentation):** forest-green blazer, ivory knit
-> top, straight charcoal trousers, black ankle boots.
+> top, straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation —
+> footwear is identical across female, male and neutral, so it cannot become a parity difference or
+> a gender-value cue.
+>
+> **Props:** held, worn, or resting on a surface the character is touching. Never floating detached
+> in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.
 >
 > **Palette:** matcha green, forest green, ivory. Core-specific accents only in the prop and the
 > background motif. Never use colour alone to signal anything.

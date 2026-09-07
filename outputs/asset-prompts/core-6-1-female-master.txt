@@ -14,7 +14,8 @@ BUILD: one balanced adult proportion guide, identical across every character in 
 Body shape carries no personality, competence, gender or status meaning.
 
 WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
-straight charcoal trousers, black ankle boots.
+straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
+is identical across female, male and neutral.
 
 PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop and the
 background motif. Never use colour alone to signal anything.
@@ -26,6 +27,9 @@ CANVAS: square, 1024 x 1024 px. PNG with true transparent RGBA.
 Leave at least 8% empty transparent margin on all four sides.
 Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
 Face, both hands, both feet and the prop are all fully visible and unclipped.
+
+PROPS: held in the hands, worn, or resting on a surface the character is touching. Never floating
+detached in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.
 
 BACKGROUND: genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
 no vignette, no floor shadow touching the canvas edge.
