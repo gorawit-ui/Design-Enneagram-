@@ -1,0 +1,36 @@
+Polished, warm, semi-realistic 3D character illustration of a single adult, full body,
+standing, centred on a fully transparent background.
+
+BUILD: one balanced adult proportion guide, identical across every character in this family.
+Body shape carries no personality, competence, gender or status meaning.
+
+WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
+straight charcoal trousers, black ankle boots.
+
+PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop and the
+background motif. Never use colour alone to signal anything.
+
+FINISH: equal lighting, detail density and apparent production value across all cores and
+presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
+
+CANVAS: square, 2048 x 2048 px or larger. PNG with true transparent RGBA.
+Leave at least 8% empty transparent margin on all four sides.
+Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
+Face, both hands, both feet and the prop are all fully visible and unclipped.
+
+BACKGROUND: genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
+no vignette, no floor shadow touching the canvas edge.
+
+NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, charts, money, luxury or
+status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
+dominance posturing, flirtation, or any body-shape encoding of personality or gender.
+
+CORE: 3 — Goal Driver
+POSE ORIENTATION: right
+ACTION: indicates one milestone on a goal board
+PROP: a goal board and a milestone medallion
+BACKGROUND MOTIF: a path leading to one milestone, rendered as a restrained flat graphic behind the character,
+  clearly separate from it and never overlapping the face or hands.
+EXPRESSION: focused, positive, composed
+PRESENTATION: female presentation, conveyed only through face and hair.
+PROHIBITED READING FOR THIS CORE: never read as status-seeking, boastful, salesy, or image-obsessed.

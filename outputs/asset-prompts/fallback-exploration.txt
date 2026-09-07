@@ -1,0 +1,38 @@
+Polished, warm, semi-realistic 3D character illustration of a single adult, full body,
+standing, centred on a fully transparent background.
+
+BUILD: one balanced adult proportion guide, identical across every character in this family.
+Body shape carries no personality, competence, gender or status meaning.
+
+WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
+straight charcoal trousers, black ankle boots.
+
+PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop and the
+background motif. Never use colour alone to signal anything.
+
+FINISH: equal lighting, detail density and apparent production value across all cores and
+presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
+
+CANVAS: square, 2048 x 2048 px or larger. PNG with true transparent RGBA.
+Leave at least 8% empty transparent margin on all four sides.
+Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
+Face, both hands, both feet and the prop are all fully visible and unclipped.
+
+BACKGROUND: genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
+no vignette, no floor shadow touching the canvas edge.
+
+NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, charts, money, luxury or
+status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
+dominance posturing, flirtation, or any body-shape encoding of personality or gender.
+
+CORE: none — this is the neutral exploration fallback.
+POSE ORIENTATION: forward
+ACTION: stands calmly with an open, unmarked map held loosely in both hands, as if still choosing
+  a direction.
+PROP: one blank, unmarked open map. No core prop: no seal, no shield, no scope, no ring, no board.
+BACKGROUND MOTIF: a single soft open circle. No grid, orbit, path, ribbon, radar, spark,
+  protective line or converging stream.
+EXPRESSION: open, unhurried, neither confident nor uncertain.
+PRESENTATION: gender-neutral, conveyed only through face and hair.
+PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any particular core
+  has been identified. It must not resemble any of the nine core characters.

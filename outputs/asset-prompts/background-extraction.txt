@@ -1,0 +1,4 @@
+Remove only the baked checkerboard or background pixels from the attached image.
+Produce genuine alpha transparency. Preserve fine edges, hair strands and prop edges exactly.
+No halo, no fringe, no colour bleed at the silhouette.
+Do not alter the character, prop, motif, lighting, or framing in any way.

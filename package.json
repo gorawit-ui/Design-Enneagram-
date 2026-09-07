@@ -14,7 +14,8 @@
     "gate:responsive": "node scripts/run-responsive-gate-tests.mjs",
     "gate:sheets": "node scripts/generate-gate-e-sheets.mjs",
     "gate:m2": "node scripts/run-module2-gate-tests.mjs",
-    "assets:manifest": "node scripts/generate-asset-manifest.mjs"
+    "assets:manifest": "node scripts/generate-asset-manifest.mjs",
+    "assets:prompts": "node scripts/generate-asset-prompts.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
