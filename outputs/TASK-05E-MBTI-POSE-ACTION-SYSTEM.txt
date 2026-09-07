@@ -1,0 +1,108 @@
+Read AGENTS.md first.
+
+Complete M2.6.2 Plan phase: define a data-driven MBTI Pose, Action & Living Character System for the TDFB Personality Quest.
+
+This task is planning and specification only. Do not generate images, change application code, change scoring/questions/challenge selection/profile/consent/result logic, install packages, deploy, commit, push, or create a PR.
+
+## Product intent
+
+Characters should feel alive through deterministic differences in gaze, facial expression, body pose, gesture, and observable action that are inspired by MBTI and Enneagram Wing context. The system is a reflection aid, not a diagnosis or an employment decision tool.
+
+## Locked boundaries
+
+- Enneagram Core defines emotional baseline and inner motive.
+- MBTI defines observable attention style, pose family, gesture, action, and Scene Kit context.
+- Wing changes only a small accent inside an existing object/action; it must not change body shape or status.
+- A/T changes ambient tone only (settled/reflective); never distress, pathology, or facial problems.
+- Female, Male, and Neutral presentations keep identical pose, hands, outfit, prop placement, lighting, crop, and expression intensity; only approved face/hair presentation may vary.
+- All characters use balanced adult proportions. Never encode personality, competence, rank, attractiveness, gender, weight, or ability through body shape.
+- Ambiguous or low-confidence results use a neutral pose/expression and must not imply certainty.
+- Module 1 scoring, question flow, 20-question limit, and existing result contract remain frozen.
+
+## Recommended model
+
+Define behavior for all 16 MBTI types, but group production art into four controlled pose families to keep the first release maintainable:
+
+1. observant-curiosity: balanced stance, attention toward a map/object, small analytical gesture.
+2. warm-engagement: open shoulders, welcoming hand/recipient orientation, natural listening posture.
+3. idea-spark: slight exploratory lean, hand linking or presenting a possibility, contained delight.
+4. grounded-action: stable stance, direct attention to a plan/object, composed readiness to act.
+
+Each MBTI row must contain: type, behavior rationale, emotional moment, pose family, gaze cue, gesture cue, observable action, primary scene object, prohibited reading, and accessibility description. Do not use model letters or stereotypes in participant-facing copy.
+
+## Pilot scope
+
+Pilot the four existing Gate C types first: INTJ, ISTJ, ENFP, and ESFP with Core 2 and all three presentations. The pilot is 4 types × 3 presentations = 12 candidate assets. Core 2 baseline, Wing accent, and A/T ambient behavior must remain visible without changing the pose contract.
+
+Do not expand to all 16 types or all 9 Cores until the pilot passes the pose, parity, bias, responsive, and technical gates.
+
+## Required role handoffs
+
+### Products Owner
+
+Produce a one-page brief with goal, scope, success metrics, risks, decision owners, timeline assumptions, and Go/No-Go criteria. Explicitly decide whether the release uses four pose families or 16 unique MBTI poses.
+
+### Sr. Business Analyst
+
+Produce a 16-row MBTI behavior matrix and a traceability table showing how Core, MBTI, Wing, A/T, confidence, and presentation contribute to the final visual result. Include edge cases for missing/ambiguous values and prohibited deterministic claims.
+
+### Sr. System Analyst
+
+Produce the visual-result schema, resolver precedence, asset naming convention, fallback matrix, feature-flag boundary, test cases, and performance constraints. The output must be machine-processable and must prove that scoring is untouched.
+
+### Sr. UX/UI Designer
+
+Produce four pose boards and four pilot storyboards. For each, specify face, gaze, shoulders, hands, feet, action, object relationship, mobile-safe crop, accessibility text, and Female/Male/Neutral parity rules. Review the attached reference as inspiration only; do not copy its stereotype-heavy financial claims.
+
+### Sr. Front-end Developer
+
+Do not implement during this task. Provide an implementation-readiness checklist covering resolver integration, asset loading, fallback, dev preview, responsive layout, and regression tests.
+
+## PDCA and design gates
+
+### Plan
+
+- Approve product scope and anti-bias rules.
+- Complete the 16-type behavior matrix.
+- Complete the visual-result schema and asset matrix.
+- Define the 12-asset Core 2 pilot and acceptance criteria.
+
+### Do (future task)
+
+- Create four Female pilot masters.
+- Create Male and Neutral parity derivatives.
+- Validate each asset before any production integration.
+
+### Check
+
+- Technical: 1122×1402, RGBA, true transparent background, no clipping/halo/text/logo.
+- Visual: four poses are distinct, readable, natural, and compatible with Scene Kits.
+- Parity: Female/Male/Neutral keep the same pose, hands, outfit, framing, and action.
+- Bias: no pose implies intelligence, weakness, dominance, employability, body type, or gender value.
+- UX: primary character/action remains readable at 360px, 390px, and desktop; no horizontal overflow.
+- Logic: deterministic mapping, ambiguous fallback, Wing/A-T isolation, unchanged scoring.
+
+### Act
+
+- PASS: approve the pilot template, update the action plan, then authorize implementation and controlled expansion.
+- FAIL: revise only the failed pose family or rule; do not regenerate the entire matrix.
+- HOLD: keep the current 12 emotional candidates as fallback and do not start the 432-asset expansion.
+
+## Release decision template
+
+- PO scope gate: NOT RUN
+- BA behavior gate: NOT RUN
+- SA contract gate: NOT RUN
+- UX/UI pose gate: NOT RUN
+- Asset Gate E: NOT RUN
+- Front-end engineering gate: NOT RUN
+- UAT/release gate: NOT RUN
+- Overall decision: NO-GO until the pilot passes all gates.
+
+## Definition of done for this planning task
+
+- The role handoffs are explicit.
+- The 16-type matrix fields and four pose families are defined.
+- The 12-asset pilot is bounded.
+- PDCA gates and PASS/FAIL/HOLD actions are explicit.
+- No application code or image assets are changed.

@@ -1,24 +1,28 @@
 {
-  "name": "design-enneagram",
+  "name": "web",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.ts"
+    "lint": "eslint",
+    "test": "node scripts/run-scoring-tests.mjs && node scripts/run-character-resolver-tests.mjs",
+    "test:scoring": "node scripts/run-scoring-tests.mjs"
   },
   "dependencies": {
-    "next": "15.5.2",
-    "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/node": "24.3.0",
-    "@types/react": "19.1.12",
-    "@types/react-dom": "19.1.9",
-    "typescript": "5.9.2"
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
