@@ -12,13 +12,48 @@
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
+import sharp from "sharp";
 
 const BASE = { canvas: 1024, hardKb: 250, preferredKb: 180, minMarginPct: 8, safeRegionPct: 76 };
+const PROFILE_BANDS = 40;
+// A band may sit this far off the master before the two figures count as different builds. Bands
+// are widths as a fraction of body height, so 0.02 is 2% of the figure's own height -- roughly a
+// third of a shoulder's worth. Anything under it is resampling noise.
+const BUILD_TOLERANCE = 0.02;
+// Which part of the body each band falls in, for naming the failure rather than just numbering it.
+function bodyPart(band) {
+  const down = band / PROFILE_BANDS;
+  if (down < 0.13) return "head";
+  if (down < 0.22) return "shoulders";
+  if (down < 0.42) return "torso / arms / prop";
+  if (down < 0.52) return "hips";
+  if (down < 0.92) return "legs";
+  return "feet";
+}
 
-function decode(file) {
+// PNGs are parsed by hand because colour type and bit depth are gate criteria, and reading them
+// out of IHDR proves them from the bytes rather than from a library's interpretation. Other
+// formats -- the WebP the base assets now ship as -- go through sharp, which reports the same
+// facts for them.
+async function decodeWithSharp(file) {
+  const image = sharp(file);
+  const meta = await image.metadata();
+  const { data, info } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const pixels = Buffer.alloc(info.width * info.height * 4);
+  for (let i = 0; i < info.width * info.height; i += 1) {
+    for (let c = 0; c < 4; c += 1) pixels[i * 4 + c] = data[i * info.channels + c];
+  }
+  return {
+    header: { width: info.width, height: info.height, bitDepth: (meta.depth === "uchar" ? 8 : 0),
+              colorType: 6, interlace: 0, format: meta.format },
+    pixels,
+  };
+}
+
+async function decode(file) {
   const data = fs.readFileSync(file);
   if (!data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
-    throw new Error(`${file}: not a PNG`);
+    return decodeWithSharp(file);
   }
   let offset = 8, header = null;
   const idat = [];
@@ -62,8 +97,8 @@ function decode(file) {
 }
 
 /** Bounding box of pixels above an alpha threshold — i.e. where the character actually is. */
-function analyse(file) {
-  const { header, pixels, note } = decode(file);
+async function analyse(file) {
+  const { header, pixels, note } = await decode(file);
   const { width, height } = header;
   const bytes = fs.statSync(file).size;
   if (!pixels) return { file, header, bytes, note };
@@ -84,10 +119,33 @@ function analyse(file) {
   }
   const at = (x, y) => pixels[(y * width + x) * 4 + 3];
   const corners = [at(0, 0), at(width - 1, 0), at(0, height - 1), at(width - 1, height - 1)];
+
+  // Silhouette width sampled in bands from the top of the head to the soles, each expressed as a
+  // fraction of the figure's own height. Dividing by its own height is what makes it comparable:
+  // it cancels out how large the figure was drawn, so what remains is build alone. Framing is what
+  // the margin numbers above are for; this answers the different question of whether two
+  // presentations are the same person.
+  const profile = [];
+  if (maxY >= minY) {
+    const boxHeight = maxY - minY + 1;
+    for (let band = 0; band < PROFILE_BANDS; band += 1) {
+      const y0 = minY + Math.floor((boxHeight * band) / PROFILE_BANDS);
+      const y1 = minY + Math.floor((boxHeight * (band + 1)) / PROFILE_BANDS);
+      let bandMin = width, bandMax = -1;
+      for (let y = y0; y < y1; y += 1) {
+        for (let x = minX; x <= maxX; x += 1) {
+          if (at(x, y) <= 16) continue;
+          if (x < bandMin) bandMin = x;
+          if (x > bandMax) bandMax = x;
+        }
+      }
+      profile.push(bandMax < 0 ? 0 : (bandMax - bandMin + 1) / boxHeight);
+    }
+  }
   const total = width * height;
   const pct = (v, of) => Math.round((v / of) * 1000) / 10;
   return {
-    file, header, bytes, corners,
+    file, header, bytes, corners, profile,
     transparentPct: pct(zero, total), opaquePct: pct(full, total),
     box: { left: minX, right: width - 1 - maxX, top: minY, bottom: height - 1 - maxY,
            w: maxX - minX + 1, h: maxY - minY + 1 },
@@ -100,7 +158,7 @@ function analyse(file) {
 const files = process.argv.slice(2);
 if (!files.length) { console.error("usage: npm run assets:check -- <file.png> [compare.png]"); process.exit(2); }
 
-const results = files.map(analyse);
+const results = await Promise.all(files.map(analyse));
 const problems = [];
 
 for (const r of results) {
@@ -108,8 +166,10 @@ for (const r of results) {
   console.log(`\n${path.basename(r.file)}`);
   console.log(`  canvas      ${r.header.width} x ${r.header.height}` +
     (r.header.width === BASE.canvas && r.header.height === BASE.canvas ? "  OK" : `  EXPECTED ${BASE.canvas} x ${BASE.canvas}`));
-  console.log(`  format      colour type ${r.header.colorType}, ${r.header.bitDepth}-bit` +
-    (r.header.colorType === 6 ? " (RGBA)  OK" : "  EXPECTED colour type 6 (RGBA)"));
+  console.log(r.header.format
+    ? `  format      ${r.header.format}, 4-channel with alpha  OK`
+    : `  format      colour type ${r.header.colorType}, ${r.header.bitDepth}-bit`
+      + (r.header.colorType === 6 ? " (RGBA)  OK" : "  EXPECTED colour type 6 (RGBA)"));
   console.log(`  size        ${kb} KB` + (kb <= BASE.preferredKb ? "  OK" : kb <= BASE.hardKb ? "  over the 180 KB preference, within the 250 KB gate" : `  OVER the ${BASE.hardKb} KB hard gate`));
   if (r.note) { console.log(`  ${r.note}`); problems.push(`${path.basename(r.file)}: ${r.note}`); continue; }
   console.log(`  alpha       ${r.transparentPct}% fully transparent, ${r.opaquePct}% fully opaque`);
@@ -149,6 +209,39 @@ if (results.length === 2 && results[0].box && results[1].box) {
       + (over ? `  DIFFERS by ${diff > 0 ? "+" : ""}${diff}pp (tolerance ${TOLERANCE_PP}pp)` : "  ok"));
     if (over) problems.push(`parity: ${label} differs by ${diff > 0 ? "+" : ""}${diff} percentage points`);
   }
+  console.log("  Framing differences are placement, not build — `npm run assets:normalize` resets");
+  console.log("  both files to the same canvas, margin and scale, so fix them there, not by");
+  console.log("  regenerating the image.");
+
+  // Build parity is the question framing cannot answer: with size and placement divided out, is
+  // this still the same person? Nothing downstream can repair a difference here -- a narrower
+  // shoulder line has to be redrawn -- so it is reported separately from the framing numbers above.
+  if (a.profile?.length === PROFILE_BANDS && b.profile?.length === PROFILE_BANDS) {
+    const deltas = b.profile.map((value, band) => ({ band, delta: value - a.profile[band] }));
+    const off = deltas.filter((d) => Math.abs(d.delta) > BUILD_TOLERANCE);
+    console.log(`\nBuild parity — silhouette width per band, each as a share of the figure's own`);
+    console.log(`height, so how large or where it was drawn cannot affect it.`);
+    if (!off.length) {
+      console.log(`  ok — all ${PROFILE_BANDS} bands within ${BUILD_TOLERANCE} of the master.`);
+    } else {
+      const byPart = new Map();
+      for (const d of off) {
+        const part = bodyPart(d.band);
+        const worst = byPart.get(part);
+        if (!worst || Math.abs(d.delta) > Math.abs(worst.delta)) byPart.set(part, d);
+      }
+      for (const [part, d] of byPart) {
+        const master = a.profile[d.band];
+        const relative = master > 0 ? Math.round((d.delta / master) * 100) : 0;
+        console.log(`  ${part.padEnd(20)} ${d.delta > 0 ? "+" : ""}${d.delta.toFixed(3)} `
+          + `(${relative > 0 ? "+" : ""}${relative}% ${d.delta < 0 ? "narrower" : "wider"} than the master, band ${d.band})`);
+        problems.push(`build: ${part} is ${Math.abs(relative)}% ${d.delta < 0 ? "narrower" : "wider"} `
+          + `than the master — this cannot be fixed after generation`);
+      }
+      console.log(`  ${off.length} of ${PROFILE_BANDS} bands are outside the ${BUILD_TOLERANCE} tolerance.`);
+    }
+  }
+
   console.log(`\n  Body build, height and silhouette must not change between presentations.`);
   console.log(`  Only face and hair may differ, so these boxes should line up closely.`);
 }
