@@ -13,6 +13,14 @@ standing, centred on a fully transparent background.
 BUILD: one balanced adult proportion guide, identical across every character in this family.
 Body shape carries no personality, competence, gender or status meaning.
 
+PROPORTIONS — identical in all three presentations of every core:
+  - the head is 14% as wide as the figure is tall
+  - the shoulders are 25% as wide as the figure is tall, i.e. 1.76 times the head's width
+  - the shoulder line sits 25% of the way down from the top of the head
+An adult build in every presentation, never adolescent. No presentation gets narrower shoulders,
+a slimmer neck or a larger head than the others. All three are one person drawn three times,
+differing in face and hair and in nothing else.
+
 WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
 straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
 is identical across female, male and neutral.
@@ -40,10 +48,10 @@ NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, char
 status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
 dominance posturing, flirtation, or any body-shape encoding of personality or gender.
 
-CORE: 5 — Systems Cartographer
-POSE ORIENTATION: left
-ACTION: arranges a systems map and data tiles, one contingency pin set aside
-PROP: a systems map and data tiles
-EXPRESSION: absorbed, calm, quietly capable
-PRESENTATION: female presentation, conveyed only through face and hair.
-PROHIBITED READING FOR THIS CORE: never read as aloof, socially detached, secretive, or a lone genius.
+CORE: 7 — Possibility Explorer
+POSE ORIENTATION: right
+ACTION: raises a spotting scope toward an open route among idea cards
+PROP: a spotting scope and idea cards
+EXPRESSION: bright, curious, contained
+PRESENTATION: female presentation, conveyed only through face and hair. Hair may be worn up or long. An adult woman.
+PROHIBITED READING FOR THIS CORE: never read as scattered, manic, childish, or thrill-seeking.

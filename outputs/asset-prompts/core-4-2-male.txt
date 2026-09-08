@@ -48,12 +48,10 @@ NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, char
 status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
 dominance posturing, flirtation, or any body-shape encoding of personality or gender.
 
-CORE: none — this is the neutral exploration fallback.
-POSE ORIENTATION: forward
-ACTION: stands calmly with an open, unmarked map held loosely in both hands, as if still choosing
-  a direction.
-PROP: one blank, unmarked open map. No core prop: no seal, no shield, no scope, no ring, no board.
-EXPRESSION: open, unhurried, neither confident nor uncertain.
-PRESENTATION: gender-neutral, conveyed only through face and hair.
-PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any particular core
-  has been identified. It must not resemble any of the nine core characters.
+CORE: 4 — Identity Storyteller
+POSE ORIENTATION: left
+ACTION: holds an open story notebook beside layered colour swatches
+PROP: a story notebook and mood colour swatches
+EXPRESSION: thoughtful, sincere, settled
+PRESENTATION: male presentation, conveyed only through face and hair. Short hair that does not cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager. Shoulders, neck and head are the widths given under PROPORTIONS — the same as the other two presentations, not narrower.
+PROHIBITED READING FOR THIS CORE: never read as melancholic, a tortured artist, fragile, or self-absorbed.

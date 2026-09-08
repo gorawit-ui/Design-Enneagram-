@@ -13,6 +13,14 @@ standing, centred on a fully transparent background.
 BUILD: one balanced adult proportion guide, identical across every character in this family.
 Body shape carries no personality, competence, gender or status meaning.
 
+PROPORTIONS — identical in all three presentations of every core:
+  - the head is 14% as wide as the figure is tall
+  - the shoulders are 25% as wide as the figure is tall, i.e. 1.76 times the head's width
+  - the shoulder line sits 25% of the way down from the top of the head
+An adult build in every presentation, never adolescent. No presentation gets narrower shoulders,
+a slimmer neck or a larger head than the others. All three are one person drawn three times,
+differing in face and hair and in nothing else.
+
 WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
 straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
 is identical across female, male and neutral.
@@ -40,10 +48,10 @@ NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, char
 status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
 dominance posturing, flirtation, or any body-shape encoding of personality or gender.
 
-CORE: 3 — Goal Driver
-POSE ORIENTATION: right
-ACTION: indicates one milestone on a goal board
-PROP: a goal board and a milestone medallion
-EXPRESSION: focused, positive, composed
-PRESENTATION: female presentation, conveyed only through face and hair.
-PROHIBITED READING FOR THIS CORE: never read as status-seeking, boastful, salesy, or image-obsessed.
+CORE: 8 — Boundary Guardian
+POSE ORIENTATION: forward
+ACTION: holds a boundary shield steady, decision baton lowered and relaxed
+PROP: a boundary shield and a decision baton
+EXPRESSION: warm but firm, grounded
+PRESENTATION: male presentation, conveyed only through face and hair. Short hair that does not cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager. Shoulders, neck and head are the widths given under PROPORTIONS — the same as the other two presentations, not narrower.
+PROHIBITED READING FOR THIS CORE: never read as aggressive, intimidating, domineering, or confrontational.

@@ -34,11 +34,26 @@ const require = createRequire(import.meta.url);
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const OUT = path.join(projectRoot, "outputs/asset-prompts");
 
+// The PROPORTIONS block below is stated as numbers because "keep the body identical" has been
+// asked in prose and come back wrong: one attempt returned shoulders half as wide and a head a
+// fifth larger, which is what fails the parity review. The figures come from the approved master,
+// via `npm run assets:proportions`, and check-asset verifies them on what comes back. They are not
+// explained inside the prompt itself -- a prompt that explains its own reasoning has already been
+// misread once here, when a line about how the app renders the background was followed as though
+// it were an instruction.
 const LOCKED = `Polished, warm, semi-realistic 3D character illustration of a single adult, full body,
 standing, centred on a fully transparent background.
 
 BUILD: one balanced adult proportion guide, identical across every character in this family.
 Body shape carries no personality, competence, gender or status meaning.
+
+PROPORTIONS — identical in all three presentations of every core:
+  - the head is 14% as wide as the figure is tall
+  - the shoulders are 25% as wide as the figure is tall, i.e. 1.76 times the head's width
+  - the shoulder line sits 25% of the way down from the top of the head
+An adult build in every presentation, never adolescent. No presentation gets narrower shoulders,
+a slimmer neck or a larger head than the others. All three are one person drawn three times,
+differing in face and hair and in nothing else.
 
 WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
 straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
@@ -158,15 +173,6 @@ const ASK_NEW = `สร้างภาพ 1 ภาพ ตาม spec ด้า�
 
 ---`;
 
-const ASK_DERIVE = (label) => `แนบไฟล์ Female master ที่อนุมัติแล้วของ core นี้มาพร้อมข้อความนี้
-
-ใช้ไฟล์ที่แนบมาเป็น reference หลัก แก้เฉพาะใบหน้าและผม ให้อ่านเป็น ${label}
-- ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง เท่าเดิม
-- ทำทีละภาพ
-- ถ้าทำ neutral ให้แนบไฟล์ master ตัวเดิมอีกครั้ง ห้ามแนบไฟล์ male ที่เพิ่งได้มา
-
----`;
-
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const written = [];
@@ -175,8 +181,24 @@ const write = (name, body) => {
   written.push(name);
 };
 
+// One self-contained prompt per presentation rather than a master plus two derivatives. Asked to
+// edit only the head of an attached master, the generator redraws the whole figure anyway, and the
+// last attempt was rejected for exactly that. Three independent generations against one numeric
+// body spec is what remains, so the spec above carries the numbers the parity review turns on.
+const PRESENTATIONS = [
+  ["1-female", `female presentation, conveyed only through face and hair. Hair may be worn up or
+long. An adult woman.`],
+  ["2-male", `male presentation, conveyed only through face and hair. Short hair that does not
+cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager.
+Shoulders, neck and head are the widths given under PROPORTIONS — the same as the other two
+presentations, not narrower.`],
+  ["3-neutral", `gender-neutral presentation, conveyed only through face and hair. Neither markedly
+feminine nor markedly masculine, and not a compromise that reads as either. An adult.`],
+];
+
 for (const [core, c] of Object.entries(CORES)) {
-  write(`core-${core}-1-female-master.txt`, `${ASK_NEW}
+  for (const [slug, presentation] of PRESENTATIONS) {
+    write(`core-${core}-${slug}.txt`, `${ASK_NEW}
 
 ${LOCKED}
 
@@ -185,28 +207,10 @@ POSE ORIENTATION: ${c.pose}
 ACTION: ${c.action}
 PROP: ${c.prop}
 EXPRESSION: ${c.expression}
-PRESENTATION: female presentation, conveyed only through face and hair.
+PRESENTATION: ${presentation.replace(/\n/g, " ")}
 PROHIBITED READING FOR THIS CORE: never read as ${c.never}.`);
+  }
 }
-
-const DERIVE_BODY = `Using the attached approved Female master as the exact reference, change ONLY the face and hair
-to read as PRESENTATION_LABEL.
-
-Keep IDENTICAL and unchanged: pose, gaze direction and target, shoulder line, arm positions,
-which hand holds what, finger placement, foot stance, wardrobe, prop shape and position,
-background motif and its placement, lighting direction and intensity, canvas position, scale,
-crop, and expression intensity.
-
-Do not change body build, height, shoulder width, or silhouette. Do not add or remove any prop or
-motif. Do not restyle the wardrobe. Do not alter the expression's intensity — only the face's
-presentation.
-
-Canvas stays square 1024 x 1024. Background stays true transparent RGBA.`;
-
-write("step-2-derive-male.txt",
-  `${ASK_DERIVE("male presentation")}\n\n${DERIVE_BODY.replace("PRESENTATION_LABEL", "male presentation")}`);
-write("step-3-derive-neutral.txt",
-  `${ASK_DERIVE("gender-neutral presentation")}\n\n${DERIVE_BODY.replace("PRESENTATION_LABEL", "gender-neutral presentation")}`);
 
 write("fix-background-not-transparent.txt", `แนบภาพที่ได้มาพร้อมข้อความนี้
 
@@ -220,13 +224,17 @@ No halo, no fringe, no colour bleed at the silhouette.
 Do not alter the character, prop, motif, lighting, or framing in any way.
 Keep the canvas square 1024 x 1024.`);
 
-write("fix-parity-failed.txt", `แนบไฟล์ Female master ตัวเดิมมาพร้อมข้อความนี้ (ไม่ใช่ derivative ที่ตก)
+write("fix-parity-failed.txt", `วางข้อความนี้ต่อท้ายใน chat เดิม พร้อมแนบภาพที่ตก
 
-derivative ตัวนี้ไม่ผ่าน parity เพราะมีความต่างจาก master นอกเหนือจากใบหน้าและผม คือ:
-[เขียนสิ่งที่ต่างตรงนี้ เช่น "มือขวาถือ prop คนละมุม" หรือ "ไหล่กว้างกว่า"]
+ภาพนี้ไม่ผ่าน parity — สัดส่วนตัวไม่ตรงกับอีก 2 presentation ของ core เดียวกัน
+ตัวเลขที่วัดได้จากภาพนี้:
+[วางบรรทัดที่ npm run assets:check บอก เช่น "shoulders is 50% narrower than the master"]
 
-ทำ derivative ใหม่จากไฟล์ master ที่แนบ โดยแก้เฉพาะใบหน้าและผมเท่านั้น
-ห้ามแก้ master ให้ตรงกับ derivative — master คือ reference ที่ต้องคงเดิม
+สร้างใหม่ 1 ภาพ ใช้ spec เดิมทั้งหมด แก้เฉพาะสัดส่วนให้ตรงตาม PROPORTIONS:
+- หัวกว้าง 14% ของความสูงตัวละคร
+- ไหล่กว้าง 25% ของความสูงตัวละคร = 1.76 เท่าของความกว้างหัว
+- แนวไหล่อยู่ที่ 25% วัดจากยอดหัวลงมา
+เป็นผู้ใหญ่ ไม่ใช่วัยรุ่น · ท่า เสื้อผ้า prop แสง เหมือนเดิมทุกอย่าง
 ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง`);
 
 write("step-10-fallback-exploration.txt", `${ASK_NEW}
@@ -245,23 +253,30 @@ PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any
 
 write("README.txt", `outputs/asset-prompts — generated by \`npm run assets:prompts\`. Do not hand-edit.
 
-ทุกไฟล์ copy ทั้งไฟล์แล้ววางได้เลย ไม่ต้องประกอบเอง ไม่มีช่องให้เติม
+ทุกไฟล์ copy ทั้งไฟล์แล้ววางได้เลย ไม่ต้องแนบรูป ไม่ต้องประกอบเอง ไม่มีช่องให้เติม
 
-ลำดับต่อ 1 core (ทำให้ครบ 3 ภาพก่อนขึ้น core ถัดไป):
+27 ไฟล์หลัก = 9 core x 3 presentation ทำเรียงทีละใบ ทำให้ครบ 3 ใบก่อนขึ้น core ถัดไป
 
-  1. core-N-1-female-master.txt      -> ได้ Female master
-  2. step-2-derive-male.txt          -> แนบ master แล้ววาง
-  3. step-3-derive-neutral.txt       -> แนบ master ตัวเดิมอีกครั้ง แล้ววาง
+  core-N-1-female.txt
+  core-N-2-male.txt
+  core-N-3-neutral.txt
+
+ทั้งสามใบเป็น prompt เต็มที่ยืนได้ด้วยตัวเอง และถือตัวเลขสัดส่วนชุดเดียวกัน
+(เดิมใช้วิธีแนบ master แล้วสั่งแก้เฉพาะหัว — วิธีนั้นถูกตีตกแล้ว เพราะ generator
+วาดใหม่ทั้งตัวทุกครั้ง ทำให้ไหล่แคบกว่าเดิมครึ่งหนึ่ง)
 
   ถ้าพื้นหลังไม่โปร่งใส : fix-background-not-transparent.txt
-  ถ้า parity ไม่ผ่าน    : fix-parity-failed.txt
+  ถ้าสัดส่วนไม่ตรงกัน   : fix-parity-failed.txt
 
 ครบ 9 cores แล้วค่อยทำ step-10-fallback-exploration.txt
 
-หลังได้ไฟล์ วางที่ public/character-assets/enneagram-N/{female,male,neutral}.png แล้วรัน:
+ได้ไฟล์มาแล้วส่งในแชท Claude Code ครั้งเดียว ไม่ต้องแก้ขอบหรือย่อไฟล์เอง — ทำต่อด้วย:
+  npm run assets:normalize -- <ไฟล์> --out public/character-assets/enneagram-N/female.webp
+  npm run assets:normalize -- <ไฟล์> --match <female master> --out .../male.webp
+  npm run assets:check -- <female> <male>      ตรวจสัดส่วน 40 จุด
   npm run assets:manifest && npm run gate:m2`);
 
 console.log(`Wrote ${written.length} files to outputs/asset-prompts/`);
-console.log("  9 female masters + 2 derivative steps + 2 fix templates + fallback + README");
+console.log("  27 core prompts (9 cores x female/male/neutral) + 2 fix templates + fallback + README");
 console.log("  every file is self-contained: instruction + spec assembled, no placeholders");
 console.log("  pose directions cross-checked against app/lib/character-system.ts");
