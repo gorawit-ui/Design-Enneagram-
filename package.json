@@ -16,7 +16,8 @@
     "gate:m2": "node scripts/run-module2-gate-tests.mjs",
     "assets:manifest": "node scripts/generate-asset-manifest.mjs",
     "assets:prompts": "node scripts/generate-asset-prompts.mjs",
-    "assets:check": "node scripts/check-asset.mjs"
+    "assets:check": "node scripts/check-asset.mjs",
+    "assets:normalize": "node scripts/normalize-asset.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
