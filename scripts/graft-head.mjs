@@ -1,15 +1,30 @@
-// Graft a male head onto the approved female master's body, leaving the body untouched.
+// Graft another presentation's head onto the approved master's body.
 //
-// This is the head-only retouch the parity contract actually asks for. The generator cannot do it:
-// asked to change only the head it redraws the whole figure, and asked to hard-cut at a row it
-// leaves a visible step at the chin and collar. Doing it here costs no image generation at all.
+// REJECTED at visual review, and kept for the measurements rather than the output. Read this before
+// reaching for it again.
 //
-// Three things make the join read as one figure rather than two halves:
-//   - the body is never touched, so every pixel from the seam down is the master's own
-//   - the master's own garment is drawn back over the donor's neck, so the collar and lapels sit
-//     in front of it the way they do on the master
-//   - the donor is admitted only inside a window that tapers to the collar opening, which excludes
-//     the donor's own blazer and its differently-drawn shoulders
+// The mechanics all work: the body below the seam stays the master's own pixels, so it is
+// byte-identical rather than merely similar; skin tone matches to within a few units; the neck
+// aligns with the collar opening; specks and fringe are cleaned. Every mechanical gate passes.
+//
+// What fails is the collar, and it fails for a structural reason no parameter fixes. Above the
+// seam the master is not just head: its lapels rise as high as the chin, and they were drawn to
+// frame ITS head. Both ways of resolving that are wrong.
+//
+//   - Keep those lapels and they cut dark wedges into the new jaw, because the new jaw is wider
+//     and sits where the lapel was. The dark comes from garment that was in shadow under the
+//     master's hair, which the new head does not cast.
+//   - Drop them and the neck becomes a flat slab of skin the full width of the shoulders, with no
+//     collar rising beside it -- the join a reviewer spots instantly.
+//
+// Six alignments were tried between those two, including moving the seam and rescaling the donor.
+// The line cannot be drawn horizontally because head and garment overlap in y, and it cannot be
+// drawn by region because the garment's shape belongs to the old head. Getting past this needs the
+// donor's face warped onto the master's head geometry -- landmark alignment, not compositing --
+// or a person retouching with a mask and a heal brush.
+//
+// Still useful: scripts/neck-probe.mjs measures a donor's neck anchor, and the constants here
+// record the master's own anatomy (seam row, neck centre, collar opening) for whoever does that.
 //
 // Usage: node scripts/graft-head.mjs <donor.png> <out.png>
 
@@ -123,6 +138,18 @@ for (let y = 0; y < master.H; y += 1) {
       continue;
     }
 
+    // The master splits into two above the seam: head matter to be replaced, and the garment that
+    // rises past the seam and must survive untouched. They cannot be separated by a row -- the
+    // lapels reach as high as the chin -- so they are separated by region. The donor is confined to
+    // where the head was, or to empty canvas where its hair is fuller; it may never enter the
+    // garment. Drawing the garment over the donor instead was tried and the lapels, shaped around
+    // the master's narrower neck, cut black wedges into the donor's jaw.
+    const masterIsBody = mA >= 128 && !isHeadMatter(mR, mG, mB);
+    if (masterIsBody) {
+      out[o] = mR; out[o + 1] = mG; out[o + 2] = mB; out[o + 3] = mA;
+      continue;
+    }
+
     // 1. the donor's head, inside the window
     if (x >= lo && x <= hi) {
       const fx = (x - MASTER_ANCHOR.x) / S + DONOR_ANCHOR.x;
@@ -151,9 +178,7 @@ for (let y = 0; y < master.H; y += 1) {
     // dark strand of the wrong hair and traces it as an outline down the new neck. Position can:
     // inside the window there is only head. The one exception is her hair falling past the window
     // onto the shoulder, which is head matter wherever it lands.
-    else if (mA >= 128 && !isHeadMatter(mR, mG, mB)) {
-      out[o] = mR; out[o + 1] = mG; out[o + 2] = mB; out[o + 3] = mA;
-    }
+
   }
 }
 
@@ -174,7 +199,12 @@ for (let y = SEAM - 45; y < SEAM; y += 1) {
     let left = x, right = x;
     while (left > lo && out[(y * master.W + left) * 4 + 3] < 200) left -= 1;
     while (right < hi && out[(y * master.W + right) * 4 + 3] < 200) right += 1;
-    const from = (x - left <= right - x ? left : right) * 4 + y * master.W * 4;
+    // Only a gap with skin on both sides is a gap in the neck. Anything else is the space between
+    // the neck and a lapel, and stretching a lapel across it would smear the collar shut.
+    const lp = (y * master.W + left) * 4, rp = (y * master.W + right) * 4;
+    if (!isSkin(out[lp], out[lp + 1], out[lp + 2])) continue;
+    if (!isSkin(out[rp], out[rp + 1], out[rp + 2])) continue;
+    const from = x - left <= right - x ? lp : rp;
     for (let c = 0; c < 4; c += 1) out[o + c] = out[from + c];
   }
 }
