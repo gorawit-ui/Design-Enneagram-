@@ -24,7 +24,12 @@ const SEAM = 210;                          // master row where the locked body b
 // off the top of the canvas, so the head is dropped a few rows to buy the clearance back.
 const S = Number(process.env.GRAFT_SCALE ?? 982 / 806);
 const DROP = Number(process.env.GRAFT_DROP ?? 23);
-const DONOR_ANCHOR = { x: 491, y: 270 };          // donor neck centre at its own collar
+// Where the donor's own neck meets its own collar. It differs per donor, so scripts/neck-probe.mjs
+// measures it and it is passed in rather than assumed.
+const DONOR_ANCHOR = {
+  x: Number(process.env.GRAFT_DONOR_X ?? 491),
+  y: Number(process.env.GRAFT_DONOR_Y ?? 270),
+};
 const MASTER_ANCHOR = { x: 500, y: SEAM + DROP }; // where that neck centre lands on the master
 
 const isSkin = (R, G, B) => R > 110 && R > G && G > B && R - B > 25 && R - B < 130 && G - B > 5;
@@ -75,9 +80,16 @@ const donor = await load(DONOR);
 const donorRow = (y) => (y - MASTER_ANCHOR.y) / S + DONOR_ANCHOR.y;
 const masterSkin = meanSkin(master, SEAM - 12, SEAM - 2);
 const donorSkin = meanSkin(donor, Math.round(donorRow(SEAM - 12)), Math.round(donorRow(SEAM - 2)));
-const shift = masterSkin.map((v, i) => v - donorSkin[i]);
+// Correct brightness, not hue. Matching each channel separately shifts the donor's skin off its
+// own colour -- on one donor it took 14 points off the blue and left a face visibly paler than the
+// other two presentations. Scaling all three channels by one factor lands the neck at the master's
+// lightness while leaving the skin the colour it was drawn.
+const luma = (c) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+const GAIN_LIMIT = 0.12;
+const gain = Math.min(1 + GAIN_LIMIT, Math.max(1 - GAIN_LIMIT, luma(masterSkin) / luma(donorSkin)));
 console.log(`neck skin — master ${masterSkin.map(Math.round)} · donor ${donorSkin.map(Math.round)}`);
-console.log(`colour shift applied to the head: ${shift.map((v) => v.toFixed(1))}`);
+console.log(`brightness applied to the head: x${gain.toFixed(3)}`
+  + (Math.abs(gain - luma(masterSkin) / luma(donorSkin)) > 1e-6 ? ` (clamped at ${GAIN_LIMIT * 100}%)` : ""));
 
 const out = Buffer.alloc(master.W * master.H * 4);
 const px = new Float64Array(4);
@@ -95,7 +107,11 @@ for (let y = 0; y < master.H; y += 1) {
     if (x < lo) lo = x;
     hi = x;
   }
-  lo -= 4; hi += 4;
+  // Near the seam the window has to hug the master's outline, because that is what keeps the
+  // donor's own collar out. Higher up there is no garment to exclude and a tight window instead
+  // saws the donor's hair into a staircase wherever it is fuller than the master's, so it opens up.
+  const pad = y >= SEAM - 45 ? 4 : 45;
+  lo -= pad; hi += pad;
 
   for (let x = 0; x < master.W; x += 1) {
     const o = (y * master.W + x) * 4;
@@ -117,9 +133,13 @@ for (let y = 0; y < master.H; y += 1) {
         // those are what speckle a join with dark and light grit.
         const nearSeam = y >= SEAM - 45;
         const solid = px[3] >= (nearSeam ? 200 : 32);
-        const wanted = !nearSeam || isSkin(px[0], px[1], px[2]);
+        // Away from the seam anything warm is head -- hair and skin both are. What the wider window
+        // now exposes is any background the donor was drawn with, and that is green-dominant like
+        // the blazer, so green is what gets turned away.
+        const green = px[1] >= px[0] && px[1] >= px[2];
+        const wanted = nearSeam ? isSkin(px[0], px[1], px[2]) : !green;
         if (solid && wanted) {
-          for (let c = 0; c < 3; c += 1) out[o + c] = Math.max(0, Math.min(255, Math.round(px[c] + shift[c])));
+          for (let c = 0; c < 3; c += 1) out[o + c] = Math.max(0, Math.min(255, Math.round(px[c] * gain)));
           out[o + 3] = Math.round(px[3]);
         }
       }

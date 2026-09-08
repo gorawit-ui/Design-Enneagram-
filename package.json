@@ -19,7 +19,8 @@
     "assets:check": "node scripts/check-asset.mjs",
     "assets:normalize": "node scripts/normalize-asset.mjs",
     "chat:images": "node scripts/extract-chat-image.mjs",
-    "assets:graft": "node scripts/graft-head.mjs"
+    "assets:graft": "node scripts/graft-head.mjs",
+    "assets:neck": "node scripts/neck-probe.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
