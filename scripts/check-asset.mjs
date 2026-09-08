@@ -128,19 +128,26 @@ for (const r of results) {
 if (results.length === 2 && results[0].box && results[1].box) {
   const [a, b] = results;
   console.log(`\nParity comparison — ${path.basename(b.file)} against ${path.basename(a.file)}`);
-  const rows = [
-    ["character height", a.box.h, b.box.h, 12],
-    ["character width", a.box.w, b.box.w, 20],
-    ["top of head", a.box.top, b.box.top, 12],
-    ["bottom of feet", a.box.bottom, b.box.bottom, 12],
-    ["left edge", a.box.left, b.box.left, 25],
-    ["right edge", a.box.right, b.box.right, 25],
-  ];
-  for (const [label, av, bv, tolerance] of rows) {
-    const diff = bv - av;
-    const flag = Math.abs(diff) > tolerance ? `  DIFFERS by ${diff > 0 ? "+" : ""}${diff}px (tolerance ${tolerance})` : "  ok";
-    console.log(`  ${label.padEnd(18)} ${String(av).padStart(5)} -> ${String(bv).padStart(5)}${flag}`);
-    if (Math.abs(diff) > tolerance) problems.push(`parity: ${label} differs by ${diff > 0 ? "+" : ""}${diff}px`);
+  // Compare as a share of each image's own canvas. Raw pixels are meaningless when the two files
+  // were generated at different canvas sizes — that reads as a huge parity failure when the figures
+  // may in fact be proportionally identical.
+  if (a.header.width !== b.header.width || a.header.height !== b.header.height) {
+    console.log(`  NOTE: canvases differ (${a.header.width}x${a.header.height} vs `
+      + `${b.header.width}x${b.header.height}); comparing as a share of each canvas.`);
+  }
+  const share = (r) => ({
+    "character height": r.occupancy.h, "character width": r.occupancy.w,
+    "top of head": r.margin.top, "bottom of feet": r.margin.bottom,
+    "left edge": r.margin.left, "right edge": r.margin.right,
+  });
+  const TOLERANCE_PP = 2;   // percentage points
+  const av = share(a), bv = share(b);
+  for (const label of Object.keys(av)) {
+    const diff = Math.round((bv[label] - av[label]) * 10) / 10;
+    const over = Math.abs(diff) > TOLERANCE_PP;
+    console.log(`  ${label.padEnd(18)} ${String(av[label]).padStart(6)}% -> ${String(bv[label]).padStart(6)}%`
+      + (over ? `  DIFFERS by ${diff > 0 ? "+" : ""}${diff}pp (tolerance ${TOLERANCE_PP}pp)` : "  ok"));
+    if (over) problems.push(`parity: ${label} differs by ${diff > 0 ? "+" : ""}${diff} percentage points`);
   }
   console.log(`\n  Body build, height and silhouette must not change between presentations.`);
   console.log(`  Only face and hair may differ, so these boxes should line up closely.`);
