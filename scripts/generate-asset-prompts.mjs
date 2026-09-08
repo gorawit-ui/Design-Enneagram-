@@ -34,6 +34,13 @@ const require = createRequire(import.meta.url);
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const OUT = path.join(projectRoot, "outputs/asset-prompts");
 
+// The canvas block asks for two things and no more: a square, and real transparency. It used to
+// specify 1024 px, an 8% margin and a central 76% safe region, and the margin was honoured on none
+// of four attempts. All three are now reframed by assets:normalize from whatever comes back, along
+// with file size and the alpha ramp -- so asking for them bought nothing and spent attention that
+// belongs on the character. Transparency stays, because it is the one export property that cannot
+// be recovered reliably: assets:unbake can undo a flattened checkerboard, but not a painted scene.
+//
 // The PROPORTIONS block below is stated as numbers because "keep the body identical" has been
 // asked in prose and come back wrong: one attempt returned shoulders half as wide and a head a
 // fifth larger, which is what fails the parity review. The figures come from the approved master,
@@ -61,10 +68,8 @@ Never use colour alone to signal anything.
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
 
-CANVAS: square, 1024 x 1024 px. PNG with true transparent RGBA.
-Leave at least 8% empty transparent margin on all four sides.
-Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
-Face, both hands, both feet and the prop are all fully visible and unclipped.
+CANVAS: square, and a PNG with true transparent RGBA — not a white plate, and not a checkerboard
+drawn as pixels. Face, both hands, both feet and the prop are all fully visible and unclipped.
 
 PROPS: held in the hands, worn, or resting on a surface the character is touching. Never floating
 detached in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.

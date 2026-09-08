@@ -27,10 +27,8 @@ Never use colour alone to signal anything.
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
 
-CANVAS: square, 1024 x 1024 px. PNG with true transparent RGBA.
-Leave at least 8% empty transparent margin on all four sides.
-Keep the face, prop and identifying silhouette inside the central 76% of the canvas.
-Face, both hands, both feet and the prop are all fully visible and unclipped.
+CANVAS: square, and a PNG with true transparent RGBA — not a white plate, and not a checkerboard
+drawn as pixels. Face, both hands, both feet and the prop are all fully visible and unclipped.
 
 PROPS: held in the hands, worn, or resting on a surface the character is touching. Never floating
 detached in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.

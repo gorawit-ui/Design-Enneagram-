@@ -22,7 +22,8 @@
     "assets:graft": "node scripts/graft-head.mjs",
     "assets:neck": "node scripts/neck-probe.mjs",
     "assets:proportions": "node scripts/measure-proportions.mjs",
-    "assets:unbake": "node scripts/unbake-checkerboard.mjs"
+    "assets:unbake": "node scripts/unbake-checkerboard.mjs",
+    "assets:ingest": "node scripts/ingest-asset.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
