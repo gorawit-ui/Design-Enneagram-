@@ -53,5 +53,8 @@ POSE ORIENTATION: forward
 ACTION: stands steady and checks one item in an open notebook
 PROP: a standards notebook and a small quality seal
 EXPRESSION: calm, attentive, unhurried
-PRESENTATION: gender-neutral presentation, conveyed only through face and hair. Neither markedly feminine nor markedly masculine, and not a compromise that reads as either. An adult.
+PRESENTATION: female presentation, conveyed only through face and hair. Hair may be worn up or long. An adult woman.
 PROHIBITED READING FOR THIS CORE: never read as a rigid enforcer, scolding, morally superior, or joyless.
+
+This image becomes the locked female master. Every other core is this same person in a
+different pose, so face, hair, skin tone and build are fixed from here on.

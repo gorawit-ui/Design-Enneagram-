@@ -1,9 +1,11 @@
-สร้างภาพ 1 ภาพ ตาม spec ด้านล่างนี้
-- ขนาด square 1024x1024
-- PNG พื้นหลังโปร่งใสจริง (transparent alpha) ไม่ใช่พื้นขาว และไม่ใช่ลายหมากรุกที่วาดเป็น pixel
-- ส่งไฟล์ให้ดาวน์โหลดได้ที่ความละเอียดเต็ม
+แนบไฟล์ male master ที่อนุมัติแล้วมาพร้อมข้อความนี้
+(แนบ master ของเพศเดียวกันเท่านั้น ห้ามแนบเพศอื่น และห้ามแนบภาพ core ก่อนหน้า)
+
+สร้างภาพ 1 ภาพ — คนเดิมในไฟล์ที่แนบ เปลี่ยนแค่ท่า การกระทำ อุปกรณ์ และสีหน้า
+- ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง
 - ทำทีละภาพ อย่าสร้างหลายเวอร์ชันให้เลือก
-- ห้ามเพิ่ม lighting drama, ห้ามเพิ่มรายละเอียดให้ "ดูดีขึ้น" และห้ามเปลี่ยนท่าให้ "ดูมั่นใจขึ้น"
+- ห้ามเปลี่ยนหน้า ผม สีผิว ส่วนสูง ความกว้างไหล่ หรือเสื้อผ้า
+- ห้ามเพิ่ม lighting drama และห้ามเปลี่ยนท่าให้ "ดูมั่นใจขึ้น"
 
 ---
 
@@ -53,5 +55,11 @@ POSE ORIENTATION: right
 ACTION: opens a network map toward the viewer's side with a welcoming hand
 PROP: a network map and a small welcome set
 EXPRESSION: warm, friendly, contained
-PRESENTATION: male presentation, conveyed only through face and hair. Short hair that does not cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager. Shoulders, neck and head are the widths given under PROPORTIONS — the same as the other two presentations, not narrower.
 PROHIBITED READING FOR THIS CORE: never read as self-sacrificing, ingratiating, intrusive, or emotionally needy.
+
+SAME PERSON as the attached male master: face, facial structure, hair style and colour, skin
+tone, build, shoulder width, height and wardrobe are all unchanged. A viewer must recognise them as
+one character across all nine cores.
+
+WHAT CHANGES: only the pose orientation, the action, the prop and the expression, exactly as listed
+above. Do not carry over core 1's notebook or seal — this core has its own prop and no other.

@@ -53,5 +53,8 @@ POSE ORIENTATION: forward
 ACTION: stands steady and checks one item in an open notebook
 PROP: a standards notebook and a small quality seal
 EXPRESSION: calm, attentive, unhurried
-PRESENTATION: male presentation, conveyed only through face and hair. Short hair that does not cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager. Shoulders, neck and head are the widths given under PROPORTIONS — the same as the other two presentations, not narrower.
+PRESENTATION: male presentation, conveyed only through face and hair. Short hair that does not cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager. Shoulders, neck and head are the widths given under PROPORTIONS -- the same as the other two presentations, not narrower.
 PROHIBITED READING FOR THIS CORE: never read as a rigid enforcer, scolding, morally superior, or joyless.
+
+This image becomes the locked male master. Every other core is this same person in a
+different pose, so face, hair, skin tone and build are fixed from here on.

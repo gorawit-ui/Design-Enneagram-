@@ -173,6 +173,17 @@ const ASK_NEW = `สร้างภาพ 1 ภาพ ตาม spec ด้า�
 
 ---`;
 
+const ASK_POSE = (gender) => `แนบไฟล์ ${gender} master ที่อนุมัติแล้วมาพร้อมข้อความนี้
+(แนบ master ของเพศเดียวกันเท่านั้น ห้ามแนบเพศอื่น และห้ามแนบภาพ core ก่อนหน้า)
+
+สร้างภาพ 1 ภาพ — คนเดิมในไฟล์ที่แนบ เปลี่ยนแค่ท่า การกระทำ อุปกรณ์ และสีหน้า
+- ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง
+- ทำทีละภาพ อย่าสร้างหลายเวอร์ชันให้เลือก
+- ห้ามเปลี่ยนหน้า ผม สีผิว ส่วนสูง ความกว้างไหล่ หรือเสื้อผ้า
+- ห้ามเพิ่ม lighting drama และห้ามเปลี่ยนท่าให้ "ดูมั่นใจขึ้น"
+
+---`;
+
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const written = [];
@@ -181,34 +192,71 @@ const write = (name, body) => {
   written.push(name);
 };
 
-// One self-contained prompt per presentation rather than a master plus two derivatives. Asked to
-// edit only the head of an attached master, the generator redraws the whole figure anyway, and the
-// last attempt was rejected for exactly that. Three independent generations against one numeric
-// body spec is what remains, so the spec above carries the numbers the parity review turns on.
+// Each presentation is its own locked character, and the nine cores are poses of that character.
+//
+// The alternative -- one master per core with the other two presentations derived from it -- is the
+// approach that failed. Asked to change only the head of an attached figure, the generator redraws
+// the whole body, and turning a woman into a man is the hardest edit to ask of it. Turning one
+// person from one pose into another is a far easier one, and it is what this ordering asks for.
+//
+// The two axes swap. Instead of nine cross-gender parity reviews, there is one -- between the three
+// masters, done once -- and then nine same-person checks per presentation. The numeric PROPORTIONS
+// block is what keeps the three masters on one build, so they still satisfy the spec's requirement
+// that presentations share the physical build. The approved Core 2 pilot was produced this way:
+// three consistent characters across four types.
 const PRESENTATIONS = [
-  ["1-female", `female presentation, conveyed only through face and hair. Hair may be worn up or
-long. An adult woman.`],
-  ["2-male", `male presentation, conveyed only through face and hair. Short hair that does not
-cover the ears and does not fall past the collar. An adult man with an adult jaw, never a teenager.
-Shoulders, neck and head are the widths given under PROPORTIONS — the same as the other two
-presentations, not narrower.`],
-  ["3-neutral", `gender-neutral presentation, conveyed only through face and hair. Neither markedly
-feminine nor markedly masculine, and not a compromise that reads as either. An adult.`],
+  ["1-female", "female", `female presentation, conveyed only through face and hair. Hair may be
+worn up or long. An adult woman.`],
+  ["2-male", "male", `male presentation, conveyed only through face and hair. Short hair that does
+not cover the ears and does not fall past the collar. An adult man with an adult jaw, never a
+teenager. Shoulders, neck and head are the widths given under PROPORTIONS -- the same as the other
+two presentations, not narrower.`],
+  ["3-neutral", "neutral", `gender-neutral presentation, conveyed only through face and hair.
+Neither markedly feminine nor markedly masculine, and not a compromise that reads as either.
+An adult.`],
 ];
 
-for (const [core, c] of Object.entries(CORES)) {
-  for (const [slug, presentation] of PRESENTATIONS) {
-    write(`core-${core}-${slug}.txt`, `${ASK_NEW}
+const MASTER_CORE = "1";
+const flat = (text) => text.replace(/\s+/g, " ").trim();
 
-${LOCKED}
-
-CORE: ${core} — ${c.title}
+const coreBlock = (core, c) => `CORE: ${core} — ${c.title}
 POSE ORIENTATION: ${c.pose}
 ACTION: ${c.action}
 PROP: ${c.prop}
-EXPRESSION: ${c.expression}
-PRESENTATION: ${presentation.replace(/\n/g, " ")}
-PROHIBITED READING FOR THIS CORE: never read as ${c.never}.`);
+EXPRESSION: ${c.expression}`;
+const prohibited = (c) => `PROHIBITED READING FOR THIS CORE: never read as ${c.never}.`;
+
+// The three masters: generated from nothing, so each carries the whole locked spec.
+for (const [slug, gender, presentation] of PRESENTATIONS) {
+  write(`master-${slug}.txt`, `${ASK_NEW}
+
+${LOCKED}
+
+${coreBlock(MASTER_CORE, CORES[MASTER_CORE])}
+PRESENTATION: ${flat(presentation)}
+${prohibited(CORES[MASTER_CORE])}
+
+This image becomes the locked ${gender} master. Every other core is this same person in a
+different pose, so face, hair, skin tone and build are fixed from here on.`);
+}
+
+// The remaining cores: the master is attached, and what changes is the pose, not the person.
+for (const [core, c] of Object.entries(CORES)) {
+  if (core === MASTER_CORE) continue;
+  for (const [slug, gender] of PRESENTATIONS) {
+    write(`core-${core}-${slug}.txt`, `${ASK_POSE(gender)}
+
+${LOCKED}
+
+${coreBlock(core, c)}
+${prohibited(c)}
+
+SAME PERSON as the attached ${gender} master: face, facial structure, hair style and colour, skin
+tone, build, shoulder width, height and wardrobe are all unchanged. A viewer must recognise them as
+one character across all nine cores.
+
+WHAT CHANGES: only the pose orientation, the action, the prop and the expression, exactly as listed
+above. Do not carry over core 1's notebook or seal — this core has its own prop and no other.`);
   }
 }
 
@@ -253,30 +301,34 @@ PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any
 
 write("README.txt", `outputs/asset-prompts — generated by \`npm run assets:prompts\`. Do not hand-edit.
 
-ทุกไฟล์ copy ทั้งไฟล์แล้ววางได้เลย ไม่ต้องแนบรูป ไม่ต้องประกอบเอง ไม่มีช่องให้เติม
+โครง: 3 master (เพศละ 1 ตัว) แล้วอีก 8 core คือคนเดิมเปลี่ยนท่า
 
-27 ไฟล์หลัก = 9 core x 3 presentation ทำเรียงทีละใบ ทำให้ครบ 3 ใบก่อนขึ้น core ถัดไป
+  ขั้นที่ 1 — ล็อก master 3 ตัว (ไม่ต้องแนบรูป copy ทั้งไฟล์แล้ววาง)
+      master-1-female.txt
+      master-2-male.txt
+      master-3-neutral.txt
+    ได้ครบ 3 ตัวแล้วตรวจ parity ระหว่างกัน 1 ครั้ง — ผ่านแล้วล็อกเลย ห้ามสร้างใหม่
 
-  core-N-1-female.txt
-  core-N-2-male.txt
-  core-N-3-neutral.txt
-
-ทั้งสามใบเป็น prompt เต็มที่ยืนได้ด้วยตัวเอง และถือตัวเลขสัดส่วนชุดเดียวกัน
-(เดิมใช้วิธีแนบ master แล้วสั่งแก้เฉพาะหัว — วิธีนั้นถูกตีตกแล้ว เพราะ generator
-วาดใหม่ทั้งตัวทุกครั้ง ทำให้ไหล่แคบกว่าเดิมครึ่งหนึ่ง)
+  ขั้นที่ 2 — core 2 ถึง 9 (แนบ master ของเพศเดียวกันไปด้วยทุกครั้ง)
+      core-N-1-female.txt   แนบ female master
+      core-N-2-male.txt     แนบ male master
+      core-N-3-neutral.txt  แนบ neutral master
+    ห้ามแนบภาพ core ก่อนหน้า — จะเพี้ยนสะสม ให้แนบ master ตัวเดิมทุกครั้ง
 
   ถ้าพื้นหลังไม่โปร่งใส : fix-background-not-transparent.txt
   ถ้าสัดส่วนไม่ตรงกัน   : fix-parity-failed.txt
 
-ครบ 9 cores แล้วค่อยทำ step-10-fallback-exploration.txt
+ครบ 9 core แล้วค่อยทำ step-10-fallback-exploration.txt
+
+เดิมใช้วิธี master 1 ตัวต่อ core แล้วแปลงเพศ — ตีตกแล้ว generator วาดใหม่ทั้งตัว
+ทำให้ไหล่แคบกว่าเดิมครึ่งหนึ่ง วิธีนี้ขอแค่ "คนเดิมเปลี่ยนท่า" ซึ่งง่ายกว่ามาก
 
 ได้ไฟล์มาแล้วส่งในแชท Claude Code ครั้งเดียว ไม่ต้องแก้ขอบหรือย่อไฟล์เอง — ทำต่อด้วย:
   npm run assets:normalize -- <ไฟล์> --out public/character-assets/enneagram-N/female.webp
-  npm run assets:normalize -- <ไฟล์> --match <female master> --out .../male.webp
-  npm run assets:check -- <female> <male>      ตรวจสัดส่วน 40 จุด
+  npm run assets:check -- <master> <ไฟล์ใหม่>      ตรวจสัดส่วน 40 จุด
   npm run assets:manifest && npm run gate:m2`);
 
 console.log(`Wrote ${written.length} files to outputs/asset-prompts/`);
-console.log("  27 core prompts (9 cores x female/male/neutral) + 2 fix templates + fallback + README");
+console.log("  3 locked masters + 24 pose prompts (cores 2-9 x 3) + 2 fix templates + fallback + README");
 console.log("  every file is self-contained: instruction + spec assembled, no placeholders");
 console.log("  pose directions cross-checked against app/lib/character-system.ts");
