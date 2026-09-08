@@ -15,13 +15,9 @@ standing, centred on a fully transparent background.
 BUILD: one balanced adult proportion guide, identical across every character in this family.
 Body shape carries no personality, competence, gender or status meaning.
 
-PROPORTIONS — identical in all three presentations of every core:
-  - the head is 14% as wide as the figure is tall
-  - the shoulders are 25% as wide as the figure is tall, i.e. 1.76 times the head's width
-  - the shoulder line sits 25% of the way down from the top of the head
-An adult build in every presentation, never adolescent. No presentation gets narrower shoulders,
-a slimmer neck or a larger head than the others. All three are one person drawn three times,
-differing in face and hair and in nothing else.
+EQUAL STANDING: no presentation may read as more capable, more senior, more employable or more
+physically dominant than another. Build may differ between presentations; power may not. Same pose,
+same action, same prop prominence, same lighting, same production value, same framing.
 
 WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
 straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
@@ -49,6 +45,12 @@ Genuine alpha transparency, not a white plate and not a checkerboard drawn as pi
 NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, charts, money, luxury or
 status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
 dominance posturing, flirtation, or any body-shape encoding of personality or gender.
+
+PROPORTIONS — measured off the locked female master, and identical across all nine cores
+of this presentation:
+  - the head is 14.3% as wide as the figure is tall
+  - the shoulders are 25.1% as wide as the figure is tall, i.e. 1.76 times the head's width
+An adult build, never adolescent.
 
 CORE: 4 — Identity Storyteller
 POSE ORIENTATION: left

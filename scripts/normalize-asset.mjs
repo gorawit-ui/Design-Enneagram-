@@ -148,11 +148,16 @@ async function main() {
   for (let i = 0; i < alpha.length; i += 1) alpha[i] = data[i * info.channels + (info.channels - 1)];
   let box = boundingBox(alpha, info.width, info.height);
 
-  // Every presentation of one character has to be framed by the same transform, or the trio drifts:
-  // a shorter haircut shrinks the bounding box, the scale changes by a fraction of a percent, and
-  // the shared body lands on different pixels in each file. Matching a reference's box makes them
-  // pixel-aligned by construction. The union guards the obvious failure -- a reference box that
-  // does not contain this figure would crop it.
+  // Framing taken from a reference instead of from this figure, so two files that share a body land
+  // on the same pixels: without it a shorter haircut shrinks the bounding box, the scale shifts by
+  // a fraction of a percent, and the shared body no longer lines up. The union guards the obvious
+  // failure -- a reference box that does not contain this figure would crop it.
+  //
+  // Do NOT match across presentations. Since each presentation became its own locked character with
+  // its own build, they no longer share a body, and matching the shorter figure to the taller one's
+  // frame simply renders it smaller: the male master measured 839 px against the female's 982, so
+  // matching cost it 14% of its on-screen height. Framed on its own box each presentation fills the
+  // same 76%, which is what equal prominence requires. Match within a presentation, across cores.
   let matched = null;
   if (args.match) {
     const ref = sharp(args.match).ensureAlpha();

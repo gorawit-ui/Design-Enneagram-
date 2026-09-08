@@ -124,7 +124,11 @@ Do not place prompts, editable masters, unused drafts, or review contact sheets 
 
 ### Presentation parity
 
-For each core, the female, male, and neutral variants must share the approved balanced adult proportions, body shape, canvas position, scale, pose intent, prop prominence, lighting, and background motif. Differences should be restrained presentation cues that do not alter physical build. Review the three variants side by side before reviewing personality fidelity.
+Each presentation is its own locked character. The female, male, and neutral variants of a core must share canvas position, scale, pose intent, prop prominence, lighting, and background motif, and each must match its own presentation's master in build across all nine cores.
+
+They are **not** required to share one physical build with each other. That was the original rule, and the Products Owner withdrew it on 2026-09-08: an assessment that asks the participant to choose a presentation and then shows every choice the same body contradicts the choice it just offered. The measured builds now differ — the female master's shoulders are 1.76 times its head width, the male master's 2.59 — and both are recorded in `outputs/asset-masters/proportions.json`, which the production prompts read so that cores 2-9 of a presentation match that presentation's own master.
+
+What replaces the shared-build rule is narrower and still binding: no presentation may read as more capable, more senior, more employable or more physically dominant than another. A broader build is allowed as a build; it is not allowed to become a power cue. Same pose, same action, same prop prominence, same lighting, same production value, same framing. Review the three variants side by side against that, and against the anti-bias rules above, before reviewing personality fidelity — this is the one criterion an automated check cannot decide, and the reason the build difference needs a named human sign-off per core rather than a passing script.
 
 ### Modifier limits
 

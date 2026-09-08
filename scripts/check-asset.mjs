@@ -303,8 +303,12 @@ if (results.length === 2 && results[0].box && results[1].box) {
     }
   }
 
-  console.log(`\n  Body build, height and silhouette must not change between presentations.`);
-  console.log(`  Only face and hair may differ, so these boxes should line up closely.`);
+  console.log("\n  Compare a core against its OWN presentation's master. Since 2026-09-08 each");
+  console.log("  presentation is a locked character with its own build -- the female master's");
+  console.log("  shoulders are 1.76 head-widths, the male's 2.59 -- so a cross-presentation");
+  console.log("  reading here is expected to differ and says nothing about either being wrong.");
+  console.log("  What no check can decide is the criterion that replaced the shared build: that");
+  console.log("  no presentation reads as more capable or more dominant. That needs human eyes.");
 }
 
 console.log("");

@@ -15,7 +15,14 @@ import sharp from "sharp";
 const HEAD_BAND = [0, 0.15];        // crown to just above the shoulder line
 const SHOULDER_BAND = [0.20, 0.25]; // below the collar, above the arms and the prop
 
-const file = process.argv[2] ?? "outputs/asset-masters/enneagram-1/female-master.png";
+// --record <presentation> writes the reading into the file the prompt generator reads, so a
+// presentation's own numbers reach its core-2-to-9 prompts instead of being retyped by hand.
+const args = process.argv.slice(2);
+const recordIndex = args.indexOf("--record");
+const record = recordIndex >= 0 ? args[recordIndex + 1] : null;
+const RECORD_FILE = "outputs/asset-masters/proportions.json";
+const file = args.find((a, i) => !a.startsWith("--") && i !== recordIndex + 1)
+  ?? "outputs/asset-masters/enneagram-1/female-master.png";
 const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 const W = info.width, H = info.height, C = info.channels;
 
@@ -54,3 +61,17 @@ console.log("  what a prompt should state, and what check-asset verifies afterwa
 console.log(`    head width     ${((head.widest / height) * 100).toFixed(1)}% of the figure's height`);
 console.log(`    shoulder width ${((shoulder.widest / height) * 100).toFixed(1)}% of the figure's height`);
 console.log(`    shoulders are  ${(shoulder.widest / head.widest).toFixed(2)} x the width of the head`);
+
+if (record) {
+  const fsMod = await import("node:fs");
+  const existing = fsMod.existsSync(RECORD_FILE)
+    ? JSON.parse(fsMod.readFileSync(RECORD_FILE, "utf8")) : {};
+  existing[record] = {
+    source: file,
+    headWidthPct: Number(((head.widest / height) * 100).toFixed(1)),
+    shoulderWidthPct: Number(((shoulder.widest / height) * 100).toFixed(1)),
+    shoulderToHead: Number((shoulder.widest / head.widest).toFixed(2)),
+  };
+  fsMod.writeFileSync(RECORD_FILE, `${JSON.stringify(existing, null, 2)}\n`);
+  console.log(`\n  recorded as "${record}" in ${RECORD_FILE}`);
+}

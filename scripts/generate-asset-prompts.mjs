@@ -47,13 +47,9 @@ standing, centred on a fully transparent background.
 BUILD: one balanced adult proportion guide, identical across every character in this family.
 Body shape carries no personality, competence, gender or status meaning.
 
-PROPORTIONS — identical in all three presentations of every core:
-  - the head is 14% as wide as the figure is tall
-  - the shoulders are 25% as wide as the figure is tall, i.e. 1.76 times the head's width
-  - the shoulder line sits 25% of the way down from the top of the head
-An adult build in every presentation, never adolescent. No presentation gets narrower shoulders,
-a slimmer neck or a larger head than the others. All three are one person drawn three times,
-differing in face and hair and in nothing else.
+EQUAL STANDING: no presentation may read as more capable, more senior, more employable or more
+physically dominant than another. Build may differ between presentations; power may not. Same pose,
+same action, same prop prominence, same lighting, same production value, same framing.
 
 WARDROBE (identical for every core and every presentation): forest-green blazer, ivory knit top,
 straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
@@ -204,6 +200,28 @@ const write = (name, body) => {
 // block is what keeps the three masters on one build, so they still satisfy the spec's requirement
 // that presentations share the physical build. The approved Core 2 pilot was produced this way:
 // three consistent characters across four types.
+// Each presentation's build, measured off its own approved master by `assets:proportions --record`.
+// Read rather than retyped: the numbers are what the core-2-to-9 prompts promise and what
+// check-asset then verifies, and a copy of them drifting would break both ends at once. A
+// presentation with no reading yet has not been locked, so its prompt states the shared target
+// instead of numbers it cannot honestly claim.
+const RECORDED = fs.existsSync(path.join(projectRoot, "outputs/asset-masters/proportions.json"))
+  ? JSON.parse(fs.readFileSync(path.join(projectRoot, "outputs/asset-masters/proportions.json"), "utf8"))
+  : {};
+
+const buildBlock = (gender) => {
+  const r = RECORDED[gender];
+  if (!r) {
+    return `PROPORTIONS: one balanced adult build, shoulders about twice the width of the head.
+An adult build, never adolescent.`;
+  }
+  return `PROPORTIONS — measured off the locked ${gender} master, and identical across all nine cores
+of this presentation:
+  - the head is ${r.headWidthPct}% as wide as the figure is tall
+  - the shoulders are ${r.shoulderWidthPct}% as wide as the figure is tall, i.e. ${r.shoulderToHead} times the head's width
+An adult build, never adolescent.`;
+};
+
 const PRESENTATIONS = [
   ["1-female", "female", `female presentation, conveyed only through face and hair. Hair may be
 worn up or long. An adult woman.`],
@@ -232,6 +250,8 @@ for (const [slug, gender, presentation] of PRESENTATIONS) {
 
 ${LOCKED}
 
+${buildBlock(gender)}
+
 ${coreBlock(MASTER_CORE, CORES[MASTER_CORE])}
 PRESENTATION: ${flat(presentation)}
 ${prohibited(CORES[MASTER_CORE])}
@@ -247,6 +267,8 @@ for (const [core, c] of Object.entries(CORES)) {
     write(`core-${core}-${slug}.txt`, `${ASK_POSE(gender)}
 
 ${LOCKED}
+
+${buildBlock(gender)}
 
 ${coreBlock(core, c)}
 ${prohibited(c)}

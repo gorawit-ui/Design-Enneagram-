@@ -1,0 +1,14 @@
+{
+  "female": {
+    "source": "outputs/asset-masters/enneagram-1/female-master.png",
+    "headWidthPct": 14.3,
+    "shoulderWidthPct": 25.1,
+    "shoulderToHead": 1.76
+  },
+  "male": {
+    "source": "outputs/asset-masters/enneagram-1/male-master.png",
+    "headWidthPct": 11.8,
+    "shoulderWidthPct": 30.5,
+    "shoulderToHead": 2.59
+  }
+}
