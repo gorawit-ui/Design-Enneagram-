@@ -44,8 +44,8 @@ WARDROBE (identical for every core and every presentation): forest-green blazer,
 straight charcoal trousers, flat-soled black ankle boots. No heels on any presentation — footwear
 is identical across female, male and neutral.
 
-PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop and the
-background motif. Never use colour alone to signal anything.
+PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop.
+Never use colour alone to signal anything.
 
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
@@ -58,12 +58,10 @@ Face, both hands, both feet and the prop are all fully visible and unclipped.
 PROPS: held in the hands, worn, or resting on a surface the character is touching. Never floating
 detached in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.
 
-BACKGROUND: nothing at all — the character stands alone on a fully transparent canvas.
-No background motif, no grid, no orbits, no paths, no ribbons, no radar, no sparks, no lines,
-no shapes, no scenery, no gradient, no ground plane. The application draws the scene behind the
-character at runtime, so any background baked into this image is a defect.
-Genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
-no vignette, no floor shadow touching the canvas edge.
+BACKGROUND: the canvas contains the character and the prop, and nothing else. Every pixel that is
+not part of the character or the prop is fully transparent — a cut-out figure on empty space.
+Do not add scenery, patterns, lattices, shapes, lines, gradients, a ground plane or a cast shadow.
+Genuine alpha transparency, not a white plate and not a checkerboard drawn as pixels.
 
 NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, charts, money, luxury or
 status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,

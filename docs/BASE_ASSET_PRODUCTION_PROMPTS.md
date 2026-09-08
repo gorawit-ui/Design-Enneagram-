@@ -54,8 +54,7 @@ Output paths: `public/character-assets/enneagram-{core}/{female|male|neutral}` a
 > **Props:** held, worn, or resting on a surface the character is touching. Never floating detached
 > in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.
 >
-> **Palette:** matcha green, forest green, ivory. Core-specific accents only in the prop and the
-> background motif. Never use colour alone to signal anything.
+> **Palette:** matcha green, forest green, ivory. Core-specific accents only in the prop. Never use colour alone to signal anything.
 >
 > **Finish:** equal lighting, detail density and apparent production value across all cores and
 > presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
@@ -64,12 +63,11 @@ Output paths: `public/character-assets/enneagram-{core}/{female|male|neutral}` a
 > visible and unclipped. Keep the face, prop and identifying silhouette inside the central 76% of
 > the canvas. Leave at least 8% empty transparent margin on all four sides.
 >
-> **Background:** nothing at all — the character stands alone on a fully transparent canvas. No
-> background motif, no grid, orbits, paths, ribbons, radar, sparks, lines, shapes, scenery,
-> gradient or ground plane. `app/result-view.tsx` renders the scene motif as a CSS layer behind
-> the image at runtime, so a motif baked into the PNG is duplicated and un-editable — and it
-> breaks derivative parity by forcing the model to redraw the motif as well as the figure.
-> True transparent RGBA, no checkerboard pixels, no white plate, no vignette, no floor shadow.
+> **Background:** the canvas contains the character and the prop, and nothing else. Every pixel
+> that is not the character or the prop is fully transparent — a cut-out figure on empty space.
+> `app/result-view.tsx` renders the scene motif as a CSS layer behind the image at runtime, so a
+> motif baked into the PNG is duplicated, un-editable, and breaks derivative parity by forcing the
+> model to redraw the motif as well as the figure.
 >
 > **Never include:** text, numbers, letters, logos, watermarks, participant data, charts, money,
 > luxury or status objects, badges of rank, job titles, distress, pathology, medical or diagnostic
