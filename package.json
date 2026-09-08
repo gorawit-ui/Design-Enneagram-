@@ -17,7 +17,8 @@
     "assets:manifest": "node scripts/generate-asset-manifest.mjs",
     "assets:prompts": "node scripts/generate-asset-prompts.mjs",
     "assets:check": "node scripts/check-asset.mjs",
-    "assets:normalize": "node scripts/normalize-asset.mjs"
+    "assets:normalize": "node scripts/normalize-asset.mjs",
+    "chat:images": "node scripts/extract-chat-image.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
