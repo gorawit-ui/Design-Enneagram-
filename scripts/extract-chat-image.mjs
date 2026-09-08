@@ -101,12 +101,20 @@ const chosen = args.all ? images.map((_, i) => i)
   : args.index !== null ? [args.index]
   : [0];
 
+// A generated asset reaches here one of two ways, and they are easy to confuse: the downloaded
+// file, which arrives as the PNG it was exported as, or a copy of the preview shown in the chat,
+// which arrives re-encoded as WebP with the transparency checkerboard painted into the pixels.
+// The second looks like a broken asset and is not one -- it cost a round of diagnosis once, with a
+// Core 2 asset reported as having lost its alpha when what had lost it was the copy of it.
+const PREVIEW_MEDIA_TYPE = "image/webp";
 images.forEach((image, index) => {
   const bytes = Buffer.byteLength(image.data, "base64");
   const marker = args.save && chosen.includes(index) ? " <- saving" : "";
   const when = image.timestamp ? new Date(image.timestamp).toISOString().slice(11, 19) : "--:--:--";
+  const preview = image.mediaType === PREVIEW_MEDIA_TYPE ? "  (WebP — likely a copy of a chat"
+    + " preview rather than the downloaded file; check its alpha before believing it)" : "";
   console.log(`  [${index}] ${when}  ${image.role.padEnd(9)} ${image.mediaType.padEnd(10)} `
-    + `${String(Math.round(bytes / 1024)).padStart(5)} KB${marker}`);
+    + `${String(Math.round(bytes / 1024)).padStart(5)} KB${marker}${preview}`);
 });
 
 if (!args.save) {
