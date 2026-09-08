@@ -20,6 +20,9 @@ const PROFILE_BANDS = 40;
 // are widths as a fraction of body height, so 0.02 is 2% of the figure's own height -- roughly a
 // third of a shoulder's worth. Anything under it is resampling noise.
 const BUILD_TOLERANCE = 0.02;
+// A derivative comes back re-encoded, so identical rows are not bit-identical. This is the largest
+// per-channel drift still counted as unchanged.
+const RE_ENCODE_TOLERANCE = 2;
 // Which part of the body each band falls in, for naming the failure rather than just numbering it.
 function bodyPart(band) {
   const down = band / PROFILE_BANDS;
@@ -145,7 +148,7 @@ async function analyse(file) {
   const total = width * height;
   const pct = (v, of) => Math.round((v / of) * 1000) / 10;
   return {
-    file, header, bytes, corners, profile,
+    file, header, bytes, corners, profile, pixels,
     transparentPct: pct(zero, total), opaquePct: pct(full, total),
     box: { left: minX, right: width - 1 - maxX, top: minY, bottom: height - 1 - maxY,
            w: maxX - minX + 1, h: maxY - minY + 1 },
@@ -239,6 +242,35 @@ if (results.length === 2 && results[0].box && results[1].box) {
           + `than the master — this cannot be fixed after generation`);
       }
       console.log(`  ${off.length} of ${PROFILE_BANDS} bands are outside the ${BUILD_TOLERANCE} tolerance.`);
+    }
+  }
+
+  // When a derivative is produced by locking the master's body and redrawing only the head, the
+  // question that settles whether the instruction was obeyed is simply: from which row down are
+  // the two files the same picture? Reporting it needs no argument and no guessing -- a derivative
+  // that redrew the whole figure has no such row at all.
+  if (a.pixels && b.pixels && a.header.width === b.header.width && a.header.height === b.header.height) {
+    const { width, height } = a.header;
+    const sameRow = (y) => {
+      let differing = 0;
+      for (let x = 0; x < width; x += 1) {
+        const i = (y * width + x) * 4;
+        for (let c = 0; c < 4; c += 1) {
+          if (Math.abs(a.pixels[i + c] - b.pixels[i + c]) > RE_ENCODE_TOLERANCE) { differing += 1; break; }
+        }
+      }
+      return differing <= width * 0.001;   // a thousandth of a row absorbs re-encoding noise
+    };
+    let lockRow = height;
+    while (lockRow > 0 && sameRow(lockRow - 1)) lockRow -= 1;
+    console.log(`\nLocked region — the two files are the same picture from row ${lockRow} downward`);
+    if (lockRow >= height) {
+      console.log(`  nothing is shared: every row differs, so the figure was redrawn rather than edited.`);
+      problems.push("locked region: no rows are shared with the master — the whole figure was redrawn");
+    } else {
+      console.log(lockRow === 0
+        ? `  every row is identical — the two files are the same picture.`
+        : `  rows ${lockRow}-${height - 1} are identical; rows 0-${lockRow - 1} were redrawn.`);
     }
   }
 
