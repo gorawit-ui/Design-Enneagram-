@@ -31,7 +31,11 @@ Face, both hands, both feet and the prop are all fully visible and unclipped.
 PROPS: held in the hands, worn, or resting on a surface the character is touching. Never floating
 detached in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.
 
-BACKGROUND: genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
+BACKGROUND: nothing at all — the character stands alone on a fully transparent canvas.
+No background motif, no grid, no orbits, no paths, no ribbons, no radar, no sparks, no lines,
+no shapes, no scenery, no gradient, no ground plane. The application draws the scene behind the
+character at runtime, so any background baked into this image is a defect.
+Genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
 no vignette, no floor shadow touching the canvas edge.
 
 NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, charts, money, luxury or
@@ -42,8 +46,6 @@ CORE: 8 — Boundary Guardian
 POSE ORIENTATION: forward
 ACTION: holds a boundary shield steady, decision baton lowered and relaxed
 PROP: a boundary shield and a decision baton
-BACKGROUND MOTIF: one protective line and calm energy lines, rendered as a restrained flat graphic behind the character,
-  clearly separate from it and never overlapping the face or hands.
 EXPRESSION: warm but firm, grounded
 PRESENTATION: female presentation, conveyed only through face and hair.
 PROHIBITED READING FOR THIS CORE: never read as aggressive, intimidating, domineering, or confrontational.

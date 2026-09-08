@@ -15,6 +15,13 @@
 // The "master >= 2048" requirement is a real, open deviation: it needs either a spec relaxation or
 // a different production tool. Recorded in docs/BASE_ASSET_PRODUCTION_PROMPTS.md rather than hidden.
 //
+// Background: these prompts ask for NO background motif. Verified against the twelve assets that
+// actually passed Asset Gate E — every one is the character alone on a transparent canvas — and
+// against the gate's own criterion, "no text, logo, participant data, or embedded Scene Kit
+// appears". app/result-view.tsx already renders the scene motif as a CSS layer behind the image, so
+// a motif baked into the PNG is duplicated, un-editable, and breaks derivative parity by forcing
+// the model to redraw the motif as well as the figure.
+//
 // Usage: npm run assets:prompts   ->   outputs/asset-prompts/
 
 import fs from "node:fs";
@@ -51,7 +58,11 @@ Face, both hands, both feet and the prop are all fully visible and unclipped.
 PROPS: held in the hands, worn, or resting on a surface the character is touching. Never floating
 detached in mid-air, and never presented as an award, medal, trophy, rosette or rank badge.
 
-BACKGROUND: genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
+BACKGROUND: nothing at all — the character stands alone on a fully transparent canvas.
+No background motif, no grid, no orbits, no paths, no ribbons, no radar, no sparks, no lines,
+no shapes, no scenery, no gradient, no ground plane. The application draws the scene behind the
+character at runtime, so any background baked into this image is a defect.
+Genuine alpha transparency. No checkerboard pattern rendered as pixels, no white plate,
 no vignette, no floor shadow touching the canvas edge.
 
 NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, charts, money, luxury or
@@ -63,55 +74,46 @@ const CORES = {
   1: { title: "Standards Keeper", pose: "forward",
        action: "stands steady and checks one item in an open notebook",
        prop: "a standards notebook and a small quality seal",
-       motif: "precise grid lines",
        expression: "calm, attentive, unhurried",
        never: "a rigid enforcer, scolding, morally superior, or joyless" },
   2: { title: "Relationship Guide", pose: "right",
        action: "opens a network map toward the viewer's side with a welcoming hand",
        prop: "a network map and a small welcome set",
-       motif: "interconnected orbits",
        expression: "warm, friendly, contained",
        never: "self-sacrificing, ingratiating, intrusive, or emotionally needy" },
   3: { title: "Goal Driver", pose: "right",
        action: "indicates one milestone on a goal board",
        prop: "a goal board and a milestone medallion",
-       motif: "a path leading to one milestone",
        expression: "focused, positive, composed",
        never: "status-seeking, boastful, salesy, or image-obsessed" },
   4: { title: "Identity Storyteller", pose: "left",
        action: "holds an open story notebook beside layered colour swatches",
        prop: "a story notebook and mood colour swatches",
-       motif: "layered story ribbons",
        expression: "thoughtful, sincere, settled",
        never: "melancholic, a tortured artist, fragile, or self-absorbed" },
   5: { title: "Systems Cartographer", pose: "left",
        action: "arranges a systems map and data tiles, one contingency pin set aside",
        prop: "a systems map and data tiles",
-       motif: "data nodes and connecting routes",
        expression: "absorbed, calm, quietly capable",
        never: "aloof, socially detached, secretive, or a lone genius" },
   6: { title: "Risk Scout", pose: "forward",
        action: "holds a compass level while a contingency satchel rests ready",
        prop: "a risk compass and a contingency satchel",
-       motif: "a radar sweep with one alternate route",
        expression: "prepared, steady, alert but calm",
        never: "anxious, paranoid, fearful, or distrustful" },
   7: { title: "Possibility Explorer", pose: "right",
        action: "raises a spotting scope toward an open route among idea cards",
        prop: "a spotting scope and idea cards",
-       motif: "sparks and one fork in the path",
        expression: "bright, curious, contained",
        never: "scattered, manic, childish, or thrill-seeking" },
   8: { title: "Boundary Guardian", pose: "forward",
        action: "holds a boundary shield steady, decision baton lowered and relaxed",
        prop: "a boundary shield and a decision baton",
-       motif: "one protective line and calm energy lines",
        expression: "warm but firm, grounded",
        never: "aggressive, intimidating, domineering, or confrontational" },
   9: { title: "Path Harmoniser", pose: "left",
        action: "gathers several path strands into one ring with both hands",
        prop: "a path ring and a joining cord",
-       motif: "converging streams and one balance circle",
        expression: "settled, unhurried, present",
        never: "passive, sleepy, checked-out, or conflict-avoidant" },
 };
@@ -184,8 +186,6 @@ CORE: ${core} — ${c.title}
 POSE ORIENTATION: ${c.pose}
 ACTION: ${c.action}
 PROP: ${c.prop}
-BACKGROUND MOTIF: ${c.motif}, rendered as a restrained flat graphic behind the character,
-  clearly separate from it and never overlapping the face or hands.
 EXPRESSION: ${c.expression}
 PRESENTATION: female presentation, conveyed only through face and hair.
 PROHIBITED READING FOR THIS CORE: never read as ${c.never}.`);
@@ -240,8 +240,6 @@ POSE ORIENTATION: forward
 ACTION: stands calmly with an open, unmarked map held loosely in both hands, as if still choosing
   a direction.
 PROP: one blank, unmarked open map. No core prop: no seal, no shield, no scope, no ring, no board.
-BACKGROUND MOTIF: a single soft open circle. No grid, orbit, path, ribbon, radar, spark,
-  protective line or converging stream.
 EXPRESSION: open, unhurried, neither confident nor uncertain.
 PRESENTATION: gender-neutral, conveyed only through face and hair.
 PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any particular core

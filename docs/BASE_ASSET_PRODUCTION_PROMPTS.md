@@ -64,8 +64,12 @@ Output paths: `public/character-assets/enneagram-{core}/{female|male|neutral}` a
 > visible and unclipped. Keep the face, prop and identifying silhouette inside the central 76% of
 > the canvas. Leave at least 8% empty transparent margin on all four sides.
 >
-> **Background:** true transparent RGBA. No checkerboard pattern rendered as pixels, no white
-> plate, no vignette, no floor shadow touching the canvas edge.
+> **Background:** nothing at all — the character stands alone on a fully transparent canvas. No
+> background motif, no grid, orbits, paths, ribbons, radar, sparks, lines, shapes, scenery,
+> gradient or ground plane. `app/result-view.tsx` renders the scene motif as a CSS layer behind
+> the image at runtime, so a motif baked into the PNG is duplicated and un-editable — and it
+> breaks derivative parity by forcing the model to redraw the motif as well as the figure.
+> True transparent RGBA, no checkerboard pixels, no white plate, no vignette, no floor shadow.
 >
 > **Never include:** text, numbers, letters, logos, watermarks, participant data, charts, money,
 > luxury or status objects, badges of rank, job titles, distress, pathology, medical or diagnostic
@@ -82,8 +86,6 @@ CORE: {core-number} — {title}
 POSE ORIENTATION: {pose}
 ACTION: {action}
 PROP: {prop}
-BACKGROUND MOTIF: {motif}, rendered as a restrained flat graphic behind the character,
-  clearly separate from the character and never overlapping the face or hands.
 EXPRESSION: {expression}
 PRESENTATION: female presentation, conveyed only through face and hair.
 PROHIBITED READING FOR THIS CORE: never {prohibited}.
@@ -91,16 +93,16 @@ PROHIBITED READING FOR THIS CORE: never {prohibited}.
 
 Fill from this table:
 
-| Core | Title | Pose | Action | Prop | Background motif | Expression | Never read as |
-|---|---|---|---|---|---|---|---|
-| **1** | Standards Keeper | forward | stands steady and checks one item in an open notebook | a standards notebook and a small quality seal | precise grid lines | calm, attentive, unhurried | rigid enforcer, scolding, morally superior, joyless |
-| **2** | Relationship Guide | right | opens a network map toward the viewer's side with a welcoming hand | a network map and a small welcome set | interconnected orbits | warm, friendly, contained | self-sacrificing, ingratiating, intrusive, emotionally needy |
-| **3** | Goal Driver | right | indicates one milestone on a goal board | a goal board and a milestone medallion | a path leading to one milestone | focused, positive, composed | status-seeking, boastful, salesy, image-obsessed |
-| **4** | Identity Storyteller | left | holds an open story notebook beside layered colour swatches | a story notebook and mood colour swatches | layered story ribbons | thoughtful, sincere, settled | melancholic, tortured artist, fragile, self-absorbed |
-| **6** | Risk Scout | forward | holds a compass level while a contingency satchel rests ready | a risk compass and a contingency satchel | a radar sweep with one alternate route | prepared, steady, alert but calm | anxious, paranoid, fearful, distrustful |
-| **7** | Possibility Explorer | right | raises a spotting scope toward an open route among idea cards | a spotting scope and idea cards | sparks and one fork in the path | bright, curious, contained | scattered, manic, childish, thrill-seeking |
-| **8** | Boundary Guardian | forward | holds a boundary shield steady, decision baton lowered and relaxed | a boundary shield and a decision baton | one protective line and calm energy lines | warm but firm, grounded | aggressive, intimidating, domineering, confrontational |
-| **9** | Path Harmoniser | left | gathers several path strands into one ring with both hands | a path ring and a joining cord | converging streams and one balance circle | settled, unhurried, present | passive, sleepy, checked-out, conflict-avoidant |
+| Core | Title | Pose | Action | Prop | Expression | Never read as |
+|---|---|---|---|---|---|---|
+| **1** | Standards Keeper | forward | stands steady and checks one item in an open notebook | a standards notebook and a small quality seal | calm, attentive, unhurried | rigid enforcer, scolding, morally superior, joyless |
+| **2** | Relationship Guide | right | opens a network map toward the viewer's side with a welcoming hand | a network map and a small welcome set | warm, friendly, contained | self-sacrificing, ingratiating, intrusive, emotionally needy |
+| **3** | Goal Driver | right | indicates one milestone on a goal board | a goal board and a milestone medallion | focused, positive, composed | status-seeking, boastful, salesy, image-obsessed |
+| **4** | Identity Storyteller | left | holds an open story notebook beside layered colour swatches | a story notebook and mood colour swatches | thoughtful, sincere, settled | melancholic, tortured artist, fragile, self-absorbed |
+| **6** | Risk Scout | forward | holds a compass level while a contingency satchel rests ready | a risk compass and a contingency satchel | prepared, steady, alert but calm | anxious, paranoid, fearful, distrustful |
+| **7** | Possibility Explorer | right | raises a spotting scope toward an open route among idea cards | a spotting scope and idea cards | bright, curious, contained | scattered, manic, childish, thrill-seeking |
+| **8** | Boundary Guardian | forward | holds a boundary shield steady, decision baton lowered and relaxed | a boundary shield and a decision baton | warm but firm, grounded | aggressive, intimidating, domineering, confrontational |
+| **9** | Path Harmoniser | left | gathers several path strands into one ring with both hands | a path ring and a joining cord | settled, unhurried, present | passive, sleepy, checked-out, conflict-avoidant |
 
 ## 4. Male and Neutral derivatives
 
@@ -205,8 +207,6 @@ POSE ORIENTATION: forward.
 ACTION: stands calmly with an open, unmarked map held loosely in both hands, as if still
   choosing a direction.
 PROP: one blank, unmarked open map. No core prop, no seal, no shield, no scope, no ring.
-BACKGROUND MOTIF: a single soft open circle. No grid, orbit, path, ribbon, radar, spark,
-  protective line or converging stream.
 EXPRESSION: open, unhurried, neither confident nor uncertain.
 PRESENTATION: gender-neutral, conveyed only through face and hair.
 PROHIBITED READING: never suggest a conclusion, a diagnosis, a rank, or that any particular
