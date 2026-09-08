@@ -24,12 +24,16 @@ const BUILD_TOLERANCE = 0.02;
 // per-channel drift still counted as unchanged.
 const RE_ENCODE_TOLERANCE = 2;
 // Which part of the body each band falls in, for naming the failure rather than just numbering it.
+// The boundaries are measured off the approved master rather than assumed: on a standing full-body
+// figure the head and hair reach almost a fifth of the way down, so a 13% head band mislabels the
+// jaw as a shoulder and then reports a haircut as a build defect.
+const HEAD_BAND = 0.20;
 function bodyPart(band) {
   const down = band / PROFILE_BANDS;
-  if (down < 0.13) return "head";
-  if (down < 0.22) return "shoulders";
-  if (down < 0.42) return "torso / arms / prop";
-  if (down < 0.52) return "hips";
+  if (down < HEAD_BAND) return "head / hair";
+  if (down < 0.25) return "shoulders";
+  if (down < 0.45) return "torso / arms / prop";
+  if (down < 0.53) return "hips";
   if (down < 0.92) return "legs";
   return "feet";
 }
@@ -99,6 +103,26 @@ async function decode(file) {
   return { header, pixels: out };
 }
 
+/** Silhouette width per band over a given box, each as a fraction of that box's height. */
+function profileOf(pixels, width, box) {
+  const boxHeight = box.bottom - box.top;
+  const bands = [];
+  for (let band = 0; band < PROFILE_BANDS; band += 1) {
+    const y0 = box.top + Math.floor((boxHeight * band) / PROFILE_BANDS);
+    const y1 = box.top + Math.floor((boxHeight * (band + 1)) / PROFILE_BANDS);
+    let bandMin = width, bandMax = -1;
+    for (let y = y0; y < y1; y += 1) {
+      for (let x = box.left; x < box.right; x += 1) {
+        if (pixels[(y * width + x) * 4 + 3] <= 16) continue;
+        if (x < bandMin) bandMin = x;
+        if (x > bandMax) bandMax = x;
+      }
+    }
+    bands.push(bandMax < 0 ? 0 : (bandMax - bandMin + 1) / boxHeight);
+  }
+  return bands;
+}
+
 /** Bounding box of pixels above an alpha threshold — i.e. where the character actually is. */
 async function analyse(file) {
   const { header, pixels, note } = await decode(file);
@@ -128,23 +152,9 @@ async function analyse(file) {
   // it cancels out how large the figure was drawn, so what remains is build alone. Framing is what
   // the margin numbers above are for; this answers the different question of whether two
   // presentations are the same person.
-  const profile = [];
-  if (maxY >= minY) {
-    const boxHeight = maxY - minY + 1;
-    for (let band = 0; band < PROFILE_BANDS; band += 1) {
-      const y0 = minY + Math.floor((boxHeight * band) / PROFILE_BANDS);
-      const y1 = minY + Math.floor((boxHeight * (band + 1)) / PROFILE_BANDS);
-      let bandMin = width, bandMax = -1;
-      for (let y = y0; y < y1; y += 1) {
-        for (let x = minX; x <= maxX; x += 1) {
-          if (at(x, y) <= 16) continue;
-          if (x < bandMin) bandMin = x;
-          if (x > bandMax) bandMax = x;
-        }
-      }
-      profile.push(bandMax < 0 ? 0 : (bandMax - bandMin + 1) / boxHeight);
-    }
-  }
+  const profile = maxY >= minY
+    ? profileOf(pixels, width, { top: minY, bottom: maxY + 1, left: minX, right: maxX + 1 })
+    : [];
   const total = width * height;
   const pct = (v, of) => Math.round((v / of) * 1000) / 10;
   return {
@@ -219,8 +229,20 @@ if (results.length === 2 && results[0].box && results[1].box) {
   // Build parity is the question framing cannot answer: with size and placement divided out, is
   // this still the same person? Nothing downstream can repair a difference here -- a narrower
   // shoulder line has to be redrawn -- so it is reported separately from the framing numbers above.
-  if (a.profile?.length === PROFILE_BANDS && b.profile?.length === PROFILE_BANDS) {
-    const deltas = b.profile.map((value, band) => ({ band, delta: value - a.profile[band] }));
+  if (a.pixels && b.pixels) {
+    // Sample both figures over one shared box rather than each over its own. A shorter haircut
+    // moves a figure's own box by a few rows, which slides every band onto slightly different
+    // anatomy and reports the shift as a build difference -- and hair is the one thing the parity
+    // criterion allows to differ.
+    const shared = {
+      top: Math.min(a.box.top, b.box.top),
+      left: Math.min(a.box.left, b.box.left),
+      bottom: Math.max(a.header.height - a.box.bottom, b.header.height - b.box.bottom),
+      right: Math.max(a.header.width - a.box.right, b.header.width - b.box.right),
+    };
+    const sharedProfile = (img) => profileOf(img.pixels, img.header.width, shared);
+    const pa = sharedProfile(a), pb = sharedProfile(b);
+    const deltas = pb.map((value, band) => ({ band, delta: value - pa[band] }));
     const off = deltas.filter((d) => Math.abs(d.delta) > BUILD_TOLERANCE);
     console.log(`\nBuild parity — silhouette width per band, each as a share of the figure's own`);
     console.log(`height, so how large or where it was drawn cannot affect it.`);
@@ -234,10 +256,13 @@ if (results.length === 2 && results[0].box && results[1].box) {
         if (!worst || Math.abs(d.delta) > Math.abs(worst.delta)) byPart.set(part, d);
       }
       for (const [part, d] of byPart) {
-        const master = a.profile[d.band];
+        const master = pa[d.band];
         const relative = master > 0 ? Math.round((d.delta / master) * 100) : 0;
         console.log(`  ${part.padEnd(20)} ${d.delta > 0 ? "+" : ""}${d.delta.toFixed(3)} `
           + `(${relative > 0 ? "+" : ""}${relative}% ${d.delta < 0 ? "narrower" : "wider"} than the master, band ${d.band})`);
+        // Face and hair are the one thing a presentation is allowed to change, so a difference in
+        // the head band is reported and not counted against the build.
+        if (part === "head / hair") continue;
         problems.push(`build: ${part} is ${Math.abs(relative)}% ${d.delta < 0 ? "narrower" : "wider"} `
           + `than the master — this cannot be fixed after generation`);
       }
@@ -255,6 +280,10 @@ if (results.length === 2 && results[0].box && results[1].box) {
       let differing = 0;
       for (let x = 0; x < width; x += 1) {
         const i = (y * width + x) * 4;
+        // Colour stored under a fully transparent pixel is not part of the picture, and WebP
+        // discards it, so comparing it reports two identical pictures as different everywhere the
+        // transparent area happens to differ.
+        if (a.pixels[i + 3] === 0 && b.pixels[i + 3] === 0) continue;
         for (let c = 0; c < 4; c += 1) {
           if (Math.abs(a.pixels[i + c] - b.pixels[i + c]) > RE_ENCODE_TOLERANCE) { differing += 1; break; }
         }

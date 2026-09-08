@@ -11,6 +11,7 @@
 //
 // Usage:
 //   npm run assets:normalize -- input.png --out public/character-assets/base/v1/core-1/female.webp
+//   npm run assets:normalize -- input.png --match female-master.png --out male.webp
 //   npm run assets:normalize -- input.png --dry          (report only, writes nothing)
 //   npm run assets:normalize -- input.png --sizes        (also print what each format would cost)
 
@@ -24,7 +25,7 @@ const UPSCALE_WARN = 1.15;
 
 function parseArgs(argv) {
   const args = { input: null, out: null, fit: BASE.safeRegionPct, dry: false, sizes: false,
-                 cleanAlpha: true };
+                 cleanAlpha: true, match: null };
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (token === "--out") args.out = argv[++i];
@@ -32,6 +33,7 @@ function parseArgs(argv) {
     else if (token === "--dry") args.dry = true;
     else if (token === "--sizes") args.sizes = true;
     else if (token === "--keep-alpha") args.cleanAlpha = false;
+    else if (token === "--match") args.match = argv[++i];
     else if (token.startsWith("--")) throw new Error(`unknown option ${token}`);
     else if (args.input === null) args.input = token;
     else throw new Error(`unexpected extra argument ${token}`);
@@ -144,12 +146,38 @@ async function main() {
 
   const alpha = Buffer.alloc(info.width * info.height);
   for (let i = 0; i < alpha.length; i += 1) alpha[i] = data[i * info.channels + (info.channels - 1)];
-  const box = boundingBox(alpha, info.width, info.height);
+  let box = boundingBox(alpha, info.width, info.height);
+
+  // Every presentation of one character has to be framed by the same transform, or the trio drifts:
+  // a shorter haircut shrinks the bounding box, the scale changes by a fraction of a percent, and
+  // the shared body lands on different pixels in each file. Matching a reference's box makes them
+  // pixel-aligned by construction. The union guards the obvious failure -- a reference box that
+  // does not contain this figure would crop it.
+  let matched = null;
+  if (args.match) {
+    const ref = sharp(args.match).ensureAlpha();
+    const refRaw = await ref.raw().toBuffer({ resolveWithObject: true });
+    const refAlpha = Buffer.alloc(refRaw.info.width * refRaw.info.height);
+    for (let i = 0; i < refAlpha.length; i += 1) {
+      refAlpha[i] = refRaw.data[i * refRaw.info.channels + (refRaw.info.channels - 1)];
+    }
+    const refBox = boundingBox(refAlpha, refRaw.info.width, refRaw.info.height);
+    const left = Math.min(box.left, refBox.left);
+    const top = Math.min(box.top, refBox.top);
+    const right = Math.max(box.left + box.width, refBox.left + refBox.width);
+    const bottom = Math.max(box.top + box.height, refBox.top + refBox.height);
+    matched = { box: refBox, union: right - left !== refBox.width || bottom - top !== refBox.height };
+    box = { left, top, width: right - left, height: bottom - top };
+  }
 
   console.log(`input        ${path.basename(args.input)}`);
   console.log(`  canvas     ${info.width}x${info.height}  (${kb(fs.readFileSync(args.input))} KB, ${meta.format})`);
   console.log(`  character  ${box.width}x${box.height} at (${box.left}, ${box.top})`);
   console.log(`  margins    ${JSON.stringify(marginsOf(box, Math.max(info.width, info.height)))}`);
+  if (matched) {
+    console.log(`  framing    matched to ${path.basename(args.match)}`
+      + (matched.union ? " (box widened to the union so nothing is cropped)" : ""));
+  }
   if (repair) {
     console.log(`  alpha      repaired — ${repair.hazeCleared} haze pixel(s) cleared, `
       + `${repair.bodyMadeOpaque} body pixel(s) made fully opaque`);
