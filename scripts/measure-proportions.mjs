@@ -21,7 +21,12 @@ const args = process.argv.slice(2);
 const recordIndex = args.indexOf("--record");
 const record = recordIndex >= 0 ? args[recordIndex + 1] : null;
 const RECORD_FILE = "outputs/asset-masters/proportions.json";
-const file = args.find((a, i) => !a.startsWith("--") && i !== recordIndex + 1)
+// The index to skip is --record's value, and there is no such index when --record is absent.
+// Deriving it as recordIndex + 1 unguarded makes it 0 in that case, which skips the file argument
+// itself: every call without --record silently measured the default file instead of the one named,
+// and reported the master's numbers for whatever was passed in.
+const recordValueIndex = recordIndex >= 0 ? recordIndex + 1 : -1;
+const file = args.find((a, i) => !a.startsWith("--") && i !== recordValueIndex)
   ?? "outputs/asset-masters/enneagram-1/female-master.png";
 const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 const W = info.width, H = info.height, C = info.channels;
