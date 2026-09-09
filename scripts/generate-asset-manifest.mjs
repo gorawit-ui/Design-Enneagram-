@@ -17,6 +17,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { createRequire } from "node:module";
+import sharp from "sharp";
 import ts from "typescript";
 
 const require = createRequire(import.meta.url);
@@ -56,6 +57,13 @@ function readPng(file) {
            bitDepth: head[24], colorType: head[25], interlace: head[28] };
 }
 
+// readPng only understands PNG, and the runtime format is WebP now, so dimensions for anything
+// else come from the decoder rather than being left null.
+async function pixelsOf(file) {
+  const meta = await sharp(file).metadata();
+  return meta.width && meta.height ? { width: meta.width, height: meta.height } : null;
+}
+
 function sha256(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
@@ -74,10 +82,16 @@ try {
   // --- Base assets: /character-assets/enneagram-{core}/{presentation} -------------------------
   for (let core = 1; core <= 9; core++) {
     for (const presentation of ["female", "male", "neutral"]) {
-      const relative = `enneagram-${core}/${presentation}.png`;
+      // Both extensions, because the runtime format changed to WebP mid-production and this loop
+      // did not: it kept looking only for .png, so it counted Core 5's three legacy files and
+      // reported "base 3/27" while four WebP assets sat beside them unlisted -- a number that read
+      // as progress and was measuring the opposite.
+      const relative = ["webp", "png"]
+        .map((extension) => `enneagram-${core}/${presentation}.${extension}`)
+        .find((candidate) => fs.existsSync(path.join(ASSET_ROOT, candidate)));
+      if (!relative) continue;
       const absolute = path.join(ASSET_ROOT, relative);
-      if (!fs.existsSync(absolute)) continue;
-      const png = readPng(absolute);
+      const png = relative.endsWith(".png") ? readPng(absolute) : null;
       const profile = characterSystem.ENNEAGRAM_PROFILES?.[core];
       assets.push({
         assetId: `enneagram-${core}-${presentation}`,
@@ -86,8 +100,8 @@ try {
         enneagramCore: core,
         presentation,
         appliesTo: { mbti: null, wing: null, identity: null },
-        fileType: png ? "image/png" : "unknown",
-        pixelDimensions: png ? { width: png.width, height: png.height } : null,
+        fileType: relative.endsWith(".webp") ? "image/webp" : png ? "image/png" : "unknown",
+        pixelDimensions: png ? { width: png.width, height: png.height } : await pixelsOf(absolute),
         byteSize: fs.statSync(absolute).size,
         checksum: { algorithm: "sha256", value: sha256(absolute) },
         accessibilityDescription: profile?.accessibilityDescriptionThai ?? null,
@@ -111,6 +125,8 @@ try {
         appliesTo: { mbti, wing: null, identity: null },
         poseFamily: recipe.poseFamily,
         sceneKitId: recipe.sceneKitId,
+        // The living pilot is PNG by contract and its gate asserts the signature, so no WebP
+        // branch here — this block reverts to the PNG reader deliberately, not by omission.
         fileType: png ? "image/png" : "unknown",
         pixelDimensions: png ? { width: png.width, height: png.height } : null,
         byteSize: fs.statSync(absolute).size,
