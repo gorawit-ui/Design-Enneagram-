@@ -60,9 +60,16 @@ Nothing has entered `public/character-assets/enneagram-2/`. `npm run assets:inge
 outright, since a lossy upscale cannot be undone and shipping one would put a softened asset beside
 three sharp ones.
 
+**That ruling is void.** The asset in the repository is a different image: attaching the master had
+been routing the request through the generator's edit path, which exports without alpha, so the
+prompt was rewritten to attach nothing and the core was generated again. The ruling above was made
+on the earlier artwork and, by its own terms, does not carry to this one.
+
+The shipped file passes every mechanical check — `public/character-assets/enneagram-2/female.webp`,
+head width 14.6% against the master's 14.3% — and is awaiting a fresh ruling on the same two
+questions.
+
 Outstanding, in order:
 
-1. the exported PNG, passed through `npm run assets:ingest -- <file> --core 2 --presentation female`
-2. confirmation that the shipped file is the same artwork this ruling was made on — if the asset is
-   regenerated rather than exported, the ruling above does not carry over to the new image
-3. the male and neutral presentations of this core, each against its own master
+1. a fresh visual ruling on the shipped image: same person as the female master, and equal standing
+2. the male and neutral presentations of this core, each generated in its own presentation's chat

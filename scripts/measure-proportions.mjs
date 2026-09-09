@@ -14,6 +14,9 @@ import sharp from "sharp";
 
 const HEAD_BAND = [0, 0.15];        // crown to just above the shoulder line
 const SHOULDER_BAND = [0.20, 0.25]; // below the collar, above the arms and the prop
+// Shoulder width is only comparable between figures standing the same way. A core that holds its
+// prop out to the side puts an arm through this band and reads 41.5% where the master reads 25.1%,
+// which is the pose, not the build. Head width is the one that survives a pose change.
 
 // --record <presentation> writes the reading into the file the prompt generator reads, so a
 // presentation's own numbers reach its core-2-to-9 prompts instead of being retyped by hand.

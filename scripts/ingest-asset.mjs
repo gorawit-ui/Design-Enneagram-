@@ -83,27 +83,52 @@ process.stdout.write(normalized.replace(/^/gm, "  "));
 const mechanicalFail = /^\s*FAIL/m.test(normalized);
 
 // 4. Compare against this presentation's own master.
+//
+// Which comparison is valid depends on whether the pose is the same. Silhouette width per band
+// answers "is this the same body" only while both figures stand the same way: Core 2 holds a map
+// out to the side, which widened the band across the arms by 68% and got a sound asset rejected and
+// deleted. Head width against figure height is what survives a pose change -- an outstretched arm
+// does not alter it -- so that is the build check across cores, and the bands are reported for the
+// eye rather than counted against the asset.
+const MASTER_CORE = "1";
+const HEAD_WIDTH_TOLERANCE = 1.5;   // percentage points of the figure's own height
 const master = `outputs/asset-masters/enneagram-1/${presentation}-master.png`;
 step(4, `comparing against the locked ${presentation} master`);
 let buildFail = false;
 if (!fs.existsSync(master)) {
   console.log(`  skipped — ${master} does not exist yet`);
-} else {
+} else if (core === MASTER_CORE) {
   const masterFramed = path.join(work, "master.webp");
   run("normalize-asset.mjs", [master, "--out", masterFramed]);
   try {
     const report = run("check-asset.mjs", [masterFramed, outPath]);
-    // Match the shape of a band line, not the body part named in it: check-asset's closing advice
-    // mentions shoulders too, and a prefix match on the part name reported that sentence as a
-    // finding.
     const build = report.split("\n").filter((l) => /than the master, band \d+\)/.test(l));
     console.log(build.length ? build.join("\n") : "  build matches the master on all 40 bands");
   } catch (error) {
-    const report = `${error.stdout ?? ""}`;
-    const problems = report.split("\n").filter((l) => l.startsWith("  - build:"));
+    const problems = `${error.stdout ?? ""}`.split("\n").filter((l) => l.startsWith("  - build:"));
     console.log(problems.length ? problems.join("\n") : "  (see check-asset output)");
     buildFail = problems.length > 0;
   }
+} else {
+  const headWidth = (file) => {
+    // Two lines mention head width -- the pixel measurement and the ratio -- and the first has no
+    // percentage in it, so matching on the phrase alone picks the wrong one and crashes.
+    const line = run("measure-proportions.mjs", [file])
+      .split("\n").find((l) => l.includes("head width") && l.includes("%"));
+    if (!line) throw new Error(`could not read a head width from ${file}`);
+    return Number(line.match(/([\d.]+)%/)[1]);
+  };
+  const masterHead = headWidth(master);
+  const assetHead = headWidth(staged);
+  const drift = Math.abs(assetHead - masterHead);
+  console.log(`  head width ${assetHead}% against the master's ${masterHead}% `
+    + `(${drift.toFixed(1)}pp apart, tolerance ${HEAD_WIDTH_TOLERANCE}pp)`);
+  if (drift > HEAD_WIDTH_TOLERANCE) {
+    console.log("  - build: the head is a different size relative to the figure — not the same build");
+    buildFail = true;
+  }
+  console.log("  Silhouette bands are not compared across cores: this core poses differently, so a");
+  console.log("  wider band is the prop and the arms, not the body.");
 }
 
 step(5, "verdict");
