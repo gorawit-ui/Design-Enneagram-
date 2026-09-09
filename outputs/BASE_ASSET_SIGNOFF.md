@@ -44,3 +44,25 @@ changes:
 
 **Assets:** `public/character-assets/enneagram-1/{female,male,neutral}.webp`
 **Masters:** `outputs/asset-masters/enneagram-1/{female,male,neutral}-master.png`
+
+## Core 2 — Relationship Guide · female
+
+**Visual ruling given, asset not yet in the repository.** Recorded so it does not have to be asked
+again, and marked as pending so it cannot be mistaken for a completed sign-off.
+
+The Products Owner ruled on 2026-09-09 that the figure reads as the same person as the female
+master, and as equal in standing. That judgement was made on a copy of the generator's chat
+preview — re-encoded to WebP and upscaled from 1024 to 1254 — because the exported PNG has not been
+seen here. The preview carries the same artwork, so the two questions it answers are the two it can
+answer: who the figure is, and how it reads. It cannot answer anything mechanical.
+
+Nothing has entered `public/character-assets/enneagram-2/`. `npm run assets:ingest` refuses a WebP
+outright, since a lossy upscale cannot be undone and shipping one would put a softened asset beside
+three sharp ones.
+
+Outstanding, in order:
+
+1. the exported PNG, passed through `npm run assets:ingest -- <file> --core 2 --presentation female`
+2. confirmation that the shipped file is the same artwork this ruling was made on — if the asset is
+   regenerated rather than exported, the ruling above does not carry over to the new image
+3. the male and neutral presentations of this core, each against its own master
