@@ -69,7 +69,26 @@ The shipped file passes every mechanical check — `public/character-assets/enne
 head width 14.6% against the master's 14.3% — and is awaiting a fresh ruling on the same two
 questions.
 
-Outstanding, in order:
+**Ruled 2026-09-09 by the Products Owner: approved, with the likeness knowingly not held.**
 
-1. a fresh visual ruling on the shipped image: same person as the female master, and equal standing
-2. the male and neutral presentations of this core, each generated in its own presentation's chat
+- Equal standing: PASS.
+- Same person as the female master: **NO**. The Products Owner judged that the figure does not read
+  as the same woman, accepted it because it reads well as a second motion of the same character
+  family, and directed that production continue.
+
+That is a real relaxation of the premise the master structure was built on, so it is recorded as
+one rather than left to look like an oversight. Three cores were locked so that nine cores of a
+presentation would be one person; on the evidence of the first derived core, they will not be.
+
+What it costs is bounded, and worth stating so the decision can be revisited on the right grounds.
+A participant sees exactly one core in one presentation, so drifting likeness never reaches them.
+Where it does reach is the contact sheet of all 27 assets that the production checklist requires,
+and anywhere the set is seen together — there, nine different faces in the female column will read
+as nine characters rather than one.
+
+The prompts still ask for the same person. That is now a nudge rather than a requirement, and the
+gate does not test it: `assets:ingest` compares head width against the master, which holds build,
+not identity.
+
+Outstanding: the male and neutral presentations of this core, each generated in its own
+presentation's chat, with no attachment.
