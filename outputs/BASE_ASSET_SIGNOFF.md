@@ -92,3 +92,27 @@ not identity.
 
 Outstanding: the male and neutral presentations of this core, each generated in its own
 presentation's chat, with no attachment.
+
+## Core 2 — Relationship Guide · male
+
+**Withdrawn on style, 2026-09-09.** The Products Owner found the face reads as a real person's
+photograph where the rest of the set reads as animation, and asked for it to sit closer to the
+Core 1 male.
+
+That is not only a preference. `docs/CHARACTER_ASSET_SYSTEM.md` requires equal detail density and
+apparent production value across every core and presentation, so one core rendered at a different
+distance from realism fails a clause that is already binding.
+
+It passed every mechanical check first — 1024x1024, alpha intact, 140 KB, head width 12.3% against
+the male master's 11.8% — which is the point worth keeping: the gate cannot see this, and could not
+have caught it.
+
+Two attempts to give it a number both failed, recorded so they are not repeated. Mean absolute
+Laplacian over the whole figure read Core 1 male at 9.04 against Core 2 male's 6.10; over the head
+alone, 12.53 against 10.00. Both say Core 2 male carries *less* fine detail, the opposite of what
+was seen, because photographic realism lives in proportion, eye rendering and shading gradients
+rather than in high-frequency texture. The measurement was discarded rather than kept as a
+reassuring number that does not discriminate.
+
+The prompts now carry a STYLE block naming this directly, so the remaining cores are asked for it
+rather than left to the word "semi-realistic". Core 2 male is to be generated again against it.

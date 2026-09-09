@@ -24,6 +24,13 @@ is identical across female, male and neutral.
 PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop.
 Never use colour alone to signal anything.
 
+STYLE: stylised 3D character rendering of the kind an animated feature uses — not photographic.
+Skin is smoothly and evenly shaded, with no visible pores, blemishes or photographic subsurface
+detail. Eyes are drawn rather than photographed: clean iris shapes, no studio catchlights. Facial
+proportions are gently idealised rather than anatomically exact. Every core and every presentation
+sits at the same distance from realism as the others — a face that reads as a photograph of a real
+person does not belong in this set, however well rendered.
+
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
 

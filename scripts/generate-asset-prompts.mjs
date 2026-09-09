@@ -34,6 +34,16 @@ const require = createRequire(import.meta.url);
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const OUT = path.join(projectRoot, "outputs/asset-prompts");
 
+// The STYLE block exists because "semi-realistic" in the opening line was too loose to hold. Core 2
+// male came back with a face that read as a photograph of a real person while the rest of the set
+// read as animation, which breaks the FINISH clause's requirement of equal apparent production
+// value across cores. Two attempts to measure the drift failed and are worth recording so they are
+// not tried again: mean absolute Laplacian over the whole figure put Core 1 male at 9.04 against
+// Core 2 male's 6.10, and over the head at 12.53 against 10.00 -- both the opposite of what a
+// reviewer saw, because photographic realism lives in proportion, eye rendering and shading
+// gradients rather than in high-frequency detail. There is no number for this one; it is named
+// explicitly in the prompt instead, and ruled on by eye.
+//
 // The canvas block asks for two things and no more: a square, and real transparency. It used to
 // specify 1024 px, an 8% margin and a central 76% safe region, and the margin was honoured on none
 // of four attempts. All three are now reframed by assets:normalize from whatever comes back, along
@@ -64,6 +74,13 @@ is identical across female, male and neutral.
 
 PALETTE: matcha green, forest green, ivory. Core-specific accents appear only in the prop.
 Never use colour alone to signal anything.
+
+STYLE: stylised 3D character rendering of the kind an animated feature uses — not photographic.
+Skin is smoothly and evenly shaded, with no visible pores, blemishes or photographic subsurface
+detail. Eyes are drawn rather than photographed: clean iris shapes, no studio catchlights. Facial
+proportions are gently idealised rather than anatomically exact. Every core and every presentation
+sits at the same distance from realism as the others — a face that reads as a photograph of a real
+person does not belong in this set, however well rendered.
 
 FINISH: equal lighting, detail density and apparent production value across all cores and
 presentations. Soft, even, warm key light. No dramatic rim light, no lens effects.
