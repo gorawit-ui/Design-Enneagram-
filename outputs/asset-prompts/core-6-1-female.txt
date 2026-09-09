@@ -1,8 +1,8 @@
-แนบไฟล์ female master ที่อนุมัติแล้วมาพร้อมข้อความนี้
-(แนบ master ของเพศเดียวกันเท่านั้น ห้ามแนบเพศอื่น และห้ามแนบภาพ core ก่อนหน้า)
+ส่งข้อความนี้ในแชทเดิมที่สร้าง female master ไว้ — ห้ามแนบไฟล์
+(การแนบไฟล์ทำให้ ChatGPT สลับไปโหมดแก้ไขภาพ ซึ่ง export ออกมาเป็น 1254x1254 ทึบ ใช้ไม่ได้)
 
-สร้างภาพ 1 ภาพ — คนเดิมในไฟล์ที่แนบ เปลี่ยนแค่ท่า การกระทำ อุปกรณ์ และสีหน้า
-- ขนาด square 1024x1024 PNG พื้นหลังโปร่งใสจริง
+สร้างภาพใหม่ 1 ภาพ เป็น "คนเดิม" กับ female master ที่เราล็อกไว้ในแชทนี้
+เปลี่ยนแค่ท่า การกระทำ อุปกรณ์ และสีหน้า
 - ทำทีละภาพ อย่าสร้างหลายเวอร์ชันให้เลือก
 - ห้ามเปลี่ยนหน้า ผม สีผิว ส่วนสูง ความกว้างไหล่ หรือเสื้อผ้า
 - ห้ามเพิ่ม lighting drama และห้ามเปลี่ยนท่าให้ "ดูมั่นใจขึ้น"
@@ -57,9 +57,9 @@ PROP: a risk compass and a contingency satchel
 EXPRESSION: prepared, steady, alert but calm
 PROHIBITED READING FOR THIS CORE: never read as anxious, paranoid, fearful, or distrustful.
 
-SAME PERSON as the attached female master: face, facial structure, hair style and colour, skin
-tone, build, shoulder width, height and wardrobe are all unchanged. A viewer must recognise them as
-one character across all nine cores.
+SAME PERSON as the female master locked earlier in this conversation: face, facial structure,
+hair style and colour, skin tone, build, shoulder width, height and wardrobe are all unchanged.
+A viewer must recognise them as one character across all nine cores.
 
 WHAT CHANGES: only the pose orientation, the action, the prop and the expression, exactly as listed
 above. Do not carry over core 1's notebook or seal — this core has its own prop and no other.
