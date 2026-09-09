@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node scripts/run-scoring-tests.mjs && node scripts/run-character-resolver-tests.mjs && node scripts/run-living-character-pilot-tests.mjs && node scripts/run-asset-gate-tests.mjs",
+    "test": "node scripts/run-scoring-tests.mjs && node scripts/run-character-resolver-tests.mjs && node scripts/run-living-character-pilot-tests.mjs && node scripts/run-asset-gate-tests.mjs && node scripts/run-unbake-tests.mjs",
     "test:scoring": "node scripts/run-scoring-tests.mjs",
     "test:pilot": "node scripts/run-living-character-pilot-tests.mjs",
     "gate:e": "node scripts/run-asset-gate-tests.mjs",
