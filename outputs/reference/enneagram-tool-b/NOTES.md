@@ -13,7 +13,7 @@ One directory per respondent, since this tool is being sampled with more than on
 
 ```
 respondent-1/   17 screenshots — complete
-respondent-2/   10 screenshots — collecting
+respondent-2/   15 screenshots — collecting
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -103,6 +103,11 @@ expected. Do not begin the analysis until the set is declared complete.
 | `respondent-2/8-batch2-trace-read-and-batch3-q7.png` | The batch-2 trace, the read narrowing to two types, then ชุดที่ 3 — ยืนยัน Wing with Q7 |
 | `respondent-2/9-batch3-q8-q9-and-trace.png` | Q8 (feeling after a mistake) and Q9 (unconscious behaviour under heavy stress), and the batch-3 trace |
 | `respondent-2/10-final-read-and-verdict-1w2.png` | The final read across all nine answers, the verdict — ลักษณ์ 1w2 The Advocate "ผู้ปฏิรูปที่มีหัวใจ" — and the start of โครงสร้างพื้นฐาน |
+| `respondent-2/11-result-structure-and-strengths.png` | โครงสร้างพื้นฐาน — Core Fear, Core Desire, Defense Mechanism (Reaction Formation), Passion (Anger) — then จุดแข็ง (5) |
+| `respondent-2/12-result-challenges-and-health-levels.png` | จุดที่ท้าทาย (5) and วงจรสุขภาวะ 3 ระดับ, each level with its own heading and colour |
+| `respondent-2/13-result-arrows-and-framework-overlay.png` | ลูกศรพลังงาน (เครียด → 4, เติบโต → 7), each with a dark and a light side, then **OVERLAY — MBTI · DISC · BOSI**: a table with one row per framework, the respondent's result, and a เสริมกัน / tension pair for each against 1w2 |
+| `respondent-2/14-result-growth-path-and-close.png` | เส้นทางเติบโต (3, attributed to Helen Palmer and อ.ธนา), then a closing summary naming DISC D/S and BOSI S/I as reflecting the same tension as 1w2, and an invitation to go deeper |
+| `respondent-2/15-strengths-and-challenges-relabelled-by-type.png` | จุดแข็ง and จุดที่ท้าทาย again, headed "ลักษณ์ 1W2" and with longer text than files 11-12 — a second rendering rather than new content, at face value |
 
 Traces printed so far, verbatim:
 
@@ -130,6 +135,16 @@ something to infer from screenshots — worth asking the Products Owner when the
 Also differing from respondent 1's flow, at face value: the batch is titled ศูนย์พลังงาน rather than
 รู้จักตัวเอง, Q1 and Q2 offer three and five options against respondent 1's three and four, and the
 core-fear item has five options against respondent 1's four.
+
+One feature on file here that respondent 1's session did not show: the **OVERLAY table** in file 13,
+which cross-references the Enneagram verdict against each framework the respondent entered at
+intake, giving a "เสริมกัน" and a "tension" line for each. This is what the up-front intake in files
+1-3 was collecting for. Noted as an observation; whether it is a newer version of the tool or a
+branch that only appears when frameworks are supplied is a question for the Products Owner.
+
+Files 11-12 and file 15 appear to cover the same two sections (จุดแข็ง, จุดที่ท้าทาย) with different
+wording and length. Whether that is a re-render, a second view, or a later regeneration is not
+determinable from the screenshots — recorded rather than resolved.
 
 ## Awaiting
 
