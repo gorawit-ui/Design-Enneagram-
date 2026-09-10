@@ -95,7 +95,7 @@ Fill from this table:
 |---|---|---|---|---|---|---|
 | **1** | Standards Keeper | forward | stands steady and checks one item in an open notebook | a standards notebook and a small quality seal | calm, attentive, unhurried | rigid enforcer, scolding, morally superior, joyless |
 | **2** | Relationship Guide | right | opens a network map toward the viewer's side with a welcoming hand | a network map and a small welcome set | warm, friendly, contained | self-sacrificing, ingratiating, intrusive, emotionally needy |
-| **3** | Goal Driver | right | indicates one milestone on a goal board | a goal board and a milestone medallion | focused, positive, composed | status-seeking, boastful, salesy, image-obsessed |
+| **3** | Goal Driver | right | indicates one milestone on a goal board | a goal board and a small progress marker | focused, positive, composed | status-seeking, boastful, salesy, image-obsessed |
 | **4** | Identity Storyteller | left | holds an open story notebook beside layered colour swatches | a story notebook and mood colour swatches | thoughtful, sincere, settled | melancholic, tortured artist, fragile, self-absorbed |
 | **6** | Risk Scout | forward | holds a compass level while a contingency satchel rests ready | a risk compass and a contingency satchel | prepared, steady, alert but calm | anxious, paranoid, fearful, distrustful |
 | **7** | Possibility Explorer | right | raises a spotting scope toward an open route among idea cards | a spotting scope and idea cards | bright, curious, contained | scattered, manic, childish, thrill-seeking |

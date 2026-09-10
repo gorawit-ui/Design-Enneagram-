@@ -114,7 +114,7 @@ const CORES = {
        never: "self-sacrificing, ingratiating, intrusive, or emotionally needy" },
   3: { title: "Goal Driver", pose: "right",
        action: "indicates one milestone on a goal board",
-       prop: "a goal board and a milestone medallion",
+       prop: "a goal board and a small progress marker",
        expression: "focused, positive, composed",
        never: "status-seeking, boastful, salesy, or image-obsessed" },
   4: { title: "Identity Storyteller", pose: "left",
@@ -148,6 +148,24 @@ const CORES = {
        expression: "settled, unhurried, present",
        never: "passive, sleepy, checked-out, or conflict-avoidant" },
 };
+
+// --- props must not contradict the prompt's own PROPS clause ------------------------------------
+// Every prompt says a prop is "never presented as an award, medal, trophy, rosette or rank badge",
+// and several cores also forbid reading as status-seeking. A prop named after an award contradicts
+// both, in the same message, and the generator is the only place that can catch it -- the image
+// model resolves the contradiction by drawing the award. Core 3 shipped a "milestone medallion"
+// into three prompts before this guard existed.
+const AWARD_WORDS = /\b(medal|medallion|trophy|award|rosette|ribbon|badge|prize|cup|laurel)\b/i;
+for (const [core, entry] of Object.entries(CORES)) {
+  const named = AWARD_WORDS.exec(entry.prop) ?? AWARD_WORDS.exec(entry.action);
+  if (named) {
+    throw new Error(
+      `core ${core} ("${entry.title}") names "${named[0]}" in its prop or action, but every prompt `
+      + `forbids presenting a prop as an award. Rename it to something that shows progress or `
+      + `capability rather than recognition.`,
+    );
+  }
+}
 
 // --- cross-check against the app's own core definitions -----------------------------------------
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "tdfb-prompts-"));

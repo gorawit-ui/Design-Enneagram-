@@ -60,7 +60,7 @@ An adult build, never adolescent.
 CORE: 3 — Goal Driver
 POSE ORIENTATION: right
 ACTION: indicates one milestone on a goal board
-PROP: a goal board and a milestone medallion
+PROP: a goal board and a small progress marker
 EXPRESSION: focused, positive, composed
 PROHIBITED READING FOR THIS CORE: never read as status-seeking, boastful, salesy, or image-obsessed.
 
