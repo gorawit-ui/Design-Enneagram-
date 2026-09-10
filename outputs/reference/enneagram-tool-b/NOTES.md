@@ -15,7 +15,7 @@ One directory per respondent, since this tool is being sampled with more than on
 respondent-1/   17 screenshots — complete
 respondent-2/   15 screenshots — collecting
 respondent-3/   10 screenshots — collecting (and possibly not this tool at all, see below)
-respondent-4/    5 screenshots — collecting (same caveat, plus a different persona voice)
+respondent-4/   10 screenshots — collecting (same caveat, plus a different persona voice)
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -238,6 +238,11 @@ not something to infer from a screenshot. Ask.
 | `respondent-4/3-batch2-read-and-batch3-wing.png` | The batch-2 read confirming 3 and naming the stress arrow to 9 with a 7 influence, the wing still open between 3w2 (The Charmer) and 3w4 (The Professional), then batch 3 |
 | `respondent-4/4-wing-tension-and-batch4-confirmation.png` | A wing tension named out loud — item 1 pointing to w4 against items 2-3 pointing to w2 — a note that the inner richness might be ENTJ's Ni rather than wing 4, and a fourth batch of three to settle it |
 | `respondent-4/5-final-read-verdict-3w4-and-structure.png` | The final read, the wing conclusion (outward charm reads w2, inner drive is w4), the verdict **Enneagram 3w4 "The Professional"**, and the start of โครงสร้างพื้นฐาน — Core Fear, Core Desire, Defense Mechanism (Identification) |
+| `respondent-4/6-result-passion-and-strengths.png` | Passion (Deceit, attributed to Helen Palmer), then จุดแข็ง — five items as prose, each tying the Enneagram reading to the frameworks the respondent supplied (ENTJ-Te, Ni, wing 4, Innovator and Builder DNA) |
+| `respondent-4/7-result-weaknesses-and-health-levels.png` | The rest of จุดอ่อน and วงจรสุขภาวะ 3 ระดับ, all as prose, several items quoting the respondent's own earlier answers back at them |
+| `respondent-4/8-result-arrows-and-framework-overlay.png` | ลูกศรพลังงาน (เครียด → 9, เติบโต → 6) each with a dark and a light side, then **Overlay กับ MBTI, BOSI DNA** — ENTJ × 3w4 and Innovator-Builder × 3w4, each with a synergy reading and an internal tension |
+| `respondent-4/9-result-growth-path-and-invitation.png` | เส้นทางเติบโต — 3 สิ่งที่ต้องฝึก (Helen Palmer, อ.ธนา), then an invitation offering three specific next topics |
+| `respondent-4/10-dashboard-summary-card.png` | **A laid-out dashboard** — the type badge, FRAMEWORKS as three cards (ENTJ-A · I→B · **Di, marked INFERRED**), CORE STRUCTURE as four cells, ENERGY ARROWS as ←9 / 3w4 / 6→, and the heading of a RADAR — ENERGY DISTRIBUTION section |
 
 Answers, as they appear in the transcript blocks:
 
@@ -254,6 +259,18 @@ batch 4 — ไม่ค่อยรู้สึกต่าง แต่กล�
           อยากประสบความสำเร็จจริงๆ ไม่ใช่แค่ smooth talk อยากให้ผลงานพูดแทน ·
           รู้จริงแต่ไม่แคร์ เพราะผลงานสำคัญกว่าความรู้สึก
 ```
+
+Two more things on file here, recorded without conclusions:
+
+- **File 10 is a laid-out dashboard**, not prose — a type badge, framework cards, core-structure
+  cells, an arrow row and a radar chart. Files 5-9 of the same session are continuous prose. So
+  this session produced both formats, which weakens the reading that "typed answers means prose
+  output" and is worth resolving before anything is concluded from the format differences between
+  sessions.
+- The DISC card in that dashboard is labelled **INFERRED** ("Di"). The respondent supplied MBTI and
+  BOSI DNA but not DISC, so the tool derived it and said so on the card. That is a distinct
+  behaviour from respondent 2's session, where every framework shown was one the respondent had
+  entered.
 
 One thing to notice at analysis time, without concluding now: in both respondent 3's and
 respondent 4's sessions the tool **named a wing tension out loud and then opened an extra batch
