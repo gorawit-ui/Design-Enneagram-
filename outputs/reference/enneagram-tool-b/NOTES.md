@@ -13,7 +13,7 @@ One directory per respondent, since this tool is being sampled with more than on
 
 ```
 respondent-1/   17 screenshots — complete
-respondent-2/    5 screenshots — collecting
+respondent-2/   10 screenshots — collecting
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -98,6 +98,11 @@ expected. Do not begin the analysis until the set is declared complete.
 | `respondent-2/3-existing-results-bosi-and-trace.png` | BOSI DNA as four cards, the confirm button, and the trace of what was entered |
 | `respondent-2/4-batch1-energy-centre-q1-q2.png` | ชุดที่ 1 — ศูนย์พลังงาน, Q1 and Q2 |
 | `respondent-2/5-batch1-q3-core-fear-and-trace.png` | Q3 (core fear, five options) and the batch-1 trace line |
+| `respondent-2/6-batch1-read-and-batch2-q4.png` | The batch-1 read, then ชุดที่ 2 — เจาะลึก opening with Q4 |
+| `respondent-2/7-batch2-q5-q6.png` | Q5 (role in a team, five chips) and Q6 (reaction to feeling unrecognised, four options) |
+| `respondent-2/8-batch2-trace-read-and-batch3-q7.png` | The batch-2 trace, the read narrowing to two types, then ชุดที่ 3 — ยืนยัน Wing with Q7 |
+| `respondent-2/9-batch3-q8-q9-and-trace.png` | Q8 (feeling after a mistake) and Q9 (unconscious behaviour under heavy stress), and the batch-3 trace |
+| `respondent-2/10-final-read-and-verdict-1w2.png` | The final read across all nine answers, the verdict — ลักษณ์ 1w2 The Advocate "ผู้ปฏิรูปที่มีหัวใจ" — and the start of โครงสร้างพื้นฐาน |
 
 Traces printed so far, verbatim:
 
@@ -105,7 +110,15 @@ Traces printed so far, verbatim:
 ข้อมูลเบื้องต้น — Prior enneagram: ไม่เคย · Other frameworks: MBTI, DISC, BOSI · Analysis target: ตัวเอง
 ผลทดสอบที่มี — Mbti: ESFJ · Disc: D, S · Bosi: S, I
 ชุดที่ 1 — ศูนย์พลังงาน — Q1 pressure: gut_action · Q2 perception: creative_unique · Q3 core fear: fear_wrong
+ชุดที่ 2 — เจาะลึก — Q4 help drive: help_protect · Q5 role: role_glue · Q6 rejection: rej_doubt
+ชุดที่ 3 — ยืนยัน Wing — Q7 inner voice: voice_critic · Q8 mistake: mistake_mixed · Q9 stress: stress_numb
 ```
+
+Its narrowing, as stated: batch 1 → Gut Center, ลักษณ์ 1 or 3, with a note that ESFJ + DISC D/S +
+fear of being wrong often hides a 1-or-2 pattern · batch 2 → ลักษณ์ 1 with wing 2, to be separated
+from ลักษณ์ 2 · batch 3 → **ลักษณ์ 1w2 — The Advocate**, on the reading that the inner critic
+confirms 1 as the core and Q8's "both" answer gives wing 2. Nine questions, three batches, no
+tie-break round.
 
 Recorded as an observation, not a conclusion: this session begins with two intake cards that
 respondent 1's session did not have — prior-test experience, which other frameworks to overlay,
