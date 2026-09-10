@@ -221,3 +221,31 @@ larger relative to the figure's height, or the map prop shortens the apparent bo
 1.5pp tolerance held on this asset without being touched, so it stays as it is. If a later core in
 this presentation fails it by a few tenths, the question to ask is whether the tolerance should be
 measured against a pose-matched master, not whether to widen it.
+
+## Core 2 — Relationship Guide · neutral, 2026-09-10
+
+Generated in the neutral master's own chat with no attachment, against the STYLE block. In the
+repository at `public/character-assets/enneagram-2/neutral.webp`, 134 KB, alpha intact.
+
+**Mechanical: PASS.** Head width 14.8% against the neutral master's 15.7% — 0.9pp apart, inside the
+1.5pp tolerance. Margin 12.0% on every side, figure fitted to the central 76%, same framing as every
+other base asset.
+
+**Human ruling: pending.** The same two questions the gate cannot answer are open: same person as
+the neutral master, and equal in standing beside the female and male.
+
+Note on direction of drift, which is now consistent enough to be worth recording. Every derived
+Core 2 asset moved its head width *toward* the middle of the family and away from its own master:
+
+| Presentation | Master | Core 2 | Direction |
+|---|---|---|---|
+| female | 14.3% | 14.6% | +0.3pp, up |
+| male | 12.0% | 13.3% | +1.3pp, up |
+| neutral | 15.7% | 14.8% | −0.9pp, down |
+
+The two masters below the middle moved up, the one above it moved down. That is the generator's own
+prior for this pose pulling all three toward roughly 14%, not three independent errors. It means the
+presentations converge slightly as cores are added rather than diverge, which is the harmless
+direction for the equal-standing criterion — but it also means the 1.5pp tolerance is measuring
+partly the pose and partly the build. The male is the presentation with room to fail it first,
+since it starts furthest from the middle.

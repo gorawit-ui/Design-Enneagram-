@@ -8,7 +8,7 @@
     "livingPilotAssets": 12
   },
   "present": {
-    "baseAssets": 8,
+    "baseAssets": 9,
     "explorationFallback": 0,
     "livingPilotAssets": 12
   },
@@ -189,6 +189,45 @@
       "checksum": {
         "algorithm": "sha256",
         "value": "3a1b561f73d636a3dae22ce50c1bbf574d27067f5e1a1943d5f358f38a3ad90f"
+      },
+      "accessibilityDescription": "ผู้นำทางความสัมพันธ์เปิดแผนผังเครือข่ายด้วยท่าทีเป็นมิตร",
+      "sourceTool": null,
+      "creator": null,
+      "licenceOwnership": null,
+      "generationProvenance": null,
+      "reviewer": null,
+      "approvalState": null,
+      "approvalDate": null,
+      "gaps": [
+        "sourceTool",
+        "creator",
+        "licenceOwnership",
+        "generationProvenance",
+        "reviewer",
+        "approvalState",
+        "approvalDate"
+      ]
+    },
+    {
+      "assetId": "enneagram-2-neutral",
+      "publicPath": "/character-assets/enneagram-2/neutral.webp",
+      "family": "base",
+      "enneagramCore": 2,
+      "presentation": "neutral",
+      "appliesTo": {
+        "mbti": null,
+        "wing": null,
+        "identity": null
+      },
+      "fileType": "image/webp",
+      "pixelDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "byteSize": 136870,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "eb7ef8f77fb5237d2eead65948f09d1c05d65e41fb1845b6545cf107814ce5ce"
       },
       "accessibilityDescription": "ผู้นำทางความสัมพันธ์เปิดแผนผังเครือข่ายด้วยท่าทีเป็นมิตร",
       "sourceTool": null,
