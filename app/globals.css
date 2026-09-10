@@ -671,3 +671,41 @@ label > select {
   padding: 12px 13px; background: #fcfcf9; outline: none; color: var(--charcoal);
 }
 label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b20; }
+
+/* ---------------------------------------------------------------------------------------------
+   Hero art frame — deliberate, and deliberately last.
+   `.guild-visual`, `.hero-art` and `.welcome-grid` are each redefined a dozen times earlier in
+   this file across 56 media queries, so the frame's proportions were the residue of those layers
+   rather than anything chosen. This block sets them once, at the end, where it wins.
+   Measured before: the frame was 451x265 beside a 451x450 text column -- 59% of the row height --
+   and held a 2:1 image inside a 1.7:1 ellipse, so `object-fit: contain` letterboxed it down to
+   404x231 and the elliptical corners clipped the outer two figures.
+   Now: 4:3 to match the artwork exactly, so nothing is letterboxed or cropped, and a rounded
+   rectangle instead of an ellipse, because the corners are where the outer two characters stand.
+
+   Note the selector. Writing this as plain `.guild-visual` and putting it last was NOT enough: an
+   earlier layer escalated to `.stage-welcome .guild-visual`, which is more specific, so it won
+   whatever the order. Matching that specificity is the only way to land the change -- which is
+   itself the argument for consolidating this file rather than adding a fifteenth layer.
+   The consolidation is still owed; see docs/UX_REVIEW_2026-09-10.md.
+   --------------------------------------------------------------------------------------------- */
+.stage-welcome .guild-visual, .guild-visual {
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  margin-inline: auto;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #eef2ec;
+  border: 1px solid #fffdf5;
+  box-shadow: 0 22px 55px #16362f1c, 0 0 0 8px #e8efe788;
+}
+.stage-welcome .guild-visual img, .guild-visual img { object-fit: cover; }
+.stage-welcome .guild-orbit, .guild-orbit { inset: 10px; border-radius: 14px; border-color: #fffdf5b8; }
+.stage-welcome .guild-logo, .guild-logo { left: 16px; top: 16px; border-radius: 12px; }
+@media (max-width: 899px) {
+  /* On a phone the art sits above the fold with the copy, so it must not eat the screen. */
+  .stage-welcome .guild-visual, .guild-visual { max-width: 420px; border-radius: 18px; }
+  .stage-welcome .guild-orbit, .guild-orbit { inset: 8px; border-radius: 11px; }
+}
