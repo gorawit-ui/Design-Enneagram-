@@ -8,7 +8,7 @@
     "livingPilotAssets": 12
   },
   "present": {
-    "baseAssets": 10,
+    "baseAssets": 11,
     "explorationFallback": 0,
     "livingPilotAssets": 12
   },
@@ -267,6 +267,45 @@
       "checksum": {
         "algorithm": "sha256",
         "value": "4699de9747885bb8c16657733ce028b8db7c46da513f9b1f404a3e415074753a"
+      },
+      "accessibilityDescription": "นักขับเคลื่อนเป้าหมายชี้ไปยังกระดานหมุดหมายอย่างมั่นใจ",
+      "sourceTool": null,
+      "creator": null,
+      "licenceOwnership": null,
+      "generationProvenance": null,
+      "reviewer": null,
+      "approvalState": null,
+      "approvalDate": null,
+      "gaps": [
+        "sourceTool",
+        "creator",
+        "licenceOwnership",
+        "generationProvenance",
+        "reviewer",
+        "approvalState",
+        "approvalDate"
+      ]
+    },
+    {
+      "assetId": "enneagram-3-male",
+      "publicPath": "/character-assets/enneagram-3/male.webp",
+      "family": "base",
+      "enneagramCore": 3,
+      "presentation": "male",
+      "appliesTo": {
+        "mbti": null,
+        "wing": null,
+        "identity": null
+      },
+      "fileType": "image/webp",
+      "pixelDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "byteSize": 135416,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "5bc9f76f0817798530b5c8d996441f3b4ee16b4aefcecbb5d6fba0c2d827c158"
       },
       "accessibilityDescription": "นักขับเคลื่อนเป้าหมายชี้ไปยังกระดานหมุดหมายอย่างมั่นใจ",
       "sourceTool": null,

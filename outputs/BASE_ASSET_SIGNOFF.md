@@ -327,3 +327,19 @@ Running tally of head width against each presentation's master, all cores:
 | Core 2 neutral | 14.8% | −0.9 |
 | Core 3 female, first attempt | 16.3% | +2.0 REJECTED |
 | Core 3 female, with HOLD THE HEAD | 13.2% | −1.1 |
+
+## Core 3 — Goal Driver · male, 2026-09-10
+
+Generated in the male master's chat with the `HOLD THE HEAD` block. In the repository at
+`public/character-assets/enneagram-3/male.webp`, 132 KB, alpha intact.
+
+**Mechanical: PASS.** Head width 12.2% against the male master's 12.0% — **0.2pp apart**, the
+closest match of any derived asset so far, on a 1.5pp tolerance.
+
+**Human ruling: pending.** Same person as the male master, and equal in standing.
+
+Two generations under the new block, both landing inside a point of their master, against a spread
+of +0.3 to +2.0 without it. It also fixes the presentation that had drifted furthest: Core 2 male
+sat at +1.3pp, and Core 3 male sits at +0.2pp from the same master with the same pose family. On
+this evidence the drift was the STYLE block's phrasing, not the generator's variance, and naming it
+explicitly is what stopped it.
