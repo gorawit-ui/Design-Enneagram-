@@ -14,6 +14,7 @@ One directory per respondent, since this tool is being sampled with more than on
 ```
 respondent-1/   17 screenshots — complete
 respondent-2/   15 screenshots — collecting
+respondent-3/    5 screenshots — collecting (and possibly not this tool at all, see below)
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -150,3 +151,51 @@ determinable from the screenshots — recorded rather than resolved.
 
 More of respondent 2's session, and possibly further respondents. The Products Owner said again:
 "ยังไม่ครบ อย่าเพิ่งทำอะไร เก็บเป็นข้อมูลก่อน".
+
+---
+
+## Respondent 3 — screenshots on file, in reading order
+
+**Collecting.** Filed 2026-09-10.
+
+**Filed under `enneagram-tool-b/` provisionally, and that may be wrong.** The interface differs
+from respondents 1 and 2 in three ways at face value, and any one of them could mean a different
+tool, a different mode of the same tool, or a different client:
+
+- **Answers are typed, not clicked.** Respondents 1 and 2 answered by tapping option cards with a
+  label, an icon and a gloss. Here each batch appears as a grey block of question-and-answer pairs
+  in plain text, with no option cards visible at all.
+- **No machine traces.** Every batch in respondents 1 and 2 printed a line like
+  `ชุดที่ 1 — … — Q1: gut · Q2: warm · Q3: unsafe`. There are none here.
+- **Prose output, not cards.** The verdict section is written paragraphs — Archetype, Core Fear,
+  Core Desire, Defense Mechanism, Passion, then จุดแข็ง as continuous prose — where respondents 1
+  and 2 got laid-out cards and tables.
+
+Moving a directory is trivial; asserting the wrong provenance in a document is not. Ask the
+Products Owner which tool this session came from before the analysis starts.
+
+| File | What it shows |
+|---|---|
+| `respondent-3/1-welcome-batch1-and-read.png` | Welcome, a conversational ask about other framework results (MBTI / DISC / BOSI) rather than an intake card, batch 1 as three question-and-answer pairs, and the read placing them in Head with a Heart signal |
+| `respondent-3/2-batch2-and-per-item-analysis.png` | The tension noted out loud (Head inside, Heart outside), a candidate set of ลักษณ์ 2, 6, 9, batch 2, then a per-item analysis that cuts 2 |
+| `respondent-3/3-batch3-wing-and-wing-tension.png` | Batch 3 for the wing, and a tension between wing 1 and wing 8 — the tool's reading being that item 1 is what actually happens and item 3 is an aspiration |
+| `respondent-3/4-batch4-confirmation-and-wing-verdict.png` | A fourth batch of four questions "เพื่อยืนยันให้ 100%", asked explicitly for real behaviour rather than aspiration, and the wing verdict: 9w1 with access to 8 in some situations |
+| `respondent-3/5-result-9w1-structure-and-strengths.png` | ผลวิเคราะห์ ลักษณ์ 9w1 — The Dreamer / นักสร้างสันติผู้มีอุดมคติ, then โครงสร้างพื้นฐาน (Archetype, Core Fear, Core Desire, Defense Mechanism — Narcotization, Passion — Sloth, attributed to Helen Palmer) and จุดแข็ง as prose |
+
+Answers, as they appear in the transcript blocks rather than as machine keys:
+
+```
+batch 1 — รู้สึกกังวล เริ่มคิดวิเคราะห์หาทางออก · ใส่ใจคนอื่น เข้าอกเข้าใจ ช่วยเหลือดี ·
+          ความขัดแย้ง การสูญเสีย หรือการเปลี่ยนแปลงกะทันหัน
+batch 2 — โอเค ไม่ได้คาดหวังตั้งแต่แรก · พยายามหาจุดที่ทุกคนยอมรับได้ ไม่อยากให้ใครไม่พอใจ ·
+          กระสับกระส่าย อยากหาอะไรทำ หรือหาคนช่วย
+batch 3 — รู้สึกผิด/ไม่สบายใจ เพราะรู้ว่าควรทำให้ดีกว่านี้ · ไม่ค่อยพูด เพราะไม่อยากทำให้บรรยากาศเสีย ·
+          ปกป้องคนที่รัก ลงมือทำจริง มีพลังงานเด็ดขาดเมื่อจำเป็น
+batch 4 — เก็บสะสมไว้แล้วระเบิดออกทีหลัง แบบรุนแรงจนคนรอบตกใจ · คิดว่าตัวเองทำได้ไม่ดีพอ ควรทำให้ดีกว่านี้ ·
+          ทำอะไรก็ได้ที่ไม่ต้องคิดมาก เช่น ดูหนัง ฟังเพลง เล่นเกม
+```
+
+Its narrowing, as stated: batch 1 → Head with a Heart signal, ลักษณ์ 2, 6 or 9 · batch 2 → cuts 2,
+lands on 9, wing still open between 9w1 and 9w8 · batch 3 → wing 1 and wing 8 both signalled, read
+as "what happens" versus "what is aspired to" · batch 4 → **ลักษณ์ 9w1 — The Dreamer**, with the
+note that 8 energy appears only when pushed to a limit. Twelve questions across four batches.
