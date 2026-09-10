@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { MAX_QUESTIONS } from "./lib/assessment-data";
 import { getCharacterProfile, type GenderPresentation } from "./lib/character-system";
 import { scoreAssessment, sessionQuestions, type AnswerRecord } from "./lib/scoring";
@@ -45,6 +45,28 @@ export default function Home() {
     if (selected === null) return setError("เลือกคำตอบที่ใกล้เคียงตัวคุณที่สุดก่อนนะ");
     if (index === MAX_QUESTIONS - 1) setStep("result"); else setIndex(index + 1);
   };
+  // The answer buttons render an A/B/C/D badge on every option, which is a firm promise that the
+  // key does something. It did not. Four options, four keys, and Enter/→ to advance — the badges
+  // now mean what they say. Guarded so it never fires while someone is typing in the profile form.
+  const answer = useCallback((optionIndex: number) => {
+    if (!question) return;
+    setAnswers((current) => [...current.slice(0, index), { questionId: question.id, optionIndex }]);
+    setError("");
+  }, [question, index]);
+  useEffect(() => {
+    if (step !== "questions") return;
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const slot = ["a", "b", "c", "d"].indexOf(event.key.toLowerCase());
+      if (slot >= 0) { event.preventDefault(); answer(slot); return; }
+      if (event.key === "Enter" || event.key === "ArrowRight") { event.preventDefault(); next(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   const restart = () => { setStep("welcome"); setProfile(INITIAL_PROFILE); setConsent(false); setCandidateNotice(false); setIndex(0); setAnswers([]); setError(""); };
 
   return <main className="app-shell"><div className="ambient ambient-one" /><div className="ambient ambient-two" />
@@ -52,7 +74,7 @@ export default function Home() {
     <section className={`stage stage-${step}`} aria-live="polite">
       {step === "welcome" && <div className="welcome-grid"><div className="hero-copy fade-in"><span className="kicker">รู้จักตัวเอง ทำงานร่วมกันได้ดีขึ้น</span><h1><span className="welcome-title-line">เข้าใจตัวเองให้ชัดขึ้น</span><span className="welcome-title-line">ทำงานและเติบโตไปด้วยกัน</span></h1><p className="hero-text">สำรวจรูปแบบการคิด แรงขับภายใน และวิธีทำงานที่เหมาะกับคุณ</p><div className="time-badge">◷ ใช้เวลาประมาณ 8–10 นาที · 24 ข้อ</div><fieldset className="audience-pick"><legend>คุณเข้ามาในฐานะใคร?</legend><div className="audience-options"><button className="primary-button" type="button" onClick={() => { setCandidateNotice(false); setStep("profile"); }}><b>พนักงานบริษัท</b><small>Employee · ทำได้เลย</small></button><button className="secondary-button" type="button" aria-describedby={candidateNotice ? "candidate-notice" : undefined} onClick={() => setCandidateNotice(true)}><b>ผู้สมัครงาน</b><small>Candidate · ยังไม่เปิด</small></button></div></fieldset>{candidateNotice && <p className="notice" id="candidate-notice" role="status">เส้นทางสำหรับผู้สมัครยังไม่เปิดใช้งาน — ต้องรอลิงก์และข้อความยินยอมจากฝ่ายบุคคลก่อน หากคุณเป็นผู้สมัคร กรุณาติดต่อฝ่ายบุคคล</p>}<p className="fine-print">ไม่มีคำตอบถูกหรือผิด เลือกคำตอบที่ใกล้เคียงคุณที่สุด</p></div><div className="hero-art fade-in-delayed"><div className="guild-visual"><Image src="/guild-characters-3d.webp" alt="ตัวละครสามแบบของ TDFB Personality Quest ยืนเรียงกัน ถือสมุดและการ์ดประจำแนวคิดของตัวเอง" fill sizes="(max-width: 899px) 92vw, 560px" preload /><span className="guild-orbit" /><span className="guild-logo"><Image src="/brand/td-logo.png" alt="โลโก้ TD" width={52} height={52} /></span></div></div></div>}
       {step === "profile" && <div className="form-layout fade-in"><aside className="side-intro"><span className="step-label">ขั้นตอนที่ 1</span><h1>ก่อนเริ่ม<br />ขอรู้จักคุณสักนิด</h1><p>ข้อมูลนี้อยู่ในหน้านี้เท่านั้น และใช้เพื่อแสดงผลให้ถูกคน</p></aside><form className="profile-card" onSubmit={submitProfile}><div className="card-heading"><span>ข้อมูลผู้เข้าร่วม</span><small><i>*</i> จำเป็น</small></div>{roster ? <label>ชื่อและชื่อเล่น <i>*</i><select value={profile.nameAndNickname} onChange={(e) => { const picked = roster.find((member) => member.name === e.target.value); update("nameAndNickname", e.target.value); if (picked) update("team", picked.team); }} autoFocus><option value="">เลือกชื่อของคุณ</option>{roster.map((member) => <option key={member.name} value={member.name}>{member.name}</option>)}</select></label> : <label>ชื่อและชื่อเล่น <i>*</i><input value={profile.nameAndNickname} onChange={(e) => update("nameAndNickname", e.target.value)} autoFocus /></label>}<fieldset><legend>เลือกภาพตัวละครที่ใกล้เคียงกับคุณ</legend><div className="segmented">{["ผู้หญิง", "ผู้ชาย", "ไม่ระบุ"].map((value) => <button className={profile.gender === value ? "active" : ""} type="button" key={value} onClick={() => update("gender", value)}>{value}</button>)}</div></fieldset><label>ทีม <i>*</i><input value={profile.team} onChange={(e) => update("team", e.target.value)} placeholder="เช่น People & Culture" /></label><label className="consent"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /><span>ยินยอมให้ใช้ข้อมูลเพื่อแสดงผลกิจกรรม <small>ไม่มีการส่งข้อมูลออกหรือบันทึกลงฐานข้อมูล</small></span></label>{error && <p className="error" role="alert">{error}</p>}<button className="primary-button full">เริ่มตอบคำถาม →</button><button className="text-button" type="button" onClick={() => setStep("welcome")}>← กลับหน้าก่อนหน้า</button></form></div>}
-      {step === "questions" && question && <div className="question-wrap fade-in"><div className="progress-meta"><span>ข้อ {index + 1} จาก {MAX_QUESTIONS}</span><span>เหลือประมาณ {Math.max(1, Math.ceil((MAX_QUESTIONS-index-1)*24/60))} นาที</span></div><div className="progress-track" role="progressbar" aria-label="ความคืบหน้า" aria-valuemin={1} aria-valuemax={MAX_QUESTIONS} aria-valuenow={index + 1}><span style={{width:`${(index+1)/MAX_QUESTIONS*100}%`}} /></div><article className="question-card"><span className="step-label">{question.context}</span><h1>{question.prompt}</h1><p>เลือกข้อที่ตรงกับคุณมากกว่าในเวลาส่วนใหญ่</p><div className="answers">{question.options.map((option, optionIndex) => <button type="button" key={optionIndex} aria-pressed={selected === optionIndex} className={selected === optionIndex ? "selected" : ""} onClick={() => choose(optionIndex)}><span className="answer-key" aria-hidden="true">{String.fromCharCode(65+optionIndex)}</span><span className="answer-label">{option.text}</span><i aria-hidden="true">✓</i></button>)}</div>{error && <p className="error centered">{error}</p>}</article><div className="question-actions"><button className="secondary-button" onClick={() => index === 0 ? setStep("profile") : setIndex(index-1)}>← ย้อนกลับ</button><button className="primary-button" disabled={selected === null} onClick={next}>{index === MAX_QUESTIONS-1 ? "ดูผลลัพธ์" : "ถัดไป"} →</button></div></div>}
+      {step === "questions" && question && <div className="question-wrap fade-in"><div className="progress-meta"><span>ข้อ {index + 1} จาก {MAX_QUESTIONS}</span><span>เหลือประมาณ {Math.max(1, Math.ceil((MAX_QUESTIONS-index-1)*24/60))} นาที</span></div><div className="progress-track" role="progressbar" aria-label="ความคืบหน้า" aria-valuemin={1} aria-valuemax={MAX_QUESTIONS} aria-valuenow={index + 1}><span style={{width:`${(index+1)/MAX_QUESTIONS*100}%`}} /></div><article className="question-card"><span className="step-label">{question.context}</span><h1>{question.prompt}</h1><p>เลือกข้อที่ตรงกับคุณมากกว่าในเวลาส่วนใหญ่</p><div className="answers">{question.options.map((option, optionIndex) => <button type="button" key={optionIndex} aria-pressed={selected === optionIndex} className={selected === optionIndex ? "selected" : ""} onClick={() => choose(optionIndex)}><span className="answer-key" aria-hidden="true">{String.fromCharCode(65+optionIndex)}</span><span className="answer-label">{option.text}</span><i aria-hidden="true">✓</i></button>)}</div>{error && <p className="error centered">{error}</p>}<p className="key-hint">กด A B C D เพื่อเลือก · Enter เพื่อไปข้อถัดไป</p></article><div className="question-actions"><button className="secondary-button" onClick={() => index === 0 ? setStep("profile") : setIndex(index-1)}>← ย้อนกลับ</button><button className="primary-button" disabled={selected === null} onClick={next}>{index === MAX_QUESTIONS-1 ? "ดูผลลัพธ์" : "ถัดไป"} →</button></div></div>}
       {step === "result" && <ResultView result={result} character={character} nickname={profile.nameAndNickname} team={profile.team} consent={consent} onRestart={restart} />}
     </section><footer><span>PERSONALITY IS A MAP, NOT A BOX.</span><span>Made for TDFB team growth</span></footer>
   </main>;
