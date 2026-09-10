@@ -51,12 +51,11 @@ NEVER INCLUDE: text, numbers, letters, logos, watermarks, participant data, char
 status objects, badges of rank, job titles, distress, pathology, medical or diagnostic cues,
 dominance posturing, flirtation, or any body-shape encoding of personality or gender.
 
-PROPORTIONS — this presentation is not locked yet, so land it inside the range the
-others already occupy:
-  - the head is 14.3 to 15.7% as wide as the figure is tall
-  - the shoulders are 1.65 to 1.76 times the head's width
-An adult build, never adolescent. A noticeably smaller head than that range reads as photographic
-realism rather than as this set's style.
+PROPORTIONS — measured off the locked male master, and identical across all nine cores
+of this presentation:
+  - the head is 12% as wide as the figure is tall
+  - the shoulders are 29.8% as wide as the figure is tall, i.e. 2.48 times the head's width
+An adult build, never adolescent.
 
 CORE: 6 — Risk Scout
 POSE ORIENTATION: forward

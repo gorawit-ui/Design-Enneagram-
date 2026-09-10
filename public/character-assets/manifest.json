@@ -8,7 +8,7 @@
     "livingPilotAssets": 12
   },
   "present": {
-    "baseAssets": 6,
+    "baseAssets": 7,
     "explorationFallback": 0,
     "livingPilotAssets": 12
   },
@@ -33,6 +33,45 @@
       "checksum": {
         "algorithm": "sha256",
         "value": "db4837844c7a450e65fe5ac39b09ab25f2528a4455fa12f6f1469f3bee9c2d51"
+      },
+      "accessibilityDescription": "ผู้พิทักษ์มาตรฐานยืนมั่นคงพร้อมสมุดตรวจงานและตราคุณภาพ",
+      "sourceTool": null,
+      "creator": null,
+      "licenceOwnership": null,
+      "generationProvenance": null,
+      "reviewer": null,
+      "approvalState": null,
+      "approvalDate": null,
+      "gaps": [
+        "sourceTool",
+        "creator",
+        "licenceOwnership",
+        "generationProvenance",
+        "reviewer",
+        "approvalState",
+        "approvalDate"
+      ]
+    },
+    {
+      "assetId": "enneagram-1-male",
+      "publicPath": "/character-assets/enneagram-1/male.webp",
+      "family": "base",
+      "enneagramCore": 1,
+      "presentation": "male",
+      "appliesTo": {
+        "mbti": null,
+        "wing": null,
+        "identity": null
+      },
+      "fileType": "image/webp",
+      "pixelDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "byteSize": 139496,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "f5a034bedaee66462c50d435ea72a5a909005ae3859988652b52f1668028561f"
       },
       "accessibilityDescription": "ผู้พิทักษ์มาตรฐานยืนมั่นคงพร้อมสมุดตรวจงานและตราคุณภาพ",
       "sourceTool": null,

@@ -10,5 +10,11 @@
     "headWidthPct": 15.7,
     "shoulderWidthPct": 26,
     "shoulderToHead": 1.65
+  },
+  "male": {
+    "source": "outputs/asset-masters/enneagram-1/male-master.png",
+    "headWidthPct": 12,
+    "shoulderWidthPct": 29.8,
+    "shoulderToHead": 2.48
   }
 }

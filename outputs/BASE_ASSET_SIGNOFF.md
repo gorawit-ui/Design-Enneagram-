@@ -151,3 +151,29 @@ the nine male cores at once, instead of fighting the same collision on each of t
 
 `outputs/asset-masters/proportions.json` no longer carries a male entry, so the male prompts state
 the shared target until the new master is measured and locked.
+
+## Core 1 — male, regenerated 2026-09-10
+
+The replacement is in and passes every mechanical check. It also disproves the reasoning that asked
+for it, which is worth stating plainly because the Products Owner chose option C on that reasoning.
+
+The claim was that the male master's small head — 11.8% where the other two masters sit at 14.3%
+and 15.7% — was what made the male presentation read photographically, and that regenerating it
+inside the family's range would fix the style at its source. The new master came back at **12.0%**,
+essentially unchanged, and reads clearly stylised. Head width and photographic realism are
+independent; the STYLE block is what fixed the style, and it would have fixed it without touching
+the master.
+
+The numeric range in the prompt did not move the result either. It asked for 14.3 to 15.7% and got
+12.0%, so the generator's prior for male proportions is stronger than the instruction. Male figures
+are simply drawn with smaller heads here, and that is now recorded as the male presentation's own
+locked number rather than treated as a defect.
+
+What this leaves open is the Core 2 male that was rejected at 13.7%. It failed against the old
+11.8% by 1.9pp and would fail against 12.0% by 1.7pp, on a 1.5pp tolerance. Two same-prompt
+generations of this presentation have now come back 1.7pp apart, while the two female generations
+came back 0.3pp apart — too little evidence to say whether the tolerance is too tight or that one
+asset is genuinely off, and not something to settle by loosening the check until it passes.
+
+Awaiting a ruling: same person as the withdrawn male, and equal standing beside the female and
+neutral.
