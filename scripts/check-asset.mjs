@@ -23,6 +23,24 @@ const BUILD_TOLERANCE = 0.02;
 // A derivative comes back re-encoded, so identical rows are not bit-identical. This is the largest
 // per-channel drift still counted as unchanged.
 const RE_ENCODE_TOLERANCE = 2;
+// The per-presentation builds are recorded in proportions.json by `npm run assets:proportions
+// -- --record`. Read them rather than repeating them here: a master that gets regenerated moves
+// these numbers, and advice that still quotes the old build is worse than no advice.
+const PROPORTIONS_FILE = path.join("outputs", "asset-masters", "proportions.json");
+const FALLBACK = "each master's shoulders sit at its own multiple of its own head width";
+function recordedBuilds() {
+  let recorded;
+  try {
+    recorded = JSON.parse(fs.readFileSync(PROPORTIONS_FILE, "utf8"));
+  } catch {
+    return [FALLBACK];
+  }
+  const parts = Object.entries(recorded)
+    .filter(([, v]) => typeof v?.shoulderToHead === "number")
+    .map(([name, v]) => `${name}: shoulders ${v.shoulderToHead} head-widths, head ${v.headWidthPct}% of height`);
+  if (!parts.length) return [FALLBACK];
+  return parts;
+}
 // Which part of the body each band falls in, for naming the failure rather than just numbering it.
 // The boundaries are measured off the approved master rather than assumed: on a standing full-body
 // figure the head and hair reach almost a fifth of the way down, so a 13% head band mislabels the
@@ -304,9 +322,10 @@ if (results.length === 2 && results[0].box && results[1].box) {
   }
 
   console.log("\n  Compare a core against its OWN presentation's master. Since 2026-09-08 each");
-  console.log("  presentation is a locked character with its own build -- the female master's");
-  console.log("  shoulders are 1.76 head-widths, the male's 2.59 -- so a cross-presentation");
-  console.log("  reading here is expected to differ and says nothing about either being wrong.");
+  console.log("  presentation is a locked character with its own build:");
+  for (const line of recordedBuilds()) console.log(`    ${line}`);
+  console.log("  so a cross-presentation reading here is expected to differ and says nothing");
+  console.log("  about either being wrong.");
   console.log("  What no check can decide is the criterion that replaced the shared build: that");
   console.log("  no presentation reads as more capable or more dominant. That needs human eyes.");
 }

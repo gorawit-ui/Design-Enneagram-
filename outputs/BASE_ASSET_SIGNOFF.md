@@ -182,3 +182,32 @@ equal-standing sign-off is therefore whole again and covers all three presentati
 rather than the withdrawn one.
 
 Recorded proportions: head 12.0%, shoulders 29.8%, ratio 2.48.
+
+## Core 2 — Relationship Guide · male, regenerated 2026-09-10
+
+Generated in the new male master's own chat with no attachment, against the STYLE block. In the
+repository at `public/character-assets/enneagram-2/male.webp`, 153 KB, alpha intact.
+
+**Mechanical: PASS.** Head width 13.3% against the new male master's 12.0% — 1.3pp apart, inside the
+1.5pp tolerance. Margin 12.0% on every side, figure fitted to the central 76%, same framing as every
+other base asset.
+
+**Human ruling: pending.** The two questions the gate cannot answer — is it the same person as the
+male master, and does it read as equal in standing to the female and neutral — are open.
+
+This also adds the fourth data point to the head-width spread that was left unresolved on the Core 1
+male entry above:
+
+| Male generation | Head width |
+|---|---|
+| original master (withdrawn) | 11.8% |
+| Core 2, first attempt (withdrawn on style) | 13.7% |
+| regenerated master (locked) | 12.0% |
+| Core 2, this asset | 13.3% |
+
+Both derived Core 2 attempts land near 13.5% while both masters land near 12%, which is a more
+orderly picture than random scatter: the outstretched-arm pose appears to draw the head slightly
+larger relative to the figure's height, or the map prop shortens the apparent body. Either way the
+1.5pp tolerance held on this asset without being touched, so it stays as it is. If a later core in
+this presentation fails it by a few tenths, the question to ask is whether the tolerance should be
+measured against a pose-matched master, not whether to widen it.
