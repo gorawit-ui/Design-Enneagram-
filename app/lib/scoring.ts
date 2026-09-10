@@ -57,15 +57,38 @@ export function scoreAssessment(answers: readonly AnswerRecord[]): AssessmentRes
   };
 }
 
-export function selectChallengeQuestions(answers: readonly AnswerRecord[]): readonly [AssessmentQuestion, AssessmentQuestion] {
+// The six adaptive slots. Slots 1-2 are the two A/T challenges unconditionally. The spec's eight
+// MBTI foundation items are two each across four axes, which leaves A/T with no foundation
+// coverage at all -- and scoreAssessment calls an axis ambiguous on fewer than two answers, so
+// reserving a single A/T slot would have made mbti.type null for every respondent alive. Two
+// reserved slots is the smallest arrangement that keeps the spec's foundation split and still
+// yields a type.
+//
+// The remaining four go three to Enneagram and one to MBTI, because Enneagram is the thinner side:
+// it separates nine cores and then a wing, where the four MBTI axes already have two foundation
+// items each.
+export function selectChallengeQuestions(answers: readonly AnswerRecord[]): readonly AssessmentQuestion[] {
   const result = scoreAssessment(answers);
-  const closestDimension = (Object.entries(result.dimensions) as [keyof typeof pairs, AssessmentResult["dimensions"]["IE"]][]).sort((a,b) => a[1].margin-b[1].margin || a[0].localeCompare(b[0]))[0][0];
-  const dimensionQuestion = DIMENSION_CHALLENGES.find((q) => q.challengeFor?.dimension === closestDimension)!;
-  const coreIsClear = result.enneagram.confidence !== "ambiguous" && result.enneagram.top.score-result.enneagram.runnerUp.score >= 4;
-  const enneagramQuestion = coreIsClear
-    ? WING_CHALLENGES.find((q) => q.challengeFor?.wingCore === result.enneagram.top.value)!
-    : CORE_CHALLENGES.find((q) => q.challengeFor?.core === result.enneagram.top.value)!;
-  return [dimensionQuestion, enneagramQuestion];
+  const byId = (id: string) => [...DIMENSION_CHALLENGES, ...CORE_CHALLENGES, ...WING_CHALLENGES].find((q) => q.id === id)!;
+
+  // Slot 3: the axis the answers came closest to splitting, A/T excluded since it holds slots 1-2
+  // already. Ties break on name so the selection stays deterministic and replayable.
+  const closestAxes = (Object.entries(result.dimensions) as [keyof typeof pairs, AssessmentResult["dimensions"]["IE"]][])
+    .filter(([name]) => name !== "AT")
+    .sort((a,b) => a[1].margin-b[1].margin || a[0].localeCompare(b[0]))
+    .slice(0, 1)
+    .map(([name]) => DIMENSION_CHALLENGES.find((q) => q.challengeFor?.dimension === name)!);
+
+  // Slots 4-5: the two leading cores. Asking about the runner-up as well as the leader is what
+  // separates them, where asking twice about the leader only confirms it.
+  const coreQuestions = [result.enneagram.top.value, result.enneagram.runnerUp.value]
+    .map((core) => CORE_CHALLENGES.find((q) => q.challengeFor?.core === core)!);
+
+  // Slot 6: the wing question for the leading core. It adds weight to the two cores adjacent to
+  // that core, which is what scoreAssessment compares to decide the wing.
+  const wingQuestion = WING_CHALLENGES.find((q) => q.challengeFor?.wingCore === result.enneagram.top.value)!;
+
+  return [byId("c-at"), byId("c-at2"), ...closestAxes, ...coreQuestions, wingQuestion];
 }
 
 export function isValidWing(core: EnneagramCore, wing: EnneagramCore | null): boolean {

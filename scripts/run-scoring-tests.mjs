@@ -83,17 +83,53 @@ try {
   for (const [name, answers] of Object.entries(fixtures.ASSESSMENT_FIXTURES)) {
     if (answers.length === 0) continue;
     const challenges = scoring.selectChallengeQuestions(answers.slice(0, data.FOUNDATION_QUESTIONS.length));
-    assert.equal(challenges.length, 2, `${name}: challenge count`);
-    assert.ok(challenges[0].challengeFor?.dimension, `${name}: dimension challenge`);
-    assert.ok(challenges[1].challengeFor?.core || challenges[1].challengeFor?.wingCore, `${name}: Enneagram challenge`);
+    assert.equal(challenges.length, data.ADAPTIVE_QUESTIONS, `${name}: challenge count`);
+    // Slots 1-2 are the A/T pair, unconditionally. A/T has no foundation coverage since the count
+    // moved to 24, and an axis with fewer than two answers scores as ambiguous, so without both of
+    // these reserved every respondent would be handed a null MBTI type.
+    assert.deepEqual([challenges[0].id, challenges[1].id], ["c-at", "c-at2"], `${name}: A/T slots reserved`);
+    assert.ok(challenges[2].challengeFor?.dimension, `${name}: dimension challenge`);
+    assert.ok(challenges[3].challengeFor?.core && challenges[4].challengeFor?.core, `${name}: two core challenges`);
+    assert.notEqual(challenges[3].id, challenges[4].id, `${name}: the two core challenges differ`);
+    assert.ok(challenges[5].challengeFor?.wingCore, `${name}: wing challenge`);
+    assert.equal(new Set(challenges.map((q) => q.id)).size, challenges.length, `${name}: no question is asked twice`);
   }
 
   const allQuestions = [...data.FOUNDATION_QUESTIONS, ...data.DIMENSION_CHALLENGES, ...data.CORE_CHALLENGES, ...data.WING_CHALLENGES];
   assert.equal(data.FOUNDATION_QUESTIONS.length, 18, "foundation question count");
-  assert.equal(data.MAX_QUESTIONS, 20, "session question cap");
+  assert.equal(data.MAX_QUESTIONS, 24, "session question cap");
+  assert.equal(data.FOUNDATION_QUESTIONS.length + data.ADAPTIVE_QUESTIONS, data.MAX_QUESTIONS, "foundation plus adaptive fills the session");
+
+  // Keyed direction balance. Option position mapped to the same pole on every item, so answering
+  // the same position throughout produced an extreme profile arriving as a *confident* result:
+  // measured with nothing reversed, a full session of option 1 returns ISTJ-A at "clear" and
+  // option 4 returns ENFP-T at "clear". The reversal set in assessment-data.ts is derived by
+  // `npm run keying` to defeat exactly this, and here we assert the property rather than the list,
+  // so the list stays free to change.
+  //
+  // The session must be COMPLETE for this to test anything. A/T has no foundation coverage since
+  // the count moved to 24, so a foundation-only straight line scores ambiguous on the A/T axis
+  // alone and the assertion passes whatever the keying is — a vacuous test that reads like a real
+  // one. Answering the adaptive block too is what makes it bite.
+  for (const position of [0, 1, 2, 3]) {
+    const foundation = data.FOUNDATION_QUESTIONS.map((question) => ({ questionId: question.id, optionIndex: position }));
+    const adaptive = scoring.selectChallengeQuestions(foundation).map((question) => ({ questionId: question.id, optionIndex: position }));
+    const answers = [...foundation, ...adaptive];
+    assert.equal(answers.length, data.MAX_QUESTIONS, `straight line at option ${position + 1} is a full session`);
+    const result = scoring.scoreAssessment(answers);
+    assert.equal(result.mbti.confidence, "ambiguous", `straight-lining option ${position + 1} must not yield a confident MBTI type`);
+    assert.equal(result.mbti.type, null, `straight-lining option ${position + 1} must not name a type`);
+    assert.equal(result.enneagram.confidence, "ambiguous", `straight-lining option ${position + 1} must not yield a confident core`);
+    assert.equal(result.enneagram.core, null, `straight-lining option ${position + 1} must not name a core`);
+  }
+  for (const axis of ["IE", "SN", "TF", "JP"]) {
+    const items = allQuestions.filter((question) => question.kind === "foundation" && question.id.startsWith(`f-${axis.toLowerCase()}-`));
+    assert.equal(items.length, 2, `${axis}: two foundation items`);
+    assert.equal(items.filter((question) => data.isReverseKeyed(question.id)).length, 1, `${axis}: exactly one of its two foundation items is reverse-keyed`);
+  }
   assert.ok(allQuestions.every((question) => question.options.length === 4), "every question has four scored choices");
 
-  console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, challenge routing, and the 20-question contract.`);
+  console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, challenge routing, the 24-question contract, and keyed direction balance.`);
 } finally {
   fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 }

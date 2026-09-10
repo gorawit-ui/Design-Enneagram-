@@ -23,7 +23,9 @@
     "assets:neck": "node scripts/neck-probe.mjs",
     "assets:proportions": "node scripts/measure-proportions.mjs",
     "assets:unbake": "node scripts/unbake-checkerboard.mjs",
-    "assets:ingest": "node scripts/ingest-asset.mjs"
+    "assets:ingest": "node scripts/ingest-asset.mjs",
+    "fixtures": "node scripts/find-fixtures.mjs --write",
+    "keying": "node scripts/find-keying.mjs"
   },
   "dependencies": {
     "next": "16.3.3",

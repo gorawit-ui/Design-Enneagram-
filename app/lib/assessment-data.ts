@@ -9,8 +9,45 @@ export type AssessmentQuestion = {
   context?: string;
   prompt: string;
   options: readonly [AssessmentOption, AssessmentOption, AssessmentOption, AssessmentOption];
-  challengeFor?: { dimension?: "IE" | "SN" | "TF" | "JP" | "AT"; core?: EnneagramCore; wingCore?: EnneagramCore };
+  challengeFor?: { dimension?: "IE" | "SN" | "TF" | "JP" | "AT" | "AT2"; core?: EnneagramCore; wingCore?: EnneagramCore };
 };
+
+// --- keyed direction balance -------------------------------------------------------------------
+// Every item is authored with its first pole first, which on its own means option position maps to
+// the same pole throughout: straight-lining the first option would yield a maximally I-S-T-J-A
+// profile, and arrive as a confident result rather than the low-confidence one that non-answering
+// should produce. The mapping is also learnable after three or four items.
+//
+// These ids have their option order reversed at export. The set is DERIVED, not chosen -- run
+// `npm run keying` (scripts/find-keying.mjs) to re-derive it after any change to the items. It
+// searches every one-per-axis MBTI combination against every roughly-half subset of the Enneagram
+// block and scores each on whether straight-lining still yields a confident answer. This set
+// scores zero: answering the same option position through a whole 24-answer session returns
+// "ambiguous" on both MBTI and Enneagram, where with nothing reversed it returns ISTJ-A at "clear"
+// for option 1 and ENFP-T at "clear" for option 4.
+//
+// Hand-picking does not work here. The MBTI side balances by reversing one item per axis, but each
+// Enneagram item carries four different cores plus secondary weights, so a set that flattens one
+// position tilts another. Reversal is also mechanical rather than hand-authored, so an option's
+// text and its weights cannot drift apart.
+const REVERSED_ITEMS: ReadonlySet<string> = new Set([
+  "f-ie-1", "f-sn-1", "f-tf-1", "f-jp-1",
+  "f-e-1", "f-e-2", "f-e-3", "f-e-4", "f-e-7",
+  "c-sn", "c-jp", "c-at",
+  "c-core-2", "c-core-4", "c-core-6", "c-core-8",
+  "c-wing-1", "c-wing-3", "c-wing-5", "c-wing-7", "c-wing-9",
+]);
+
+function applyKeying(question: AssessmentQuestion): AssessmentQuestion {
+  if (!REVERSED_ITEMS.has(question.id)) return question;
+  const [a, b, c, d] = question.options;
+  return { ...question, options: [d, c, b, a] };
+}
+
+/** True when this item's options are presented in reverse of their authored pole order. */
+export function isReverseKeyed(id: string): boolean {
+  return REVERSED_ITEMS.has(id);
+}
 
 const mbtiQuestion = (id: string, context: string, prompt: string, left: MbtiPole, right: MbtiPole, choices: readonly [string, string, string, string]): AssessmentQuestion => ({
   id, kind: "foundation", context, prompt,
@@ -22,7 +59,7 @@ const mbtiQuestion = (id: string, context: string, prompt: string, left: MbtiPol
   ],
 });
 
-export const FOUNDATION_QUESTIONS: readonly AssessmentQuestion[] = [
+const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
   mbtiQuestion("f-ie-1", "เวลาคิด", "เมื่อเริ่มคิดเรื่องงาน คุณมักทำอะไรเป็นอย่างแรก?", "I", "E", ["คิดเงียบ ๆ จนเห็นคำตอบ", "เริ่มคิดเอง แล้วค่อยคุยตรวจ", "เริ่มคุย แล้วกลับมาคิดทบทวน", "คุยต่อยอดจนเห็นคำตอบ"]),
   mbtiQuestion("f-ie-2", "พลังใจ", "หลังประชุมกับคนหลายคนต่อเนื่อง คุณมักอยากทำอะไรต่อ?", "I", "E", ["พักตามลำพัง", "พักคนเดียว แล้วค่อยกลับไปหาคน", "อยู่กับคนสนิท แล้วค่อยแยกไปพัก", "ใช้เวลากับคนอื่นต่อ"]),
   mbtiQuestion("f-sn-1", "รับข้อมูล", "เมื่อเริ่มงานที่ไม่คุ้นเคย คุณอยากรู้อะไรก่อน?", "S", "N", ["เริ่มจากรายละเอียดจริง", "ดูรายละเอียด แล้วค่อยมองภาพรวม", "มองภาพรวม แล้วค่อยดูรายละเอียด", "เริ่มจากภาพรวมข้างหน้า"]),
@@ -31,8 +68,6 @@ export const FOUNDATION_QUESTIONS: readonly AssessmentQuestion[] = [
   mbtiQuestion("f-tf-2", "ความขัดแย้ง", "เมื่อคุยเรื่องงานแล้วเห็นต่าง คุณมักให้ความสำคัญกับอะไรเป็นอย่างแรก?", "T", "F", ["ทำให้เหตุผลชัดเจน", "ชี้แจงเหตุผล แล้วค่อยปรับความเข้าใจ", "รับฟังก่อน แล้วค่อยตรวจเหตุผล", "ทำให้แต่ละฝ่ายเข้าใจกัน"]),
   mbtiQuestion("f-jp-1", "จัดการเวลา", "เมื่องานยังไม่เสร็จแต่มีเส้นตายชัดเจน อะไรช่วยให้คุณเดินหน้าต่อ?", "J", "P", ["เดินหน้าตามแผน", "ใช้แผน แล้วปรับเมื่อจำเป็น", "เปิดทางปรับ แล้วค่อยวางแผน", "ปรับวิธีตามข้อมูลใหม่"]),
   mbtiQuestion("f-jp-2", "วิธีเดินหน้า", "เมื่อข้อมูลสำหรับงานยังมาไม่ครบ คุณมักเลือกแบบใด?", "J", "P", ["เดินตามทิศทางเดิม", "ยึดทางเดิม แล้วทบทวนภายหลัง", "รอข้อมูล แล้วค่อยกำหนดทาง", "เปิดทางให้เปลี่ยนทิศทาง"]),
-  mbtiQuestion("f-at-1", "เมื่อพลาด", "หลังทำพลาดเล็กน้อย ปฏิกิริยาแรกของคุณมักเป็นแบบใด?", "A", "Turbulent", ["รับรู้แล้วเดินหน้าต่อ", "ทำต่อ แล้วค่อยกลับมาทบทวน", "ทบทวน แล้วค่อยกลับไปทำต่อ", "ตรวจสิ่งที่ต้องแก้ทันที"]),
-  mbtiQuestion("f-at-2", "แรงกดดัน", "ก่อนนำเสนองานตามปกติ คุณมักพึ่งอะไรในตัวเองมากกว่า?", "A", "Turbulent", ["เชื่อในสิ่งที่เตรียมมา", "ใช้ความมั่นใจ แล้วตรวจจุดสำคัญ", "ตรวจจุดเสี่ยง แล้วเชื่อสิ่งที่เตรียม", "ตรวจทานจนไม่พบจุดตกหล่น"]),
   {
     id: "f-e-1", kind: "foundation", context: "แรงขับภายใน", prompt: "เมื่อทำงานชิ้นหนึ่งเสร็จ อะไรทำให้คุณรู้สึกพอใจจากข้างในมากที่สุด?", options: [
       { text: "งานตรงตามหลักที่ยึดถือ", weights: { enneagram: { 1: 2, 6: 1 } } },
@@ -97,23 +132,47 @@ export const FOUNDATION_QUESTIONS: readonly AssessmentQuestion[] = [
       { text: "ได้พักโดยไม่ต้องตามใจใคร", weights: { enneagram: { 9: 2, 8: 1 } } },
     ],
   },
+  {
+    id: "f-e-9", kind: "foundation", context: "เมื่อเห็นต่าง", prompt: "เมื่อทีมเห็นไม่ตรงกันในเรื่องงาน คุณอยากให้เรื่องนั้นจบลงแบบไหน?", options: [
+      { text: "จบโดยไม่ต้องฝืนยอมตาม", weights: { enneagram: { 8: 2 } } },
+      { text: "จบโดยทุกฝ่ายยังทำงานร่วมกันได้", weights: { enneagram: { 9: 2 } } },
+      { text: "จบด้วยข้อสรุปที่ตรวจสอบย้อนได้", weights: { enneagram: { 1: 2 } } },
+      { text: "จบเมื่อเข้าใจเหตุผลของทุกฝ่ายแล้ว", weights: { enneagram: { 5: 2 } } },
+    ],
+  },
+  {
+    id: "f-e-10", kind: "foundation", context: "เมื่องานถูกแทรก", prompt: "เมื่อมีงานแทรกเข้ามากลางสัปดาห์ อะไรที่คุณอยากรักษาไว้มากที่สุด?", options: [
+      { text: "การจัดลำดับงานของตัวเอง", weights: { enneagram: { 8: 2 } } },
+      { text: "จังหวะการทำงานที่ไม่ถูกเร่ง", weights: { enneagram: { 9: 2 } } },
+      { text: "สิ่งที่รับปากคนอื่นไว้", weights: { enneagram: { 2: 2 } } },
+      { text: "ผลลัพธ์ที่ตั้งเป้าไว้", weights: { enneagram: { 3: 2 } } },
+    ],
+  },
 ] as const;
+export const FOUNDATION_QUESTIONS: readonly AssessmentQuestion[] = AUTHORED_FOUNDATION.map(applyKeying);
 
-const dimensionChallenge = (dimension: "IE" | "SN" | "TF" | "JP" | "AT", prompt: string, left: MbtiPole, right: MbtiPole, choices: readonly [string, string, string, string]): AssessmentQuestion => ({
+const dimensionChallenge = (dimension: "IE" | "SN" | "TF" | "JP" | "AT" | "AT2", prompt: string, left: MbtiPole, right: MbtiPole, choices: readonly [string, string, string, string]): AssessmentQuestion => ({
   ...mbtiQuestion(`c-${dimension.toLowerCase()}`, "คำถามแยกแนวโน้ม", prompt, left, right, choices), kind: "challenge", challengeFor: { dimension },
 });
 
-export const DIMENSION_CHALLENGES = [
+const AUTHORED_DIMENSION_CHALLENGES: readonly AssessmentQuestion[] = [
   dimensionChallenge("IE", "เมื่อต้องแก้ปัญหางานภายในหนึ่งชั่วโมง คุณมักเริ่มจากอะไร?", "I", "E", ["คิดเองจนเห็นทางออก", "คิดเอง แล้วค่อยขอความเห็น", "ขอความเห็น แล้วกลับมาคิดเอง", "คุยกับคนอื่นจนเห็นทางออก"]),
   dimensionChallenge("SN", "เมื่อข้อมูลยังไม่พอ คุณมักเชื่อสิ่งใดก่อน?", "S", "N", ["ประสบการณ์ที่ตรวจสอบได้", "ตรวจหลักฐาน แล้วค่อยมองรูปแบบ", "มองรูปแบบ แล้วค่อยหาหลักฐาน", "รูปแบบที่เชื่อมโยงกัน"]),
   dimensionChallenge("TF", "เมื่อต้องตัดสินใจเรื่องงานที่กระทบหลายฝ่าย คุณมักยึดอะไรเป็นหลัก?", "T", "F", ["ใช้เกณฑ์ที่กำหนดไว้", "ตรวจเกณฑ์ แล้วค่อยดูผลต่อคน", "ดูผลต่อคน แล้วค่อยตรวจเกณฑ์", "ยึดความต้องการของผู้เกี่ยวข้อง"]),
   dimensionChallenge("JP", "ก่อนเริ่มงานที่มีเวลาจำกัด อะไรช่วยให้คุณพร้อมลงมือ?", "J", "P", ["รู้ขั้นตอนก่อนลงมือ", "วางขั้นตอน แล้วเปิดทางให้ปรับ", "เริ่มจากวิธีที่ปรับได้ แล้วค่อยวางแผน", "ลงมือโดยเปิดทางให้ปรับ"]),
   dimensionChallenge("AT", "หลังได้รับข้อเสนอแนะตามปกติ คุณมักทำอะไรกับตัวเองก่อน?", "A", "Turbulent", ["รับสาระแล้วเดินหน้าต่อ", "ทำต่อ แล้วค่อยกลับมาตรวจ", "ตรวจจุดปรับ แล้วค่อยเดินหน้าต่อ", "ทบทวนจนเห็นวิธีทำให้ดีขึ้น"]),
+  // A second A/T item, and not an optional one. Once the A/T pair left the foundation block, A/T had
+  // a single source -- and scoreAssessment calls an axis ambiguous below two answers, so one item
+  // would have made mbti.type null for every respondent who ever finished. Both A/T items therefore
+  // hold reserved adaptive slots. `c-at` is reverse-keyed and this one is not, so position bias
+  // cancels on this axis the way it does on the other four.
+  dimensionChallenge("AT2", "เมื่อส่งงานไปแล้วยังไม่มีใครตอบกลับ ระหว่างรอคุณมักทำอะไร?", "A", "Turbulent", ["ถือว่าเรียบร้อยจนกว่าจะมีคนบอก", "คิดว่าเรียบร้อย แต่เตรียมคำตอบเผื่อไว้", "นึกถึงจุดที่อาจถูกถาม แล้วปล่อยไว้", "กลับไปตรวจงานนั้นอีกรอบ"]),
 ] as const;
+export const DIMENSION_CHALLENGES: readonly AssessmentQuestion[] = AUTHORED_DIMENSION_CHALLENGES.map(applyKeying);
 
 const coreChallenge = (core: EnneagramCore, prompt: string, options: AssessmentQuestion["options"]): AssessmentQuestion => ({ id: `c-core-${core}`, kind: "challenge", context: "คำถามแยกแรงขับ", prompt, options, challengeFor: { core } });
 const e = (text: string, scores: Partial<Record<EnneagramCore, number>>): AssessmentOption => ({ text, weights: { enneagram: scores } });
-export const CORE_CHALLENGES: readonly AssessmentQuestion[] = [
+const AUTHORED_CORE_CHALLENGES: readonly AssessmentQuestion[] = [
   coreChallenge(1, "เมื่อพบว่างานไม่ตรงกับข้อตกลง เหตุผลหลักที่ทำให้คุณอยากแก้คืออะไร?", [e("รักษามาตรฐาน",{1:3}),e("เพิ่มความแน่นอน",{6:3}),e("พางานไปถึงเป้าหมาย",{3:3}),e("คลี่คลายความตึงเครียด",{9:3})]),
   coreChallenge(2, "เวลาช่วยเพื่อนร่วมงาน อะไรสำคัญกับคุณจากข้างในมากที่สุด?", [e("รู้สึกเชื่อมโยงกัน",{2:3}),e("ทำตามหลักที่ยึดถือ",{1:3}),e("ไปถึงเป้าหมายร่วมกัน",{3:3}),e("รักษาบรรยากาศที่สงบ",{9:3})]),
   coreChallenge(3, "เมื่อทำเป้าหมายหนึ่งสำเร็จ อะไรมีความหมายกับคุณมากที่สุด?", [e("เห็นว่าตัวเองทำได้",{3:3}),e("เห็นว่าคนสำคัญได้ประโยชน์",{2:3}),e("มีอิสระกำหนดทางต่อไป",{8:3}),e("ได้แสดงความเป็นตัวเอง",{4:3})]),
@@ -124,6 +183,7 @@ export const CORE_CHALLENGES: readonly AssessmentQuestion[] = [
   coreChallenge(8, "เมื่อต้องกำหนดขอบเขตกับคนอื่น เหตุผลใดสำคัญกับคุณมากที่สุด?", [e("รักษาสิทธิ์ตัดสินใจเอง",{8:3}),e("รักษาหลักที่ยึดถือ",{1:3}),e("รักษาทิศทางสู่เป้าหมาย",{3:3}),e("รักษาคนที่ต้องดูแล",{2:3})]),
   coreChallenge(9, "เมื่อการคุยเริ่มตึงเครียด คุณอยากให้เกิดอะไรขึ้นมากที่สุด?", [e("แต่ละฝ่ายยังเป็นตัวเองได้",{9:3}),e("กลับมาคุยตามหลักที่ชัดเจน",{1:3}),e("ความสัมพันธ์ยังเชื่อมโยงกัน",{2:3}),e("สถานการณ์กลับมาคาดการณ์ได้",{6:3})]),
 ];
+export const CORE_CHALLENGES: readonly AssessmentQuestion[] = AUTHORED_CORE_CHALLENGES.map(applyKeying);
 
 const WING_CHALLENGE_CONTENT: Record<EnneagramCore, { prompt: string; choices: readonly [string, string, string, string] }> = {
   1: { prompt: "เมื่ออยากรักษาความสงบและดูแลคนอื่นพร้อมกัน คุณมักทำอย่างไร?", choices: ["คลี่คลายบรรยากาศให้สงบ", "ทำให้สงบ แล้วค่อยดูแลคน", "ดูแลคน แล้วค่อยลดความตึงเครียด", "ทำให้คนรู้สึกได้รับการดูแล"] },
@@ -137,11 +197,14 @@ const WING_CHALLENGE_CONTENT: Record<EnneagramCore, { prompt: string; choices: r
   9: { prompt: "เมื่อต้องตัดสินใจเองและรักษามาตรฐาน คุณมักทำอย่างไร?", choices: ["กำหนดทางเดินด้วยตัวเอง", "ตัดสินใจ แล้วค่อยตรวจมาตรฐาน", "ตรวจมาตรฐาน แล้วค่อยตัดสินใจ", "ทำให้งานตรงตามมาตรฐาน"] },
 };
 
-export const WING_CHALLENGES: readonly AssessmentQuestion[] = ([1,2,3,4,5,6,7,8,9] as EnneagramCore[]).map((core) => {
+export const WING_CHALLENGES: readonly AssessmentQuestion[] = ([1,2,3,4,5,6,7,8,9] as EnneagramCore[]).map((core): AssessmentQuestion => {
   const left = (core === 1 ? 9 : core - 1) as EnneagramCore;
   const right = (core === 9 ? 1 : core + 1) as EnneagramCore;
   const content = WING_CHALLENGE_CONTENT[core];
   return { id: `c-wing-${core}`, kind: "challenge", context: "คำถามแยกรายละเอียด", prompt: content.prompt, challengeFor: { wingCore: core }, options: [e(content.choices[0],{[left]:3}),e(content.choices[1],{[left]:2}),e(content.choices[2],{[right]:2}),e(content.choices[3],{[right]:3})] };
-});
+}).map(applyKeying);
 
-export const MAX_QUESTIONS = 20;
+// 18 fixed foundation items (8 MBTI across four axes, 10 Enneagram) plus a six-item adaptive
+// block: the A/T challenge unconditionally, then five selected from the respondent's own answers.
+export const MAX_QUESTIONS = 24;
+export const ADAPTIVE_QUESTIONS = 6;
