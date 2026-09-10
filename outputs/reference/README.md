@@ -37,7 +37,7 @@ rather than asking for a re-upload.
 | Tool | Directory | Status |
 |---|---|---|
 | พี่ทิม's Enneagram tool (internal, executive-built) | `tim-enneagram-tool/` | **complete** — 10 screenshots, analysed, findings in `docs/REFERENCE_TIM_ENNEAGRAM_TOOL.md`, all borrows built |
-| (next tool — collecting) | | screenshots arriving |
+| Enneagram tool B (external / prior art) | `enneagram-tool-b/` | **complete** — 54 screenshots across 4 respondents, declared complete by the Products Owner 2026-09-10, analysed in `docs/REFERENCE_TOOL_B_ANALYSIS.md` |
 
 ## Analysed findings live in docs/, not here
 

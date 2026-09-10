@@ -1,8 +1,13 @@
 # Enneagram tool B — collecting, NOT yet analysed
 
-**Status: incomplete. The Products Owner said "ยังไม่ครบ อย่าเพิ่งทำอะไร เก็บเป็นข้อมูลก่อน".**
-Per `outputs/reference/README.md`, nothing here is to be analysed, compared against our item bank,
-or acted on until the set is declared complete.
+**Status: COMPLETE.** The Products Owner declared the set complete on 2026-09-10 ("ครบแล้ว นี่เป็น
+data ทั้งหมดที่ไปดึงมา ตอนทำแบบทดสอบของทีม") and asked for a summary of what the material shows, what
+logic is new in it, and what should be adapted into what we already have.
+
+**54 screenshots, four respondents.** These are sessions from members of the team taking the test,
+which is why the four verdicts are treated below as four real profiles rather than as demos.
+
+The analysis is in **`docs/REFERENCE_TOOL_B_ANALYSIS.md`**. This file stays as the raw index.
 
 Source: another tool the Products Owner tried ("ไปลองดูของคนอื่นมา"). Owner not stated. Their note on
 sending: the first question is not like ours at all ("คำถามแรกก็ไม่เหมือนกันเลยแหะ").
@@ -13,9 +18,9 @@ One directory per respondent, since this tool is being sampled with more than on
 
 ```
 respondent-1/   17 screenshots — complete
-respondent-2/   15 screenshots — collecting
-respondent-3/   10 screenshots — collecting (and possibly not this tool at all, see below)
-respondent-4/   10 screenshots — collecting (same caveat, plus a different persona voice)
+respondent-2/   15 screenshots — complete
+respondent-3/   10 screenshots — complete (provenance still worth confirming, see below)
+respondent-4/   12 screenshots — complete
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -242,6 +247,8 @@ not something to infer from a screenshot. Ask.
 | `respondent-4/7-result-weaknesses-and-health-levels.png` | The rest of จุดอ่อน and วงจรสุขภาวะ 3 ระดับ, all as prose, several items quoting the respondent's own earlier answers back at them |
 | `respondent-4/8-result-arrows-and-framework-overlay.png` | ลูกศรพลังงาน (เครียด → 9, เติบโต → 6) each with a dark and a light side, then **Overlay กับ MBTI, BOSI DNA** — ENTJ × 3w4 and Innovator-Builder × 3w4, each with a synergy reading and an internal tension |
 | `respondent-4/9-result-growth-path-and-invitation.png` | เส้นทางเติบโต — 3 สิ่งที่ต้องฝึก (Helen Palmer, อ.ธนา), then an invitation offering three specific next topics |
+| `respondent-4/11-dashboard-radar-and-strengths-grid.png` | The RADAR chart itself — six axes (Achievement drive, Competence, Adaptability, Emotional access, Vulnerability, Inner depth) — and STRENGTHS AND CHALLENGES as a two-column grid of one-line items |
+| `respondent-4/12-dashboard-growth-path-and-followups.png` | GROWTH PATH as three numbered items each with a source line, four follow-up chips, and the tool's own description of the dashboard: "ภาพรวม profile ทั้งหมดของคุณในหน้าเดียว" |
 | `respondent-4/10-dashboard-summary-card.png` | **A laid-out dashboard** — the type badge, FRAMEWORKS as three cards (ENTJ-A · I→B · **Di, marked INFERRED**), CORE STRUCTURE as four cells, ENERGY ARROWS as ←9 / 3w4 / 6→, and the heading of a RADAR — ENERGY DISTRIBUTION section |
 
 Answers, as they appear in the transcript blocks:
