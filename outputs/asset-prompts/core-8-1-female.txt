@@ -68,5 +68,10 @@ SAME PERSON as the female master locked earlier in this conversation: face, faci
 hair style and colour, skin tone, build, shoulder width, height and wardrobe are all unchanged.
 A viewer must recognise them as one character across all nine cores.
 
+HOLD THE HEAD: the head and the eyes are exactly the size they are on the master, relative to the
+body. Do not enlarge either. "Gently idealised" in the STYLE block describes the master's existing
+proportions — it is not an instruction to push this figure further toward a cartoon than the master
+already is. A larger head or larger eyes makes this a different character, however appealing.
+
 WHAT CHANGES: only the pose orientation, the action, the prop and the expression, exactly as listed
 above. Do not carry over core 1's notebook or seal — this core has its own prop and no other.

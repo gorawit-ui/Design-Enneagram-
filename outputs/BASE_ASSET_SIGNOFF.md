@@ -259,3 +259,43 @@ presentations converge slightly as cores are added rather than diverge, which is
 direction for the equal-standing criterion — but it also means the 1.5pp tolerance is measuring
 partly the pose and partly the build. The male is the presentation with room to fail it first,
 since it starts furthest from the middle.
+
+## Core 3 — Goal Driver · female, rejected 2026-09-10
+
+**Mechanical FAIL, and the tolerance question from the Core 1 male entry is now answered.**
+
+Head width 16.3% against the female master's 14.3% — 2.0pp apart on a 1.5pp tolerance, and the
+largest head measured anywhere in the set. Nothing entered the repository.
+
+The measurement was checked before it was believed, because a prop held at head height would fake
+it. The widest row inside the head band is a **single** run of 137 px, not two runs with the board
+in one of them, so the check is measuring her head. Rendered beside the master and Core 2 female at
+equal figure height, the difference is plainly visible: a larger head and noticeably larger eyes,
+reading younger and more cartoon-like than the two approved assets.
+
+So the 1.5pp tolerance is doing its job rather than being too tight. It has now passed one asset at
+1.3pp that looks right beside its master (Core 2 male) and failed one at 2.0pp that does not. Two
+points do not calibrate a threshold, but they bracket it in the right order, which is the most that
+could be asked of it here. **The open question from the Core 1 male entry is closed: leave it at
+1.5pp.**
+
+The likely cause is in the prompt rather than in the generator's luck. The STYLE block, added to fix
+the photo-real Core 2 male, asks for "gently idealised rather than anatomically exact" facial
+proportions — and idealising a face means enlarging the head and the eyes. Every derived asset since
+has drifted that way. Core 2 female moved +0.3pp, Core 2 male +1.3pp, and Core 3 female +2.0pp,
+which is the same instruction pulling harder each time it is not resisted.
+
+A `HOLD THE HEAD` block now follows `SAME PERSON` in every pose prompt, saying in plain language
+that "gently idealised" describes the master's existing proportions rather than licensing more of
+them. Numbers alone were already known not to work here — the male master came back at 12.0% when
+asked for 14.3-15.7% — so the countermeasure is worded, not numeric.
+
+Also fixed before this generation: Core 3's prop was "a milestone medallion", an award, in a prompt
+that forbids awards two paragraphs earlier and in `character-system.ts` as `เหรียญหมุดหมาย`. Both
+now read as a progress marker, and the generator refuses to emit any prompt whose prop or action
+names an award.
+
+**Not counted against the asset:** the first Core 3 female generation was made from a prompt typed
+from memory rather than read from `outputs/asset-prompts/core-3-1-female.txt`, and had the wrong
+pose, action, prop and expression. That cost a generation and was nobody's judgement but the
+assistant's. Prompts are now read from the generated file every time.
