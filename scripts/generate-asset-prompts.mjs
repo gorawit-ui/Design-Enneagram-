@@ -243,8 +243,26 @@ const RECORDED = fs.existsSync(path.join(projectRoot, "outputs/asset-masters/pro
 const buildBlock = (gender) => {
   const r = RECORDED[gender];
   if (!r) {
-    return `PROPORTIONS: one balanced adult build, shoulders about twice the width of the head.
+    // A presentation with no reading yet still has a family to land inside. Stating the range the
+    // locked presentations actually occupy beats "about twice the head", which is what the male
+    // master was left with -- it came back at 11.8% where the others sit at 14.3% and 15.7%, alone
+    // at the realistic end of the set, and every male core then inherited it.
+    const locked = Object.values(RECORDED);
+    if (!locked.length) {
+      return `PROPORTIONS: one balanced adult build, shoulders about twice the width of the head.
 An adult build, never adolescent.`;
+    }
+    const widths = locked.map((entry) => entry.headWidthPct);
+    const ratios = locked.map((entry) => entry.shoulderToHead);
+    const span = (values) => (Math.min(...values) === Math.max(...values)
+      ? `${Math.min(...values)}`
+      : `${Math.min(...values)} to ${Math.max(...values)}`);
+    return `PROPORTIONS — this presentation is not locked yet, so land it inside the range the
+others already occupy:
+  - the head is ${span(widths)}% as wide as the figure is tall
+  - the shoulders are ${span(ratios)} times the head's width
+An adult build, never adolescent. A noticeably smaller head than that range reads as photographic
+realism rather than as this set's style.`;
   }
   return `PROPORTIONS — measured off the locked ${gender} master, and identical across all nine cores
 of this presentation:

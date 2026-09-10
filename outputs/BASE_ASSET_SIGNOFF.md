@@ -16,7 +16,10 @@ is not misled about how much scrutiny each decision received.
 
 ## Core 1 — Standards Keeper
 
-**Bias / equal standing: PASS.** Signed by the Products Owner, 2026-09-08.
+**Bias / equal standing: PASS on the original trio, and now partly void.** Signed by the Products
+Owner 2026-09-08; the male presentation it covered was withdrawn on 2026-09-10 and is being
+regenerated, so this ruling stands for the female and neutral and must be given again once the new
+male lands. A ruling on equal standing is a ruling on a set, and one member of the set changed.
 
 Measured builds, from `outputs/asset-masters/proportions.json`:
 
@@ -116,3 +119,35 @@ reassuring number that does not discriminate.
 
 The prompts now carry a STYLE block naming this directly, so the remaining cores are asked for it
 rather than left to the word "semi-realistic". Core 2 male is to be generated again against it.
+
+## Core 1 — Standards Keeper · male, withdrawn 2026-09-10
+
+Withdrawn and to be regenerated, on the Products Owner's decision, because the master itself is the
+outlier rather than anything derived from it.
+
+Head width as a share of the figure's height, across everything approved so far:
+
+| | Head width |
+|---|---|
+| male master | 11.8% |
+| Core 2 male, regenerated in the stylised look | 13.7% |
+| female master | 14.3% |
+| Core 2 female | 14.6% |
+| neutral master | 15.7% |
+
+A smaller head reads as realistic proportion and a larger one as stylised, and the male master sits
+alone at the realistic end while the other two masters sit at the stylised end. That is very likely
+the source of the original complaint — Core 2 male read as a photograph of a real person, and it was
+following the master it was given.
+
+It surfaced through a collision rather than by inspection. The STYLE block added after that
+complaint asks for gently idealised proportions, which pushes the head larger; the regenerated
+Core 2 male came back at 13.7% and failed the build check against its own master's 11.8%. The
+prompt and the recorded number were pulling in opposite directions, and the number was the wrong
+one — 13.7% sits inside the family, 11.8% does not.
+
+Regenerating the master rather than the derived asset costs the same single generation and fixes
+the nine male cores at once, instead of fighting the same collision on each of them.
+
+`outputs/asset-masters/proportions.json` no longer carries a male entry, so the male prompts state
+the shared target until the new master is measured and locked.
