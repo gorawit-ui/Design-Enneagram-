@@ -231,8 +231,18 @@ repository at `public/character-assets/enneagram-2/neutral.webp`, 134 KB, alpha 
 1.5pp tolerance. Margin 12.0% on every side, figure fitted to the central 76%, same framing as every
 other base asset.
 
-**Human ruling: pending.** The same two questions the gate cannot answer are open: same person as
-the neutral master, and equal in standing beside the female and male.
+**Ruled 2026-09-10 by the Products Owner: approved.** Both questions answered yes, on the two
+side-by-side renders at equal on-screen height: the figure reads as the same person as the neutral
+master, and the three Core 2 presentations read as equal in standing seen together.
+
+**Core 2 is complete.** All three presentations are in the repository and signed off. It is the
+first core to be finished under the per-presentation master structure adopted on 2026-09-08, so it
+is the evidence that the structure works: three prompts, three chats, no attachments, one generation
+each for male and neutral, and no mechanical failure on any of the three.
+
+The one blemish is the female, approved with the same-person premise knowingly relaxed. That is
+recorded in its own entry above and does not carry to the other two, both of which held the
+likeness.
 
 Note on direction of drift, which is now consistent enough to be worth recording. Every derived
 Core 2 asset moved its head width *toward* the middle of the family and away from its own master:
