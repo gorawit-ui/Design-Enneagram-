@@ -117,7 +117,7 @@ export const ENNEAGRAM_PROFILES: { [Core in EnneagramCore]: EnneagramProfile<Cor
   },
   3: {
     titleThai: "นักขับเคลื่อนเป้าหมาย", shortDescriptionThai: "จัดลำดับพลังและทรัพยากรเพื่อพาทีมถึงเป้าหมาย", coreColor: "#333333",
-    prop: "กระดานเป้าหมายและเหรียญหมุดหมาย", poseDirection: "right", backgroundMotif: "เส้นทางสู่หมุดหมาย",
+    prop: "กระดานเป้าหมายและหมุดบอกความคืบหน้า", poseDirection: "right", backgroundMotif: "เส้นทางสู่หมุดหมาย",
     accessibilityDescriptionThai: "นักขับเคลื่อนเป้าหมายชี้ไปยังกระดานหมุดหมายอย่างมั่นใจ",
     leftWing: { type: 2, profile: wing("ความสำเร็จร่วม", "เติมพลังสนับสนุนผู้คน", "วงกลมทีม", "การ์ดขอบคุณ", "เปิดลำตัวเข้าหาทีม") },
     rightWing: { type: 4, profile: wing("ลายเซ็นเฉพาะตัว", "เติมน้ำเสียงและวิธีเล่าที่มีเอกลักษณ์", "ริบบิ้นอิสระ", "ป้ายเรื่องราว", "เอียงศีรษะครุ่นคิด") },
