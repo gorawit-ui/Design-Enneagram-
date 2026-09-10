@@ -15,6 +15,7 @@ One directory per respondent, since this tool is being sampled with more than on
 respondent-1/   17 screenshots — complete
 respondent-2/   15 screenshots — collecting
 respondent-3/   10 screenshots — collecting (and possibly not this tool at all, see below)
+respondent-4/    5 screenshots — collecting (same caveat, plus a different persona voice)
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -217,3 +218,46 @@ Two things on file here, recorded without conclusions:
   different runs, is a question for the Products Owner.
 - "ลม" is the Thai element naming for DISC's I (Influence). Worth knowing if any of this is ever
   compared against DISC data of our own.
+
+---
+
+## Respondent 4 — screenshots on file, in reading order
+
+**Collecting.** Filed 2026-09-10. Verdict: **ลักษณ์ 3w4 — The Professional**. Twelve questions
+across four batches.
+
+Same provenance caveat as respondent 3 — typed answers, no machine traces, prose output — and one
+more difference on top of it: **the assistant's persona speaks with ครับ here and ค่ะ in respondent
+3's session.** Whether that is a persona setting, two different tools, or two different builds is
+not something to infer from a screenshot. Ask.
+
+| File | What it shows |
+|---|---|
+| `respondent-4/1-welcome-frameworks-and-batch1.png` | Welcome, framework results asked for conversationally and marked optional ("สิ่งที่มีก็ดี (ไม่มีก็ไม่เป็นไร)"), the respondent supplying MBTI ENTJ-A and BOSI DNA primary I / secondary B, then batch 1 as three question-and-answer pairs |
+| `respondent-4/2-batch1-read-and-batch2.png` | The batch-1 read placing them in Heart Center and narrowing to ลักษณ์ 3 or 7, then batch 2 |
+| `respondent-4/3-batch2-read-and-batch3-wing.png` | The batch-2 read confirming 3 and naming the stress arrow to 9 with a 7 influence, the wing still open between 3w2 (The Charmer) and 3w4 (The Professional), then batch 3 |
+| `respondent-4/4-wing-tension-and-batch4-confirmation.png` | A wing tension named out loud — item 1 pointing to w4 against items 2-3 pointing to w2 — a note that the inner richness might be ENTJ's Ni rather than wing 4, and a fourth batch of three to settle it |
+| `respondent-4/5-final-read-verdict-3w4-and-structure.png` | The final read, the wing conclusion (outward charm reads w2, inner drive is w4), the verdict **Enneagram 3w4 "The Professional"**, and the start of โครงสร้างพื้นฐาน — Core Fear, Core Desire, Defense Mechanism (Identification) |
+
+Answers, as they appear in the transcript blocks:
+
+```
+frameworks — MBTI: ENTJ-A · BOSIDNA Primary: I · BOSIDNA Secondary: B
+batch 1 — สแกนว่าคนรอบข้างรู้สึกยังไง ปรับตัวตามบรรยากาศก่อน · มีพลัง สนุก มีไอเดียเยอะ แต่บางทีกระโดดเร็วเกินไป ·
+          กลัวไม่มีคุณค่า ไม่เป็นที่ยอมรับ หรือไม่ประสบความสำเร็จ
+batch 2 — ดีใจ และอยากฉลอง แชร์ให้คนรอบข้างรู้ · คนที่ไม่เห็นคุณค่าของสิ่งที่ผมทำ หรือไม่ให้เครดิต ·
+          หาอะไรสนุกๆ ทำ เปลี่ยนบรรยากาศ หนีจากความเครียด
+batch 3 — ชอบมีช่วงเวลาอยู่คนเดียว ขุดลึกกับสิ่งที่สนใจ มีโลกภายในที่เข้มข้น ·
+          คนที่คนชอบ เข้าถึงง่าย ดึงดูดคนด้วยความอบอุ่นและพลังงาน ·
+          รู้สึกแย่ พยายามกลับไปทำให้ดีขึ้น อยากให้ความสัมพันธ์ดีเหมือนเดิม
+batch 4 — ไม่ค่อยรู้สึกต่าง แต่กลัวว่าคนอื่นไม่เห็นคุณค่าหรือไม่ต้องการผม ·
+          อยากประสบความสำเร็จจริงๆ ไม่ใช่แค่ smooth talk อยากให้ผลงานพูดแทน ·
+          รู้จริงแต่ไม่แคร์ เพราะผลงานสำคัญกว่าความรู้สึก
+```
+
+One thing to notice at analysis time, without concluding now: in both respondent 3's and
+respondent 4's sessions the tool **named a wing tension out loud and then opened an extra batch
+specifically to resolve it**, in both cases telling the respondent to answer for what actually
+happens rather than what they would like to be true. Respondent 1's session did the same thing for
+a core-versus-coping question. That is three of four sessions where the tool's own uncertainty
+triggered more questions rather than a hedged answer.
