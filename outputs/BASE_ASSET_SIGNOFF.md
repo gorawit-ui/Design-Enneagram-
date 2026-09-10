@@ -308,11 +308,15 @@ Second attempt, from the prompt file with the new `HOLD THE HEAD` block. In the 
 **Mechanical: PASS.** Head width 13.2% against the female master's 14.3% — 1.1pp apart, inside the
 1.5pp tolerance.
 
-**Human ruling: equal standing PASS, likeness not yet ruled.** The equal-standing question was
-answered on 2026-09-10 for the Core 3 pair, so it covers this asset as well as the male. The
-likeness question — is she the same person as the female master — was put with the asset but the
-answer that came back was to the male pair that followed, so it is recorded as still open rather
-than inferred from silence. It is the only outstanding item on Core 3 female.
+**Ruled 2026-09-10 by the Products Owner: approved.** Equal standing was answered on the Core 3
+pair render, and the likeness question was answered separately once put on its own — she reads as
+the same person as the female master. Both items closed.
+
+This is the first female derived core to hold the likeness. Core 2 female was approved with the
+same-person premise knowingly relaxed, and that entry reasoned the cost would show up in the
+27-asset contact sheet as nine different faces per column. On this evidence that will not happen
+by default: Core 3 female holds, so Core 2 female is a single miss rather than the start of a
+trend.
 
 The wording worked, and it is worth recording how hard it pulled. The same prompt with one paragraph
 added moved the head from **+2.0pp above** the master to **1.1pp below** it — a 3.1pp swing, where
@@ -349,3 +353,28 @@ of +0.3 to +2.0 without it. It also fixes the presentation that had drifted furt
 sat at +1.3pp, and Core 3 male sits at +0.2pp from the same master with the same pose family. On
 this evidence the drift was the STYLE block's phrasing, not the generator's variance, and naming it
 explicitly is what stopped it.
+
+## Core 3 — Goal Driver · neutral, 2026-09-10
+
+Generated in the neutral master's chat with the `HOLD THE HEAD` block. In the repository at
+`public/character-assets/enneagram-3/neutral.webp`, 120 KB, alpha intact.
+
+**Mechanical: PASS.** Head width 14.4% against the neutral master's 15.7% — 1.3pp apart, inside the
+1.5pp tolerance.
+
+**Human ruling: pending.** Same person as the neutral master, and equal in standing across the
+Core 3 trio.
+
+Three generations under the new block, every one inside the tolerance: female −1.1pp, male +0.2pp,
+neutral −1.3pp. All three now sit *below* their masters, which is the overshoot recorded on the
+Core 3 female entry showing up consistently rather than once. It is not worth correcting while
+every asset passes, but if a later core lands just outside on the low side, the fix is to soften
+this block, not to widen the tolerance.
+
+**Observation, not a defect.** The prop came back reading as a clipboard carrying a single dot
+rather than as a goal board carrying a milestone. It satisfies the prompt — a board plus one
+progress marker, and no text is permitted — and it is consistent across all three presentations,
+so parity holds. But it is markedly less legible as its subject than Core 2's network map was, and
+`character-system.ts` describes this core to a screen reader as pointing at a milestone board. If
+the contact sheet review finds the prop unreadable, this is a wording problem in the ACTION and
+PROP lines rather than anything wrong with these three files.

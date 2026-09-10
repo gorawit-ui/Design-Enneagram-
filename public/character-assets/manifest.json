@@ -8,7 +8,7 @@
     "livingPilotAssets": 12
   },
   "present": {
-    "baseAssets": 11,
+    "baseAssets": 12,
     "explorationFallback": 0,
     "livingPilotAssets": 12
   },
@@ -306,6 +306,45 @@
       "checksum": {
         "algorithm": "sha256",
         "value": "5bc9f76f0817798530b5c8d996441f3b4ee16b4aefcecbb5d6fba0c2d827c158"
+      },
+      "accessibilityDescription": "นักขับเคลื่อนเป้าหมายชี้ไปยังกระดานหมุดหมายอย่างมั่นใจ",
+      "sourceTool": null,
+      "creator": null,
+      "licenceOwnership": null,
+      "generationProvenance": null,
+      "reviewer": null,
+      "approvalState": null,
+      "approvalDate": null,
+      "gaps": [
+        "sourceTool",
+        "creator",
+        "licenceOwnership",
+        "generationProvenance",
+        "reviewer",
+        "approvalState",
+        "approvalDate"
+      ]
+    },
+    {
+      "assetId": "enneagram-3-neutral",
+      "publicPath": "/character-assets/enneagram-3/neutral.webp",
+      "family": "base",
+      "enneagramCore": 3,
+      "presentation": "neutral",
+      "appliesTo": {
+        "mbti": null,
+        "wing": null,
+        "identity": null
+      },
+      "fileType": "image/webp",
+      "pixelDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "byteSize": 122466,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "d4d1cf6e21cbe64f5ea182017a158c0cb3d8458c136615ac67e57cb8f2d6a7aa"
       },
       "accessibilityDescription": "นักขับเคลื่อนเป้าหมายชี้ไปยังกระดานหมุดหมายอย่างมั่นใจ",
       "sourceTool": null,
