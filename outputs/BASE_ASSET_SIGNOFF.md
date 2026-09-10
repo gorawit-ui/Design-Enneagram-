@@ -16,10 +16,11 @@ is not misled about how much scrutiny each decision received.
 
 ## Core 1 — Standards Keeper
 
-**Bias / equal standing: PASS on the original trio, and now partly void.** Signed by the Products
-Owner 2026-09-08; the male presentation it covered was withdrawn on 2026-09-10 and is being
-regenerated, so this ruling stands for the female and neutral and must be given again once the new
-male lands. A ruling on equal standing is a ruling on a set, and one member of the set changed.
+**Bias / equal standing: PASS.** Signed by the Products Owner 2026-09-08 on the original trio, and
+given again on 2026-09-10 after the male presentation was withdrawn and regenerated. A ruling on
+equal standing is a ruling on a set, so it was re-taken rather than carried over when one member of
+the set changed. The measured builds below are the original trio's; the male row is superseded by
+the entry at the end of this file.
 
 Measured builds, from `outputs/asset-masters/proportions.json`:
 
@@ -175,5 +176,9 @@ generations of this presentation have now come back 1.7pp apart, while the two f
 came back 0.3pp apart — too little evidence to say whether the tolerance is too tight or that one
 asset is genuinely off, and not something to settle by loosening the check until it passes.
 
-Awaiting a ruling: same person as the withdrawn male, and equal standing beside the female and
-neutral.
+**Ruled 2026-09-10 by the Products Owner: approved.** Preferred over the withdrawn male, and equal
+standing beside the female and neutral confirmed with the three seen side by side. The Core 1
+equal-standing sign-off is therefore whole again and covers all three presentations, on this male
+rather than the withdrawn one.
+
+Recorded proportions: head 12.0%, shoulders 29.8%, ratio 2.48.
