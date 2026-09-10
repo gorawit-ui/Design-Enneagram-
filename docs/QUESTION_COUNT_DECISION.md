@@ -583,3 +583,144 @@ evidence, which is the same reasoning that moved two items into it.
   be regenerated.
 - Nothing in the character, asset or resolver layers is touched. The visual work in flight is
   unaffected.
+
+---
+
+# HR's answers, and what they resolve
+
+On 2026-09-10 HR (Mook Wiparat) answered the three questions taken from the list above. Recorded
+here because they settle the item this document could not, and they change the risk picture
+substantially.
+
+| Question | HR's answer |
+|---|---|
+| At which stage does the candidate take it? | **After the first interview, before the final interview** |
+| What is it for? | **To know the candidate's disposition, as support for the interview** — *ประกอบการสัมภาษณ์* |
+| How long is it retained? | **Within a PDPA-compliant retention period**, set deliberately rather than kept until forgotten |
+
+## This is not the use the repository forbids
+
+`HR_DATA_AND_CONSENT.md` rules out a **hiring screen**, a **promotion criterion** and a source of
+**automated employment decisions**. What HR has described is none of those: the candidate has already
+passed a human interview, nothing is screened out by the result, nothing is ranked by it, and the
+output informs a conversation a person then has. That is the "safer shape" this document recommended
+two sections ago, arrived at independently by HR.
+
+So the conflict is much smaller than it looked, and much more defensible. `HR_DATA_AND_CONSENT.md`
+still needs a controlled amendment, because attaching a named candidate's responses to a recruitment
+process is exactly what rule 5 tells us not to do — but the amendment to write is now:
+
+> may be used as **interview-preparation material** for a candidate who has already passed the first
+> interview, with no selection, ranking or employment decision resting on the result
+
+rather than "may be used to screen candidates". That is a sentence HR and privacy can sign, and the
+participant-facing text can say the same thing truthfully.
+
+Two things this makes load-bearing rather than optional:
+
+- **The output must be interview questions, not a type or a score.** It was the recommendation
+  before; it is now what HR asked for in their own words. If the result page hands the interviewer a
+  four-letter label, the tool becomes the thing the consent document forbids no matter what the
+  document says.
+- **The retention period must be a stated number, chosen now.** HR's own note is that past practice
+  kept records until everyone forgot about them. A number in the consent text and an actual deletion
+  are two different commitments and both are needed.
+
+## The invite flow: HR's and the Products Owner's design is better than the magic link
+
+The magic-link recommendation assumed the system had to prove control of a mailbox. At this stage —
+after a human interview, as interview preparation, with no decision resting on it — that proof is
+not worth the infrastructure it costs. The design the Products Owner drafted with HR fits the
+constraints better:
+
+1. HR keeps a sheet of invited candidates, which is data they already hold from the application.
+2. The invitation email carries **one generic link**, in the existing HR email template. Nothing is
+   generated per candidate.
+3. On page one the candidate enters the email address they applied with.
+4. A script checks it against the sheet: on the list and not yet used → proceed and mark it used;
+   otherwise → refuse.
+
+Why this is the better answer here, not merely the cheaper one:
+
+- **No email-sending infrastructure at all**, where a magic link needs it.
+- **The link lives where the Products Owner said it belongs** — in the HR template that already
+  explains what the candidate is about to do and why.
+- **HR generates nothing.** Pasting candidate details into a sheet is work they already do.
+- **It lands on the right account from the first row.** A Google Sheet plus Apps Script is owned by
+  the HR Google account, which is precisely what the migration constraint requires — no personal data
+  is ever created on the Products Owner's account and later moved.
+
+What it gives up: it is a whitelist, not proof of mailbox control, so someone who knows a
+candidate's email address and has the link could impersonate them. At this stage and for this
+purpose that risk is not worth engineering against.
+
+One rule to carry into it: **the refusal message must read the same whether the email is absent from
+the list or already used.** Otherwise anyone with the link can test addresses to learn who is
+interviewing here. A single message — "this link cannot be used; please check you used the same
+address you applied with, or contact HR" — is helpful to someone who mistyped and reveals nothing.
+
+## Apps Script as the storage layer: right for this scale, and name where it stops being right
+
+Apps Script behind a Sheet answers three needs at once — the candidate whitelist, the single-use
+marker, and the anonymous outing calibration write — with no server provisioned and everything owned
+by the HR account.
+
+Its real limits, so they are known rather than discovered: a web-app call takes a few hundred
+milliseconds to a couple of seconds, quotas are per-account and per-day, a Sheet becomes unpleasant
+past a few tens of thousands of rows, and cross-origin calls from the app need the response headers
+set deliberately. For a few dozen outing participants and a handful of candidates a week, none of
+that binds. It would bind if this ever became a public self-serve assessment at thousands of
+responses a month, and that is the point to move to a real database — in the HR account, which by
+then already owns the data.
+
+## Mid-October changes the critical path
+
+The Products Owner set a date: the outing data collection has to be taking shape by **mid-October**,
+because the repository and data then move to the real account and the onsite activity design is
+built around it. That is about five weeks from this record.
+
+The consequence worth stating plainly: **the instrument has to be frozen before the outing collects
+anything.** Calibration data describes the instrument that produced it, so if the item set or the
+option keying changes afterwards, the data describes a test that no longer exists and phase 2 is back
+to judgement. That moves two pieces onto the critical path that were previously just "next":
+
+**Must be done and frozen before the outing:**
+
+1. The 24-item restructure — 8 MBTI + 10 Enneagram + (1 A/T + 5 selected).
+2. Reverse-keying about half the items. It is part of the instrument, so it cannot come after the
+   data.
+3. The anonymous calibration write — Apps Script and Sheet on the HR account, no names.
+4. The consent sentence, which currently says nothing is saved and stops being true at step 3.
+
+**Can follow the outing:**
+
+- Candidate mode, the router page, the whitelist check and the retention mechanics.
+- The interview-question output.
+- Item `version` and `contentHash` — wanted before candidates, not before the outing, though
+  stamping the frozen set in step 1 is the natural moment and costs nothing then.
+
+## Thai wording, second pass
+
+The Products Owner reviewed the two drafted items. Four options read as awkward Thai and are
+rewritten below; the reasoning is recorded because two of the rewrites had to avoid blurring a core
+into its neighbour.
+
+| Item | Core | First draft | Revised |
+|---|---:|---|---|
+| `f-e-9` | 8 | จบโดยไม่มีใครต้องกลืนความเห็นไว้ | **จบโดยไม่ต้องฝืนยอมตาม** |
+| `f-e-10` | 8 | สิทธิ์จัดลำดับงานของตัวเอง | **การจัดลำดับงานของตัวเอง** |
+| `f-e-10` | 9 | จังหวะงานที่ไม่ถูกดึงไปหลายทาง | **จังหวะการทำงานที่ไม่ถูกเร่ง** |
+| `f-e-10` | 2 | คำมั่นที่ให้ไว้กับคนอื่น | **สิ่งที่รับปากคนอื่นไว้** |
+
+Two notes on the choices:
+
+- The core 8 option in `f-e-9` could easily have become *"จบโดยทุกคนได้พูดสิ่งที่คิด"*, which is
+  natural Thai but is **core 9's motive, or core 2's** — everyone getting a voice is harmony, not
+  self-assertion. Core 8's motive is not conceding, so the revision keeps *ไม่ต้องฝืนยอมตาม*, which
+  contrasts sharply with the core 9 option sitting directly beneath it.
+- The core 9 option in `f-e-10` uses *ไม่ถูกเร่ง* deliberately: "unhurried" is core 9's own
+  expression word in `scripts/generate-asset-prompts.mjs` and its character definition, so the item
+  and the character now describe the same person.
+
+The Products Owner accepted *ผลลัพธ์ที่ตั้งเป้าไว้* (core 3) and did not flag the core 1 and core 5
+options in `f-e-9`, which stand as drafted.
