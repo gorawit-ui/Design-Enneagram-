@@ -166,3 +166,87 @@ Raised and analysed 2026-09-10. Nothing in `app/` was changed by this document. 
 `docs/ASSESSMENT_CONTENT_AUDIT.md` was marked resolved in the same commit, because its findings had
 in fact been fixed and its unmarked state had already caused one incorrect status report to the
 Products Owner.
+
+---
+
+# Decisions taken 2026-09-10, and the two-mode design
+
+The Products Owner ruled on the first two questions and asked, on the third, whether the internal
+and candidate uses could be built as two modes or two phases — the internal run being the outing in
+January 2027, the candidate use following it.
+
+## Ruled
+
+1. **24 questions, with the spec's allocation** (8 MBTI foundation, 10 Enneagram foundation,
+   6 adaptive). Not 24 by adding four items to the current split.
+2. **Reverse-key roughly half the items, before any candidate sees the instrument.**
+3. **Two modes, phased.** Design below.
+4. Still open, and still not an engineering decision: whether the candidate use proceeds, given that
+   it reverses `docs/HR_DATA_AND_CONSENT.md` and `docs/PRODUCT_BLUEPRINT.md`. The Products Owner has
+   confirmed the intent to use it with real applicants, so the work proceeds; the document change is
+   recorded as a required task rather than treated as a blocker, and the candidate mode ships behind
+   a flag that is off until those documents are changed.
+
+## The two modes differ in one thing
+
+| | Mode A — internal | Mode B — candidate |
+|---|---|---|
+| Items 1-18 | the same 18 foundation items | the same 18 foundation items |
+| Items 19-24 | selected from the respondent's own answers | a fixed set, identical for everyone |
+| Scoring | the same pure function | the same pure function |
+| Result | the same character and narrative | the same, plus the instrument version taken |
+
+Everything except item selection is shared, so this is one branch in one function, not two products.
+What makes it real rather than a setting is that the mode and the instrument version must be
+**recorded with the response** — being unable to say which instrument a given candidate took is the
+metadata gap already noted above, and it becomes load-bearing here.
+
+## Phase 1 is the calibration study for phase 2, and that is the strongest argument for phasing
+
+Mode B currently has no way to choose *which* six fixed items to use. There is no evidence about
+which items discriminate, which options are never chosen, or how often the result lands ambiguous.
+Picking six by judgement now would be guessing, and guessing is exactly what a candidate-facing
+instrument cannot afford.
+
+The January 2027 internal run produces that evidence, if it is instrumented to. What to collect,
+aggregate and unlinked to individuals:
+
+- per-item response distribution across the four options — an option nobody picks is a dead option
+  that has been costing a quarter of that item's information
+- time per item, against the spec's assumed 18 seconds
+- straight-lining rate: how many respondents chose the same option position many times in a row,
+  which is also the first real test of whether the reverse-keying works
+- how often MBTI and Enneagram confidence land "ambiguous", per axis and per core
+- how often `wingStatus` is "valid", and — the number that decides mode B's wing behaviour — how
+  often it would still have been valid *without* the targeted wing challenge
+
+That last one matters because of how the wing actually works, which is easy to get wrong from the
+outside. The wing is **not** read off the wing challenge; `scoreAssessment` derives it by comparing
+the two cores adjacent to the top core and requiring a margin of at least 2. The wing challenge only
+adds weight to those two. So mode B does not lose the wing — it loses a booster, and will land
+`wingStatus: "ambiguous"` more often. Phase 1 measures how much more often, and that number decides
+whether mode B reports a wing at all.
+
+## Build order, and why this order
+
+1. **Restructure to 24 (8/10/6).** Changes which items exist, so everything else depends on it.
+2. **Reverse-key about half.** Applies to the final item set; doing it first would mean re-keying
+   items that are about to be removed.
+3. **Item metadata** — `version` and `contentHash` at minimum. Stamps a set that has stopped moving.
+4. **Mode A/B switch and per-response mode recording.**
+5. **Instrumentation for the phase 1 calibration**, in time for January 2027.
+6. After the outing: choose mode B's six fixed items from the calibration data, and decide the wing
+   question — then, and only then, is mode B ready to be enabled.
+
+## One deviation from the spec, flagged rather than taken silently
+
+The spec's 8 MBTI foundation items are "I/E, S/N, T/F, J/P แกนละ 2", which leaves **A/T with no
+foundation coverage** — it moves entirely into the adaptive block. The spec's adaptive block is
+"MBTI Adaptive 2 + Core Challenge 2 + Wing Challenge 2", which does not reserve a slot for A/T
+either, so on a literal reading a respondent can finish the assessment with no A/T evidence at all
+and still be handed an A or T letter.
+
+Proposal: reserve one of the six adaptive slots for the A/T challenge unconditionally, leaving five
+selected. This is a deliberate deviation from the spec's literal split and is recorded here so it is
+not mistaken for an implementation slip. The alternative — keeping A/T in foundation and dropping to
+9 Enneagram foundation items — undoes the reallocation that is the whole point of moving to 24.
