@@ -250,3 +250,148 @@ Proposal: reserve one of the six adaptive slots for the A/T challenge unconditio
 selected. This is a deliberate deviation from the spec's literal split and is recorded here so it is
 not mistaken for an implementation slip. The alternative — keeping A/T in foundation and dropping to
 9 Enneagram foundation items — undoes the reallocation that is the whole point of moving to 24.
+
+---
+
+# Mode routing, and what candidate mode actually costs
+
+## Ruled 2026-09-10
+
+**A/T: option (ก).** One of the six adaptive slots is reserved for the A/T challenge
+unconditionally, leaving five selected. Final shape: 8 MBTI foundation + 10 Enneagram foundation +
+(1 A/T + 5 selected) = 24.
+
+## The routing proposal, and the one change it needs
+
+The Products Owner proposed a page before the current profile page: *who are you?* — Employee routes
+to the existing name / team / character page, Candidate routes to a separate form whose fields are
+still to be agreed with HR.
+
+This is the right shape, and it is better than a configuration flag for a reason worth stating: page
+one is exactly where the two **consent texts** have to diverge. An employee consents to a team
+development activity; a candidate has to be told the assessment is part of an application, what is
+kept, for how long, and who sees it. Putting the fork in the UI puts it where that difference can be
+shown honestly.
+
+The change it needs: **the respondent must not be the one who chooses the mode.** If candidate mode
+is a button anyone can press, then a candidate can press "Employee" instead and take the adaptive
+version, and the fixed-item guarantee — the whole reason candidate mode exists — is gone.
+
+Candidate mode should be reached by a **one-time invite link issued by HR**, not by self-selection.
+That buys four things at once:
+
+- the mode is decided by whoever issued the link
+- one response per invite, which is retake prevention (see below — this is not optional)
+- the candidate's identity comes from the invite, so the form asks for less personal data
+- an audit trail: who was invited, when, and which instrument version they were served
+
+The self-select page still earns its place: it is the door for employees, and it is where a candidate
+who arrives without a link is told to ask HR for one.
+
+## The thing that has to be said before January is planned around
+
+**There is no persistence in this application at all.** `app/page.tsx` holds the entire session in
+`useState` — profile, answers, challenges, result. Nothing is written anywhere. The consent checkbox
+on the profile page says so in as many words:
+
+> ไม่มีการส่งข้อมูลออกหรือบันทึกลงฐานข้อมูล
+
+For the internal outing this is a feature: no data leaves the browser, so the privacy surface is
+almost nil. For candidate mode it is a wall. Every single thing candidate mode is for requires
+storage that does not exist:
+
+| Needed for candidates | Exists today |
+|---|---|
+| HR can see the result | no — the result lives in one browser tab |
+| one attempt per candidate | no — a reload starts over, unlimited |
+| record of which instrument version was taken | no |
+| record of which mode was served | no |
+| retention and deletion per PDPA | no |
+
+**Retake prevention is the decisive one.** Without it, reverse-keying and fixed items buy nothing:
+a candidate who does not like the result reloads and tries again until they do. Everything in the
+integrity story above rests on the response being recorded once.
+
+So candidate mode is not "a router page plus fixed items". It is a router page, fixed items, a
+backend, invite tokens, a second consent text, retention rules, and an HR-facing view. That is a
+project, not a phase-2 setting — and it is a second reason the January outing should run in mode A
+only, which needs none of it.
+
+## "We are not fixed on time for candidates — should we add more questions, or analyse deeper?"
+
+Not more of the same questions. Adding personality items past 24 makes the *measurement* more
+reliable without making the *decision* better, because the ceiling is not item count — it is that
+MBTI and Enneagram types are not accepted predictors of job performance. Sixty items would measure
+the same non-predictor more precisely.
+
+What does add value, cheapest first.
+
+**1. Response-quality indicators. Zero extra questions.** Everything needed is already in the
+answer records:
+
+- straight-lining: how many times in a row the same option position was chosen. With the
+  reverse-keying from decision 2, a straight-liner produces a self-contradicting profile, and this
+  detects it explicitly rather than leaving it to look like a confident result.
+- time per item, and total time. Implausibly fast responses are a quality signal.
+- internal consistency: the foundation and adaptive items covering the same axis should agree. When
+  they do not, say so.
+
+Output should be a plain statement — *"this response set does not look internally consistent; treat
+the profile as indicative only"* — not a hidden adjustment to the score.
+
+**2. Two or three consistency items. About one minute.** Near-duplicate items placed far apart in the
+sequence. Standard practice in any instrument used for decisions, cheap to write, and it turns
+consistency from an inference into a measurement.
+
+**3. Situational judgement items, per role. About six minutes.** This is where predictive validity
+actually lives: a real situation from the role, four plausible responses, scored against what the
+hiring manager considers good judgement. It is also the one item type that a candidate cannot game
+by knowing the personality mapping. But the content is role-specific and has to be written with the
+hiring manager, so it is a separate project rather than an extension of this one.
+
+**4. Interview prompts as the output. The best value here, and the recommendation.** Instead of
+handing HR a type, hand them **three or four structured questions to ask this candidate**, derived
+from the profile — the places where this person's answers were ambiguous, the strengths worth probing,
+the working-style questions worth asking out loud.
+
+This is the recommendation for the candidate use, and it is worth being explicit about why: it turns
+the whole problem into a feature. The assessment stops being a gate that has to defend its
+predictive validity, and becomes an aid that makes a human interview better — which is a use no
+consent document has to be rewritten to permit, and which is more useful to HR than a four-letter
+label. It also removes the incentive to game: there is no "good result" to aim at, because the
+output is questions, not a score.
+
+**Time budget, if the candidate flow is not time-boxed.** Candidate goodwill runs out somewhere
+around 15-20 minutes for an unpaid assessment. Against that: 24 personality items at the spec's 18
+seconds is about 7 minutes, plus 3 consistency items about 1 minute, plus 6-8 situational items about
+6 minutes — roughly 14 minutes, which fits with room left. Length is not the constraint; content
+type is.
+
+## What to ask HR, before any of the candidate work is designed
+
+The Products Owner is going to ask HR which fields the candidate form should collect. That is the
+smaller half of the question. The list worth taking to that conversation:
+
+1. **What is it for — screening out, ranking, or interview preparation?** Every other answer follows
+   from this one, and only the third needs no change to `HR_DATA_AND_CONSENT.md`.
+2. **At which stage does the candidate take it** — before any human reads the CV, after a CV screen,
+   before the interview, or after it?
+3. **What decision, if any, rests on it?** If the honest answer is "none, it informs the
+   conversation", say that in the candidate-facing text; it is both true and reassuring.
+4. **The minimum fields.** Fewer is better, and some fields should be actively refused: date of
+   birth or age, photograph, marital status, religion, nationality and health or disability
+   information all create discrimination exposure, and several are sensitive personal data under the
+   Thai PDPA with a higher consent bar. The assessment needs none of them.
+5. **Retention and access.** How long may candidate responses be kept, who may read them, and what
+   happens to them when the candidate is not hired.
+6. **Who tells the candidate what this is for, and where does that text live** — the invite email,
+   page one, or both.
+
+One note on the existing gender field, which matters more in candidate mode than internally. The UI
+already asks it correctly — the legend is *เลือกภาพตัวละครที่ใกล้เคียงกับคุณ*, a character choice, not
+a demographic question — and `app/page.tsx` maps it to presentation only, never to scoring. But the
+field is *named* `gender` in `PROFILE_FIELDS`. Stored under that name in a record attached to a job
+application, it will read as demographic collection whatever the UI said, to anyone auditing later.
+The three-field profile contract is protected by tests and should not be broken casually; the rule
+instead is that **no candidate record persists this field under the name `gender`** — it is a
+presentation preference and should be stored as one, or not stored at all.
