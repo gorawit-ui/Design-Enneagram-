@@ -308,7 +308,11 @@ Second attempt, from the prompt file with the new `HOLD THE HEAD` block. In the 
 **Mechanical: PASS.** Head width 13.2% against the female master's 14.3% — 1.1pp apart, inside the
 1.5pp tolerance.
 
-**Human ruling: pending.** Same person as the female master, and equal in standing.
+**Human ruling: equal standing PASS, likeness not yet ruled.** The equal-standing question was
+answered on 2026-09-10 for the Core 3 pair, so it covers this asset as well as the male. The
+likeness question — is she the same person as the female master — was put with the asset but the
+answer that came back was to the male pair that followed, so it is recorded as still open rather
+than inferred from silence. It is the only outstanding item on Core 3 female.
 
 The wording worked, and it is worth recording how hard it pulled. The same prompt with one paragraph
 added moved the head from **+2.0pp above** the master to **1.1pp below** it — a 3.1pp swing, where
@@ -336,7 +340,9 @@ Generated in the male master's chat with the `HOLD THE HEAD` block. In the repos
 **Mechanical: PASS.** Head width 12.2% against the male master's 12.0% — **0.2pp apart**, the
 closest match of any derived asset so far, on a 1.5pp tolerance.
 
-**Human ruling: pending.** Same person as the male master, and equal in standing.
+**Ruled 2026-09-10 by the Products Owner: approved.** Same person as the male master, on the
+master / Core 2 / Core 3 render at equal on-screen height; and equal in standing beside Core 3
+female, on the pair render.
 
 Two generations under the new block, both landing inside a point of their master, against a spread
 of +0.3 to +2.0 without it. It also fixes the presentation that had drifted furthest: Core 2 male
