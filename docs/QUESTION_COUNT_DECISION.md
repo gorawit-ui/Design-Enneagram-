@@ -395,3 +395,191 @@ application, it will read as demographic collection whatever the UI said, to any
 The three-field profile contract is protected by tests and should not be broken casually; the rule
 instead is that **no candidate record persists this field under the name `gender`** — it is a
 presentation preference and should be stored as one, or not stored at all.
+
+---
+
+# Retake control without HR labour, and the account-migration constraint
+
+## The proposal, and why name-matching is not the gate
+
+The Products Owner does not want HR generating a link per candidate, and proposed instead: the
+candidate fills Thai name, English name and nickname, and if two of the three match an existing
+record, the assessment is refused with a message telling them to contact HR.
+
+The logic is sound as a *signal* and unsound as a *gate*, for four reasons:
+
+1. **It is bypassed by changing two fields.** The rule blocks at two matches out of three, so
+   altering the nickname and the English spelling leaves one match and passes. That takes seconds.
+2. **False positives cost more than false negatives here.** Common Thai given names plus their
+   obvious transliteration will hit two of three for two different people. The person penalised is a
+   real applicant, told to contact HR — which is the HR work the proposal was meant to avoid.
+3. **Transliteration is not stable even for one person.** Gorawit / Korawit / Gorawith are the same
+   applicant spelling their own name differently on different days, so the rule produces both false
+   positives and false negatives from the same cause.
+4. **It does not avoid the backend.** Checking a name against earlier submissions requires storing
+   every earlier submission, so the check needs the database it was meant to work around.
+
+There is also a privacy defect in the proposed message. *"เคยมีการทำแบบทดสอบนี้มาแล้ว"* shown to
+whoever typed the name confirms that a person with that name is in the system — so anyone can probe
+names to learn who applied. A refusal message must never reveal whether a record exists.
+
+## What to do instead, cheapest first
+
+**Layer 1 — remove the reason to retake. Already decided, and it does most of the work.**
+
+The output is going to be interview questions rather than a type or a score. That change dissolves
+most of this problem rather than mitigating it: there is no flattering result to retake toward, and
+gaming has no target, because the output is questions for the interviewer. A duplicate submission
+then costs data tidiness, not integrity. This is worth saying plainly because it means the heavy
+machinery below is optional rather than required.
+
+**Layer 2 — a self-serve one-time link that costs HR nothing: email magic link.**
+
+The candidate enters an email address, the system emails a single-use link, and clicking it starts
+the assessment. That email can never start another. It is fully automated, so HR generates nothing,
+and it is a real gate rather than a soft one because it requires control of a mailbox. It also
+supplies the identity record and the channel for sending the result, so it replaces form fields
+rather than adding a step. This is the standard pattern and the recommendation.
+
+**Layer 3 — keep the name check, but as an HR-side flag rather than a candidate-facing block.**
+
+Same comparison, opposite direction: when a new submission's name closely matches an earlier one,
+show that on the HR view — *"similar to an earlier submission, please check"* — and let a person
+decide. No applicant is ever wrongly refused, HR only looks when there is a genuine collision, and
+nothing is disclosed to whoever typed the name.
+
+**A weaker fallback if there is no email sending.** One link per job posting rather than per
+candidate, with one attempt per browser marked in local storage. Bypassable by clearing storage, so
+it stops the casual second attempt and nothing more — which, given layer 1, may be enough.
+
+## The account-migration constraint changes the storage advice
+
+The Products Owner explained the plan: build the web app close to complete on this account, then move
+the whole repository and its data to an account owned by HR, because employee data is confidential
+and must live in an account the Products Owner cannot create. Nothing has been built for the outing
+database yet.
+
+That constraint makes one piece of advice much stronger: **do not provision a database on this
+account.** Anything created here — a hosted Postgres, a Firebase or Supabase project — becomes a
+live-data migration across accounts later, which is exactly where personal data gets lost, duplicated
+or exposed. The confidentiality requirement is not only about who can read the data at the end; it is
+about the data never having been on the wrong account in the first place.
+
+The shape that respects it:
+
+- Define a **narrow storage interface** — save a response, read a response, check for a duplicate —
+  and ship a no-op implementation. The application stays complete and testable with nothing stored,
+  which is also exactly what the outing needs.
+- The **HR account provisions the real implementation** and plugs it in after the migration. Then no
+  identified response ever touches this account, and ownership is correct from the first write rather
+  than corrected afterwards.
+
+## The one storage thing that does have a January deadline
+
+Everything above can wait — except the calibration data. Recommendation above was that the outing is
+what tells phase 2 which six items to fix, which options are dead and whether the reverse-keying
+works. **If nothing records that at the outing, the data does not exist and phase 2 has no basis but
+judgement.**
+
+What it needs is much less than the candidate database: no names, no profile, no identity — only the
+answers, the timings and the resulting confidence, written once at the end. Two ways to get it
+without provisioning anything on this account:
+
+1. **Post to a Google Form or Sheet owned by the HR account.** Near-zero engineering, the data lands
+   in HR's Google account from the first row, and it needs no backend at all. This is the pragmatic
+   recommendation given the constraint.
+2. Offer a file download at the end of the result page and have the facilitator collect them. Works
+   with no network dependency, but relies on people at a party doing an errand.
+
+Either way the consent text has to say it, and the current text — *ไม่มีการส่งข้อมูลออกหรือบันทึกลง
+ฐานข้อมูล* — becomes false the moment anything is posted anywhere. Anonymous aggregate collection is
+a small change to that sentence, not a rewrite, but it is not optional.
+
+---
+
+# The 24-item restructure: what changes, and why these two new items
+
+## Enneagram foundation coverage is not balanced today, and the imbalance picks the new items
+
+Counting how many of the eight Enneagram foundation items give each core a **primary** (weight-2)
+option:
+
+| Core | Items giving it a primary | |
+|---:|---|---:|
+| 1 | f-e-1, f-e-3, f-e-5, f-e-7 | 4 |
+| 2 | f-e-1, f-e-3, f-e-5, f-e-7 | 4 |
+| 3 | f-e-1, f-e-3, f-e-5, f-e-7 | 4 |
+| 4 | f-e-1, f-e-3, f-e-6, f-e-7 | 4 |
+| 5 | f-e-2, f-e-4, f-e-5, f-e-8 | 4 |
+| 6 | f-e-2, f-e-4, f-e-6, f-e-8 | 4 |
+| 7 | f-e-2, f-e-4, f-e-6, f-e-8 | 4 |
+| **8** | f-e-2, f-e-4 | **2** |
+| **9** | f-e-6, f-e-8 | **2** |
+
+**Cores 8 and 9 run on half the evidence of every other core.** Someone whose real core is 8 or 9 is
+measured by two items where everyone else is measured by four, so those two cores are the most likely
+to be missed or under-scored. That is a design imbalance rather than a matter of taste, and it
+decides what the two new items should be for.
+
+There is a second, related gap. Cores 8 and 9 are **adjacent**, so telling them apart is exactly a
+wing decision for anyone landing on either — and no item currently offers 8 and 9 as primaries in the
+same question, so that discrimination is never asked directly. Both new items fix that too by
+carrying 8 and 9 as two of their four options.
+
+Resulting coverage: 1 → 5, 2 → 5, 3 → 5, 4 → 4, 5 → 5, 6 → 4, 7 → 4, 8 → 4, 9 → 4. A range of 4-5
+instead of 2-4.
+
+## The two new items, drafted for review
+
+Written to the house style the post-audit rewrite established: a named work situation with a
+timeframe, one motive per option, four options in parallel grammatical form, and no option more
+socially flattering than the others.
+
+**`f-e-9`** — context `เมื่อเห็นต่าง`
+prompt: *เมื่อทีมเห็นไม่ตรงกันในเรื่องงาน คุณอยากให้เรื่องนั้นจบลงแบบไหน?*
+
+| Option | Core |
+|---|---:|
+| จบโดยไม่มีใครต้องกลืนความเห็นไว้ | 8 |
+| จบโดยทุกฝ่ายยังทำงานร่วมกันได้ | 9 |
+| จบด้วยข้อสรุปที่ตรวจสอบย้อนได้ | 1 |
+| จบเมื่อเข้าใจเหตุผลของทุกฝ่ายแล้ว | 5 |
+
+**`f-e-10`** — context `เมื่องานถูกแทรก`
+prompt: *เมื่อมีงานแทรกเข้ามากลางสัปดาห์ อะไรที่คุณอยากรักษาไว้มากที่สุด?*
+
+| Option | Core |
+|---|---:|
+| สิทธิ์จัดลำดับงานของตัวเอง | 8 |
+| จังหวะงานที่ไม่ถูกดึงไปหลายทาง | 9 |
+| คำมั่นที่ให้ไว้กับคนอื่น | 2 |
+| ผลลัพธ์ที่ตั้งเป้าไว้ | 3 |
+
+## Which two MBTI items leave, and where A/T goes
+
+The spec's 8 MBTI foundation items are two each for I/E, S/N, T/F and J/P, which means **`f-at-1` and
+`f-at-2` leave foundation**. A/T is then carried entirely by the `c-at` dimension challenge in the
+reserved adaptive slot, per ruling (ก) — so every respondent still meets A/T exactly once, which the
+spec's literal split would not have guaranteed.
+
+## Proposed adaptive block, 6 slots
+
+| Slot | Content | Selection |
+|---:|---|---|
+| 1 | `c-at` | always, unconditionally |
+| 2-3 | dimension challenges | the two MBTI axes with the smallest margins |
+| 4-5 | core challenges | the top two candidate cores |
+| 6 | wing challenge | for the leading core |
+
+The Enneagram side gets three of the five selected slots because it is the side with the thinnest
+evidence, which is the same reasoning that moved two items into it.
+
+## What this breaks, and it is all cheap
+
+- `MAX_QUESTIONS` 20 → 24, and the assertion in `scripts/run-scoring-tests.mjs`.
+- `selectChallengeQuestions` returns two questions; it must return six, and its return type is a
+  fixed-length tuple.
+- The scoring fixtures in `app/lib/assessment-fixtures.ts` are answer sets of the old length and must
+  be regenerated.
+- Nothing in the character, asset or resolver layers is touched. The visual work in flight is
+  unaffected.
