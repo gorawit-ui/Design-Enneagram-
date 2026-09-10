@@ -1,4 +1,22 @@
-# Tool B — what 54 screenshots across four team members actually show
+# Tool B — what 54 screenshots from the team's sessions actually show
+
+> **Corrected 2026-09-10, after the Products Owner answered the three open questions.** Two things
+> in the first version of this document were wrong, and both mattered:
+>
+> 1. **This is not a competitor's tool.** It is พี่ทิม's own project — the same tool already
+>    documented in `docs/REFERENCE_TIM_ENNEAGRAM_TOOL.md` — which the team entered using the same
+>    opening phrase, "เริ่มแบบทดสอบ". The two interface variants in the set are two states of one
+>    tool, not two tools. "Tool B" is a filing name that turned out to be a wrong guess; the
+>    directory keeps it so links do not break, but there is one reference tool in this project, not
+>    two.
+> 2. **Respondents 1 and 3 are the same person** — one continuous conversation, split across
+>    batches when the screenshots were sent. So the set holds **three people, four sessions**, not
+>    four people. That person's session is the longest in the set and moves from 6w5 to a separate
+>    9w1 run, which is a finding about the tool rather than about them.
+>
+> Everything in sections 2, 3 and 4 survives both corrections — they are about logic and
+> presentation, neither of which depends on who owns the tool or how many people are in the set.
+> Section 1 and section 5 are rewritten.
 
 Raw evidence: `outputs/reference/enneagram-tool-b/` (respondents 1-4, index in `NOTES.md`).
 Collected in batches 2026-09-10 and analysed only after the Products Owner declared the set
@@ -9,30 +27,33 @@ findings were drawn from half a set and were wrong.
 
 ## 1. What the material is
 
-Four complete sessions from members of the team, with four different verdicts and four different
-MBTI types supplied by the respondents themselves.
+**Four sessions from three people**, all on พี่ทิม's tool, all entered with "เริ่มแบบทดสอบ".
 
-| | Verdict | MBTI given | Other frameworks | Questions | Batches |
+| Session | Verdict | MBTI given | Other frameworks | Questions | Batches |
 |---|---|---|---|---:|---:|
-| Respondent 1 | 6w5 · The Defender | ISFP-T (previously INFP) | — | 12 | 4 |
-| Respondent 2 | 1w2 · The Advocate | ESFJ | DISC D/S · BOSI S/I | 9 | 3 |
-| Respondent 3 | 9w1 · The Dreamer | ISFP-T | DISC "ลม" (I) | 12 | 4 |
-| Respondent 4 | 3w4 · The Professional | ENTJ-A | BOSI I→B · DISC Di **inferred** | 12 | 4 |
+| 1 (person A) | 6w5 · The Defender | ISFP-T, previously INFP | — | 12 | 4 |
+| 2 (person B) | 1w2 · The Advocate | ESFJ | DISC D/S · BOSI S/I | 9 | 3 |
+| 3 (person A again) | 9w1 · The Dreamer | ISFP-T | DISC "ลม" (I) | 12 | 4 |
+| 4 (person C) | 3w4 · The Professional | ENTJ-A | BOSI I→B · DISC Di **inferred** | 12 | 4 |
 
-Two interface variants are in the set: respondents 1-2 answer by tapping option cards and the tool
-prints a machine trace per batch (`Q1: gut · Q2: warm · Q3: unsafe`); respondents 3-4 answer in
-free text with no traces. Respondent 4 produced **both** a prose result and a laid-out dashboard,
-so "typed answers means prose output" does not hold. Whether these are two tools, two modes or two
-builds is still an open question for the Products Owner — it does not change any conclusion below,
-because everything below is about logic rather than chrome.
+**Sessions 1 and 3 are the same person, and they returned different cores — 6w5 and 9w1.** That is
+the most consequential single fact in the whole set, and it is only visible because the Products
+Owner said so; from the screenshots the two sessions read as two people.
 
-**The single most useful thing in the set is not a feature.** It is four real profiles, from four
-real people, each with an independently-supplied MBTI. Every fixture in this repo was
-reverse-engineered by `scripts/find-fixtures.mjs` until it hit a target, which proves the scorer is
-self-consistent and can never prove it is right about a person. These four are the beginning of a
-calibration set. Respondents 1 and 3 both report ISFP-T on different Enneagram cores (6w5 and 9w1),
-which is exactly the independence the two lenses are supposed to have — and a useful pair to run
-through our own items once we can ask these four people to take ours.
+It is not evidence the tool is broken. 6 and 9 are both in the reactive/withdrawn neighbourhood, a
+person's answers move with the week they are having, and the second session did not re-ask the
+frameworks. But it does mean **the tool is not test-retest stable for at least one person in a
+three-person sample**, and that is the property any instrument used for hiring has to have. It also
+means the four verdicts are three data points, not four.
+
+For us this is a warning rather than a criticism. Our own instrument has never been tested for
+retest stability at all — we have no data in which anybody answered twice. `MAX_QUESTIONS = 24`
+with reverse keying and forced choice is designed to be more stable than a free-text conversation,
+but designed-to-be and measured-to-be are different claims, and right now we only have the first.
+
+Two interface states are in the set — sessions 1-2 tap option cards and print a machine trace per
+batch, sessions 3-4 are free text with no traces, and session 4 produced both prose and a laid-out
+dashboard. One tool in two states, now confirmed.
 
 ---
 
@@ -198,12 +219,29 @@ selector and should carry a property test like the ones added this session.
 
 ---
 
-## 5. Open questions for the Products Owner
+## 5. The calibration run, and what it needs from us first
 
-1. **Are respondents 3 and 4 on a different tool from 1 and 2**, or a different mode of the same
-   one? Two interface variants are in the set and it affects nothing above, but it should be
-   recorded correctly.
-2. **Respondents 1 and 3 both report ISFP-T.** Two people, or one person on two runs?
-3. **Can these four take ours?** Four people with a known independent MBTI and a verdict from
-   another instrument is the calibration set this project has never had. It would tell us more than
-   any further screenshot.
+All three open questions are answered: one tool, three people, and **the team of six — including
+the Products Owner — can take ours.**
+
+That makes a real calibration set possible for the first time: six people, each with an
+independently-held MBTI, three of them with a verdict from พี่ทิม's tool, and the Products Owner
+with a type established outside every tool here (INTJ · 5w4).
+
+**What blocks it is our own result page.** At 4797px it cannot reasonably be screenshotted, and a
+screenshot would be the wrong artefact anyway: a picture of a result loses the answers, and the
+answers are the only part that can tell us whether our scoring is wrong. A calibration run needs
+the **answer vector**, not an image of its conclusion.
+
+So the export has to carry two things for two different readers:
+
+- **A one-page PDF for the person** — theirs to keep, and the thing that makes the run feel worth
+  doing. This is why the one-page summary card is item 1 on the adopt list rather than item 7: once
+  the result has a one-page form, the PDF is a print stylesheet away.
+- **The answers, as data** — the 24 question ids and chosen option indexes, the derived result, the
+  confidence on each axis, and the app version. That is what makes six sessions comparable to each
+  other and to a re-run in January, and it is what a screenshot can never give.
+
+Both go in one file. Retest stability, which sessions 1 and 3 just showed matters, is only
+measurable if the same person's two answer vectors can be compared — so the export must be
+something a person can produce twice and hand over twice.

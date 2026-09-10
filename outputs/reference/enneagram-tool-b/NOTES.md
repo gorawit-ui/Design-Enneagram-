@@ -4,8 +4,14 @@
 data ทั้งหมดที่ไปดึงมา ตอนทำแบบทดสอบของทีม") and asked for a summary of what the material shows, what
 logic is new in it, and what should be adapted into what we already have.
 
-**54 screenshots, four respondents.** These are sessions from members of the team taking the test,
-which is why the four verdicts are treated below as four real profiles rather than as demos.
+**54 screenshots, four sessions, THREE people.** Confirmed by the Products Owner after collection:
+
+- This is **พี่ทิม's own tool** — the same one in `tim-enneagram-tool/` — which the team entered
+  with the opening phrase "เริ่มแบบทดสอบ". The directory name "enneagram-tool-b" was a filing guess
+  and is wrong; it is kept only so links do not break. There is one reference tool in this project.
+- **`respondent-1/` and `respondent-3/` are the same person**, one continuous conversation split
+  across screenshot batches. They returned 6w5 in the first session and 9w1 in the second.
+- The two interface states in the set are two states of one tool, not two tools.
 
 The analysis is in **`docs/REFERENCE_TOOL_B_ANALYSIS.md`**. This file stays as the raw index.
 
@@ -164,9 +170,10 @@ More of respondent 2's session, and possibly further respondents. The Products O
 
 **Collecting.** Filed 2026-09-10.
 
-**Filed under `enneagram-tool-b/` provisionally, and that may be wrong.** The interface differs
-from respondents 1 and 2 in three ways at face value, and any one of them could mean a different
-tool, a different mode of the same tool, or a different client:
+**RESOLVED: same tool, and the same person as `respondent-1/`.** The three interface differences
+below turned out to be two states of one tool rather than evidence of two tools. Left in place
+because the reasoning was right even though the guess was wrong — the differences are real, they
+just do not mean what they looked like they meant:
 
 - **Answers are typed, not clicked.** Respondents 1 and 2 answered by tapping option cards with a
   label, an icon and a gloss. Here each batch appears as a grey block of question-and-answer pairs
