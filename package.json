@@ -31,7 +31,9 @@
     "items:coverage": "node scripts/measure-item-coverage.mjs",
     "items:reachability": "node scripts/probe-type-reachability.mjs",
     "items:probe": "node scripts/probe-ground-truth.mjs",
-    "items:adaptive": "node scripts/measure-adaptive-variation.mjs"
+    "items:adaptive": "node scripts/measure-adaptive-variation.mjs",
+    "type:audit": "node scripts/measure-typography.mjs",
+    "type:specimens": "node scripts/render-font-specimens.mjs"
   },
   "dependencies": {
     "next": "16.3.3",

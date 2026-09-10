@@ -42,3 +42,8 @@ next-env.d.ts
 
 # Gate E live-run screenshots (regenerate with: npm run gate:responsive)
 /outputs/gate-e/
+
+# Typography audit working files: the downloaded font faces are 15MB of cache that
+# `npm run type:specimens` refetches on demand, and nodes.json is a 200KB dump of one run.
+/outputs/typography/.font-cache/
+/outputs/typography/nodes.json
