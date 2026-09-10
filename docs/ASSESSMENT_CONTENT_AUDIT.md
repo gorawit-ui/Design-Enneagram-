@@ -1,5 +1,31 @@
 # TDFB Personality Quest — Assessment Content Audit
 
+> **Status: RESOLVED 2026-09-10. The wording quoted throughout this document no longer exists.**
+>
+> Every item was rewritten against these findings after the audit was written, and the audit was
+> never marked, so it still reads as an open list of defects. It is not one — it is the record of
+> why the current wording looks the way it does. Verified by searching `app/lib/assessment-data.ts`
+> for the audit's own quoted strings: `ค่อนข้าง`, `Enneagram 4`, `แรงเสริม`, `ได้ยินความคิด`,
+> `เข็มทิศ`, `ไม่มีตัวตน`, `ไร้ความสามารถ` and `ทั้งวันเป็นของคุณ` return zero hits each.
+>
+> What changed, against the five headline issues:
+>
+> 1. The generated `ค่อนข้าง…` options are gone. Every item now carries four hand-written choices
+>    forming a parallel forced-choice ladder — pole A, A-then-B, B-then-A, pole B — so the four read
+>    as one grammatical set.
+> 2. No wing challenge names an Enneagram number. `c-wing-1` now asks
+>    "เมื่ออยากรักษาความสงบและดูแลคนอื่นพร้อมกัน คุณมักทำอย่างไร?" with behavioural choices, so it
+>    needs no model knowledge to answer.
+> 3. Compound `และ` options were split; each choice carries one motive.
+> 4. Every prompt now names a work situation and a timeframe — `เมื่อเริ่มคิดเรื่องงาน`,
+>    `หลังประชุมกับคนหลายคนต่อเนื่อง`, `ในงานประจำวัน`.
+> 5. Intensity was lowered. `ความรู้สึกแบบใดที่คุณไม่อยากเผชิญมากที่สุด?` became
+>    `ในงานประจำวัน เรื่องใดรบกวนใจคุณได้มากที่สุด?`.
+>
+> Two findings the rewrite did **not** address, both recorded in
+> `docs/QUESTION_COUNT_DECISION.md`: option position maps to the same pole on every item, and the
+> two adaptive items differ between respondents.
+
 ## Scope and review lens
 
 This audit covers the 18 foundation questions, 5 MBTI/A–T challenge questions, 9 Enneagram core challenges, 9 generated wing challenges, their answer options, the scoring/selection context, fixtures, and the mobile question presentation. It is a content and Thai UX-writing review, not a validation study. No final rewritten items are provided.
