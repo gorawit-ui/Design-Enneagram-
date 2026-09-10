@@ -25,10 +25,27 @@ const GRID_WIDTH = 64;
 const GRID_HEIGHT = 128;
 /** A column belongs to a figure when this share of it is ink. Below this is background or shadow. */
 const COLUMN_INK_SHARE = 0.01;
-/** Runs narrower than this are a plant, a shadow edge or a prop that has drifted clear of a body. */
-const MIN_RUN_WIDTH = 40;
-/** Agreement above this means the outlines are effectively the same shape. */
+/** Runs narrower than this are a plant or a shadow edge rather than part of a figure. */
+const MIN_RUN_WIDTH = 12;
+/** Agreement above this, in the region where distinctness can live, means the same shape twice. */
 const AGREEMENT_CEILING = 65;
+// Where "the region where distinctness can live" ends. This gate was first written against the
+// whole outline and that was wrong, for a reason that has nothing to do with any particular image:
+// the base-asset spec REQUIRES identical wardrobe and an equal standing pose, so the legs and feet
+// of any two figures agree strongly no matter what they are doing. Gating on the whole outline
+// therefore scores compliance with the spec as if it were a defect. Measured on the first hero the
+// legs agreed 74.0%, 71.5% and 93.4% between pairs -- and on its replacement, where the props and
+// arm heights genuinely differ, one leg pair still agreed 83.6% and dragged that pair's whole-body
+// number to 72.0% while its upper body had fallen to 58.0%.
+//
+// So the gate reads the top 45% -- head, torso, arms and prop -- which is the only part an arm
+// height or a prop size can change. Both figures are still reported, because a lower-body number
+// that has drifted apart is worth seeing: it means a pose stopped being an equal standing pose.
+// The change does not soften the gate. The first hero measures 71.1 / 65.0 / 77.3 on the upper
+// body and still fails, which is the check that this still catches the problem it was written for.
+const UPPER_BODY_SHARE = 0.45;
+/** Three figures side by side means two gaps between them. */
+const FIGURE_COUNT = 3;
 
 const file = process.argv[2] ?? "public/guild-characters-3d.webp";
 const { data, info } = await sharp(file).removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -67,7 +84,12 @@ console.log(`  figures fill ${share(columns.first, columns.last, width)}% of wid
   + `  ·  ${(columns.first / width * 100).toFixed(1)}% clear left`
   + `  ·  ${((width - 1 - columns.last) / width * 100).toFixed(1)}% clear right`);
 
-// The three column runs, each one figure.
+// Where the ink is, as runs of columns. A run is not the same thing as a figure: a prop held clear
+// of the body -- a chart reaching past a shoulder, a board standing on the floor beside someone --
+// lands as its own run, and a pale prop contributes only its darkest marks, so one figure can
+// produce three runs. Cutting at every gap therefore over-segments. Cutting at the two widest gaps
+// does not, and it encodes the one thing known about the picture: three figures side by side have
+// exactly two gaps between them, and those are the widest ones.
 const runs = [];
 let start = -1;
 for (let x = 0; x < width; x += 1) {
@@ -80,16 +102,32 @@ for (let x = 0; x < width; x += 1) {
 }
 if (start >= 0) runs.push([start, width - 1]);
 
-if (runs.length !== 3) {
-  console.log(`\nFound ${runs.length} figure run(s), not 3: ${runs.map(([a, b]) => `${a}-${b}`).join(", ")}`);
-  console.log("Two figures touching, or a prop bridging the gap between them, merges them into one");
-  console.log("run and the comparison below cannot be made. That is itself a finding about the");
-  console.log("image -- the prompt asks for clear space between the figures -- rather than a bug here.");
+if (runs.length < FIGURE_COUNT) {
+  console.log(`\nFound ${runs.length} ink run(s), fewer than the ${FIGURE_COUNT} figures expected: `
+    + runs.map(([a, b]) => `${a}-${b}`).join(", "));
+  console.log("Two figures are touching, or a prop bridges the gap between them, so they cannot be");
+  console.log("separated. That is a finding about the image -- the prompt asks for clear space");
+  console.log("between the figures -- rather than a bug here.");
   process.exit(1);
 }
 
+const gaps = runs.slice(1).map(([left], i) => ({ at: i + 1, size: left - runs[i][1] }));
+const cuts = gaps.slice().sort((a, b) => b.size - a.size).slice(0, FIGURE_COUNT - 1)
+  .map((g) => g.at).sort((a, b) => a - b);
+const figures = [];
+for (let i = 0; i <= cuts.length; i += 1) {
+  const group = runs.slice(cuts[i - 1] ?? 0, cuts[i] ?? runs.length);
+  figures.push([group[0][0], group[group.length - 1][1]]);
+}
+if (runs.length > FIGURE_COUNT) {
+  console.log(`\n  ${runs.length} ink runs grouped into ${FIGURE_COUNT} figures at the two widest gaps `
+    + `(${cuts.map((c) => `${gaps.find((g) => g.at === c).size}px`).join(", ")}); `
+    + `the runs merged into a figure were separated by `
+    + `${gaps.filter((g) => !cuts.includes(g.at)).map((g) => `${g.size}px`).join(", ")}`);
+}
+
 // Each figure resampled to one grid, so the comparison is of shape rather than of size or position.
-const silhouettes = runs.map(([left, right]) => {
+const silhouettes = figures.map(([left, right]) => {
   let top = height;
   let bottom = 0;
   for (let y = 0; y < height; y += 1) {
@@ -112,22 +150,41 @@ const silhouettes = runs.map(([left, right]) => {
 });
 
 const names = ["left", "middle", "right"];
+const upperRows = Math.round(GRID_HEIGHT * UPPER_BODY_SHARE);
+const agreement = (a, b, fromRow, toRow) => {
+  let agree = 0;
+  let total = 0;
+  for (let gy = fromRow; gy < toRow; gy += 1) {
+    for (let gx = 0; gx < GRID_WIDTH; gx += 1) {
+      const k = gy * GRID_WIDTH + gx;
+      total += 1;
+      if (a[k] === b[k]) agree += 1;
+    }
+  }
+  return agree / total * 100;
+};
+
 console.log(`\n  figure boxes: ${silhouettes.map((s, i) => `${names[i]} ${s.box}`).join("  ·  ")}`);
 console.log("\n  normalised silhouette agreement:");
+console.log("    pair              upper 45%          legs      whole");
+console.log("                      (gated)        (context)  (context)");
 let worst = 0;
 for (let i = 0; i < silhouettes.length; i += 1) {
   for (let j = i + 1; j < silhouettes.length; j += 1) {
-    let agree = 0;
-    for (let k = 0; k < silhouettes[i].grid.length; k += 1) {
-      if (silhouettes[i].grid[k] === silhouettes[j].grid[k]) agree += 1;
-    }
-    const pct = agree / silhouettes[i].grid.length * 100;
-    worst = Math.max(worst, pct);
-    console.log(`    ${names[i]} vs ${names[j]}: ${pct.toFixed(1)}%  ${pct > AGREEMENT_CEILING ? "TOO ALIKE" : "ok"}`);
+    const a = silhouettes[i].grid;
+    const b = silhouettes[j].grid;
+    const upper = agreement(a, b, 0, upperRows);
+    const lower = agreement(a, b, upperRows, GRID_HEIGHT);
+    const whole = agreement(a, b, 0, GRID_HEIGHT);
+    worst = Math.max(worst, upper);
+    console.log(`    ${(names[i] + " vs " + names[j]).padEnd(18)}`
+      + `${upper.toFixed(1).padStart(5)}%  ${(upper > AGREEMENT_CEILING ? "TOO ALIKE" : "ok").padEnd(11)}`
+      + `${lower.toFixed(1).padStart(6)}%    ${whole.toFixed(1).padStart(5)}%`);
   }
 }
-console.log(`\n  worst pair ${worst.toFixed(1)}% against a ${AGREEMENT_CEILING}% ceiling: `
+console.log(`\n  worst upper-body pair ${worst.toFixed(1)}% against a ${AGREEMENT_CEILING}% ceiling: `
   + `${worst > AGREEMENT_CEILING ? "FAIL" : "PASS"}`);
-console.log("  For reference, the first hero measured 68.5 / 72.7 / 86.1 -- three figures all");
-console.log("  standing square to the camera holding a small pale rectangle at chest height.");
+console.log("  For reference, the first hero measured 71.1 / 65.0 / 77.3 on the upper body -- three");
+console.log("  figures all standing square to the camera holding a small pale rectangle at chest");
+console.log("  height. Its legs measured 74.0 / 71.5 / 93.4, which is what the spec asks for.");
 process.exit(worst > AGREEMENT_CEILING ? 1 : 0);

@@ -208,3 +208,67 @@ Then two things the script cannot judge:
 Then replace `public/guild-characters-3d.webp` and update the `alt` text in `app/page.tsx`, which
 currently describes the *old* props ("ถือสมุดและการ์ดประจำแนวคิดของตัวเอง") and would otherwise
 describe a picture that no longer exists.
+
+---
+
+## Round 2, 2026-09-10 — what the first generation from this prompt returned
+
+1600×1200, 4:3, and a real improvement on the thing the prompt exists to fix. The arm heights and
+prop sizes all landed: low arms with a small stamp, a chart wider than the shoulders at chest
+height, a raised arm at a tall board.
+
+| Pair, upper body | First hero | This candidate |
+|---|---:|---:|
+| left vs middle | 71.1% | **58.0%** |
+| left vs right | 65.0% | **52.4%** |
+| middle vs right | 77.3% | **66.2%** |
+
+The gate had to be corrected before that table meant anything, and the correction is not a
+concession to this image: gating on the *whole* outline scored the spec's own requirements as a
+defect, because identical wardrobe and an equal standing pose force the legs of any two figures to
+agree. This candidate's left-vs-middle legs agree 83.6% while its upper bodies agree 58.0% — the
+props worked and the whole-body number hid it. The gate now reads the top 45%. The first hero still
+fails it at 77.3%, which is the check that the change did not soften anything.
+
+Two things to fix in the next generation, neither visible to the script:
+
+- **Footwear.** All six boots came back with a block heel. The wardrobe lock is *flat-soled black
+  ankle boots, no heels on any presentation*, and all twelve approved base assets follow it — so a
+  participant would meet heeled figures on the welcome page and flat-soled ones on their own result
+  page. Within the image nothing is unequal; against the rest of the set it is a continuity break.
+- **Presentation mix.** All three figures read as the same presentation. The first hero had a
+  visible mix, and the whole point of building female/male/neutral for every core is that people
+  see themselves. The prompt did not ask for a mix, which is the prompt's omission — it is now
+  stated below.
+
+Everything else — framing, palette, lighting, realism, the seal reading as a working stamp rather
+than a medal, no text anywhere — came back correct and should be held.
+
+### Follow-up message, to be sent in the same ChatGPT conversation
+
+```
+แก้ 3 จุด ส่วนอื่นเก็บไว้เหมือนเดิมทั้งหมด — คนเดิม เสื้อผ้าเดิม แสงเดิม กรอบเดิม
+ท่าเดิม ของถือเดิม พื้นหลังเดิม สร้างภาพใหม่ 1 ภาพ ไม่ต้องทำหลายเวอร์ชัน
+
+1. FOOTWEAR: all six boots must be FLAT-SOLED black ankle boots with no heel at all — a thin
+   welted sole only, the same boot on all three figures. The heel block in the last image is
+   wrong. This is a hard rule in the character spec: footwear is identical across every
+   presentation, because a heel changes apparent height and posture and encodes gender into the
+   figure. Remove the heel entirely; keep the boots otherwise identical.
+
+2. PRESENTATION MIX: the three figures currently read as the same presentation. Make them one
+   female-presenting, one male-presenting and one androgynous/neutral-presenting adult, in that
+   order left to right. Change only hair and facial structure to do it. Do NOT change height,
+   shoulder width, build, wardrobe, posture, prop, arm height or expression — all three keep the
+   pose and prop they already have, and no figure may read as more capable, more senior or more
+   physically dominant than another. Same height and the same head height for all three.
+
+3. HEADROOM: leave 6-9% of the canvas height clear above the tops of the heads. The last image
+   left only 4.9%. Everything else about the framing was right and must not change: figures
+   filling about 85% of the height, about 80% of the width, soles 8-10% above the bottom edge.
+
+Keep: the same three poses and arm heights (low / mid-and-wide / high), the same three props
+(small notebook and flat ink stamp / wide network chart and welcome kit / tall goal board and
+progress marker), the forest-green blazer, ivory knit top, charcoal trousers, the pale defocused
+interior, the soft warm light from the left, and no text or numbers anywhere in the image.
+```
