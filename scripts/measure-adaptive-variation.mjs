@@ -23,7 +23,9 @@ ts.createProgram(
 const scoring = require(path.join(tmp, "scoring.js"));
 const data = require(path.join(tmp, "assessment-data.js"));
 
-const SESSIONS = Number(process.argv[2] ?? 2000);
+// 20000, not 2000: the per-slot pools below are a sample, and at 2000 sessions the two slots with
+// the narrowest entry conditions come back short (Q21 reported 5 of its 10 reachable items).
+const SESSIONS = Number(process.argv[2] ?? 20000);
 function mulberry32(seed) {
   let a = seed >>> 0;
   return () => { a = (a + 0x6d2b79f5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a);
@@ -59,6 +61,20 @@ console.log(`questions 1-${foundationCount}   ${foundationSequences.size === 1 ?
 console.log(`questions ${foundationCount + 1}-${data.MAX_QUESTIONS}  ${adaptiveSequences.size} different sequences across ${SESSIONS} respondents`);
 console.log(`             ${(totalAdaptive / SESSIONS).toFixed(1)} adaptive questions each, drawn from a pool of ${
   new Set([...perSlot.slice(foundationCount)].flatMap((slot) => [...slot])).size} possible items\n`);
+
+const bank = [...data.FOUNDATION_QUESTIONS, ...data.DIMENSION_CHALLENGES, ...data.CORE_CHALLENGES, ...data.WING_CHALLENGES];
+const adaptivePool = [...data.DIMENSION_CHALLENGES, ...data.CORE_CHALLENGES, ...data.WING_CHALLENGES];
+const seenFrom = (first) => new Set(perSlot.slice(first).flatMap((slot) => [...slot]));
+const seenAdaptive = seenFrom(foundationCount);
+const seenBranching = seenFrom(foundationCount + 2);
+const unused = adaptivePool.map((question) => question.id).filter((id) => !seenAdaptive.has(id));
+
+console.log(`item bank                  ${bank.length} items = ${data.FOUNDATION_QUESTIONS.length} foundation`
+  + ` + ${data.DIMENSION_CHALLENGES.length} dimension + ${data.CORE_CHALLENGES.length} core + ${data.WING_CHALLENGES.length} wing`);
+console.log(`adaptive pool              ${adaptivePool.length} items, of which ${seenAdaptive.size} were reached`);
+console.log(`  fixed at Q19-20          ${perSlot[foundationCount].size + perSlot[foundationCount + 1].size} (unconditional)`);
+console.log(`  can appear in Q21-24     ${seenBranching.size} — each respondent sees ${data.MAX_QUESTIONS - foundationCount - 2} of them`);
+console.log(`  never reached            ${unused.length}${unused.length ? `: ${unused.join(" ")}` : ""}\n`);
 
 console.log("what can appear in each adaptive slot:");
 for (let position = foundationCount; position < data.MAX_QUESTIONS; position += 1) {
