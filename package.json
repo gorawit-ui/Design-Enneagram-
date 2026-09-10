@@ -30,7 +30,8 @@
     "assets:buildhero": "node scripts/build-hero.mjs",
     "items:coverage": "node scripts/measure-item-coverage.mjs",
     "items:reachability": "node scripts/probe-type-reachability.mjs",
-    "items:probe": "node scripts/probe-ground-truth.mjs"
+    "items:probe": "node scripts/probe-ground-truth.mjs",
+    "items:adaptive": "node scripts/measure-adaptive-variation.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
