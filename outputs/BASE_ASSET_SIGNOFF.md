@@ -192,8 +192,18 @@ repository at `public/character-assets/enneagram-2/male.webp`, 153 KB, alpha int
 1.5pp tolerance. Margin 12.0% on every side, figure fitted to the central 76%, same framing as every
 other base asset.
 
-**Human ruling: pending.** The two questions the gate cannot answer — is it the same person as the
-male master, and does it read as equal in standing to the female and neutral — are open.
+**Ruled 2026-09-10 by the Products Owner: approved.** Both questions answered yes, on the two
+side-by-side renders at equal on-screen height: the figure reads as the same person as the male
+master, and it reads as equal in standing beside the Core 2 female.
+
+Worth recording that this is the first derived core where the likeness held. Core 2 female was
+approved with the same-person premise knowingly relaxed; Core 2 male was not asked for any
+relaxation and did not need one. So the drift recorded on the female entry is not a property of the
+derived-core method — it happened on one asset, not on the approach.
+
+The male presentation's equal-standing ruling now covers Core 2 as well as Core 1. It still does not
+carry forward to cores 3-9 automatically: those pose differently, and a more assertive action can
+turn the same build into a power cue.
 
 This also adds the fourth data point to the head-width spread that was left unresolved on the Core 1
 male entry above:
