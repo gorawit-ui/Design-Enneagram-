@@ -2,13 +2,26 @@ import type { EnneagramCore } from "./character-system";
 
 export type MbtiPole = "I" | "E" | "S" | "N" | "T" | "F" | "J" | "P" | "A" | "Turbulent";
 export type ScoreWeights = { mbti?: Partial<Record<MbtiPole, number>>; enneagram?: Partial<Record<EnneagramCore, number>> };
-export type AssessmentOption = { text: string; weights: ScoreWeights };
+/**
+ * `hint` is a second line under the option, and it exists because a single Thai phrase averaging
+ * 21 characters makes the reader guess what it means. A short label plus one line saying what
+ * picking it would imply is measurably easier to answer, and it is what a reference tool reviewed
+ * in docs/REFERENCE_TIM_ENNEAGRAM_TOOL.md does that we did not. Optional: the MBTI items are
+ * two-pole and read clearly without one.
+ */
+export type AssessmentOption = { text: string; hint?: string; weights: ScoreWeights };
 export type AssessmentQuestion = {
   id: string;
   kind: "foundation" | "challenge";
   context?: string;
   prompt: string;
-  options: readonly [AssessmentOption, AssessmentOption, AssessmentOption, AssessmentOption];
+  /**
+   * At least four. Four everywhere except the core-fear item, which carries one option per
+   * Enneagram core: a fear question whose options cover only some of the nine forces the rest of
+   * the respondents to answer about somebody else's fear, which is how cores 4 and 7 became
+   * unreachable. See scripts/probe-type-reachability.mjs.
+   */
+  options: readonly AssessmentOption[];
   challengeFor?: { dimension?: "IE" | "SN" | "TF" | "JP" | "AT" | "AT2"; core?: EnneagramCore; wingCore?: EnneagramCore };
 };
 
@@ -32,7 +45,7 @@ export type AssessmentQuestion = {
 // text and its weights cannot drift apart.
 const REVERSED_ITEMS: ReadonlySet<string> = new Set([
   "f-ie-1", "f-sn-1", "f-tf-1", "f-jp-1",
-  "f-e-1", "f-e-2", "f-e-3", "f-e-4", "f-e-7",
+  "f-e-1", "f-e-2", "f-e-3", "f-e-4",
   "c-sn", "c-jp", "c-at",
   "c-core-2", "c-core-4", "c-core-6", "c-core-8",
   "c-wing-1", "c-wing-3", "c-wing-5", "c-wing-7", "c-wing-9",
@@ -40,8 +53,7 @@ const REVERSED_ITEMS: ReadonlySet<string> = new Set([
 
 function applyKeying(question: AssessmentQuestion): AssessmentQuestion {
   if (!REVERSED_ITEMS.has(question.id)) return question;
-  const [a, b, c, d] = question.options;
-  return { ...question, options: [d, c, b, a] };
+  return { ...question, options: [...question.options].reverse() };
 }
 
 /** True when this item's options are presented in reverse of their authored pole order. */
@@ -73,7 +85,7 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
       { text: "งานตรงตามหลักที่ยึดถือ", weights: { enneagram: { 1: 2, 6: 1 } } },
       { text: "งานนั้นช่วยคนอื่นได้", weights: { enneagram: { 2: 2, 6: 1 } } },
       { text: "งานนั้นไปถึงเป้าหมาย", weights: { enneagram: { 3: 2, 8: 1 } } },
-      { text: "งานนั้นสะท้อนความเป็นตัวเอง", weights: { enneagram: { 4: 2, 9: 1 } } },
+      { text: "งานนั้นสะท้อนความเป็นตัวเอง", weights: { enneagram: { 4: 2, 9: 1, 7: 1 } } },
     ],
   },
   {
@@ -85,11 +97,35 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
     ],
   },
   {
-    id: "f-e-3", kind: "foundation", context: "สิ่งที่กังวล", prompt: "ในงานประจำวัน เรื่องใดรบกวนใจคุณได้มากที่สุด?", options: [
-      { text: "งานต่ำกว่ามาตรฐานของตัวเอง", weights: { enneagram: { 1: 2 } } },
-      { text: "รู้สึกว่าตัวเองไม่เป็นที่ต้องการ", weights: { enneagram: { 2: 2 } } },
-      { text: "งานไปไม่ถึงเป้าหมาย", weights: { enneagram: { 3: 2 } } },
-      { text: "ไม่ได้แสดงความเป็นตัวเอง", weights: { enneagram: { 4: 2 } } },
+    // The core-fear item, and the only one with nine options.
+    //
+    // What it replaced asked "ในงานประจำวัน เรื่องใดรบกวนใจคุณได้มากที่สุด?" with four options carrying
+    // cores 1-4. Two things were wrong with that. It measured daily irritation, where Enneagram
+    // type is a fear structure -- the thing a person organises their life to avoid, not the thing
+    // that annoys them on a Tuesday. And it was silent on cores 5 to 9, so five of nine
+    // respondents had to answer about somebody else's worry, which is a large part of how cores 4
+    // and 7 became unreachable at all (scripts/probe-type-reachability.mjs).
+    //
+    // Nine options is worse for the eye and better for the measurement, and this is the one item
+    // where that trade is clearly worth making: it is the single most diagnostic question in the
+    // block, so it is the last place to force a donation.
+    //
+    // Written rather than translated. The reference tool's own core-5 option reads as impostor
+    // syndrome ("กลัวไม่มีความรู้ / ไม่เพียงพอ"), which a 5 does not recognise -- a 5's fear is being
+    // drained and invaded until they cannot cope, which lands on that tool's core-8 option and
+    // hands it evidence against 5. Here 5 is depletion and 8 is loss of authorship, and they do
+    // not overlap.
+    id: "f-e-3", kind: "foundation", context: "สิ่งที่กลัวจริง ๆ",
+    prompt: "ถ้ามองลึกลงไป อะไรคือสิ่งที่คุณไม่อยากให้เกิดขึ้นกับตัวเองที่สุด?", options: [
+      { text: "ปล่อยให้บางอย่างผิดไปแล้วไม่ได้แก้", hint: "ไม่กลัวงานหนัก แต่กลัวปล่อยผ่านสิ่งที่รู้ว่าไม่ถูก", weights: { enneagram: { 1: 2 } } },
+      { text: "ไม่มีใครต้องการเราจริง ๆ", hint: "กลัวว่าคนที่เราดูแลมาจะไม่ได้ต้องการเราตั้งแต่แรก", weights: { enneagram: { 2: 2 } } },
+      { text: "สุดท้ายไม่มีอะไรให้แสดงว่าเราทำได้", hint: "กลัวว่าที่ทุ่มไปทั้งหมดสุดท้ายไม่นับเป็นอะไรเลย", weights: { enneagram: { 3: 2 } } },
+      { text: "ไม่เหลืออะไรที่เป็นตัวเราจริง ๆ", hint: "กลัวกลืนไปกับคนอื่นจนไม่รู้ว่าตัวเองคือใคร", weights: { enneagram: { 4: 2 } } },
+      { text: "หมดพลังจนรับมืออะไรไม่ไหว", hint: "กลัวถูกดึงเวลาและพลังไปจนไม่เหลือพื้นที่ของตัวเอง", weights: { enneagram: { 5: 2 } } },
+      { text: "ถึงเวลาจริงแล้วไม่มีอะไรให้ยึด", hint: "กลัวว่าตอนเรื่องพลิก จะไม่มีคนหรือแผนที่ไว้ใจได้", weights: { enneagram: { 6: 2 } } },
+      { text: "ติดอยู่กับที่ ออกไปไหนไม่ได้", hint: "กลัวถูกปิดทางเลือกจนชีวิตเหลือทางเดียว", weights: { enneagram: { 7: 2 } } },
+      { text: "มีคนมากำหนดชีวิตเราแทน", hint: "กลัวเสียสิทธิ์ตัดสินใจเรื่องของตัวเองให้คนอื่น", weights: { enneagram: { 8: 2 } } },
+      { text: "ความสัมพันธ์รอบตัวแตกร้าว", hint: "กลัวต้องอยู่ท่ามกลางความขัดแย้งที่ไม่มีวันจบ", weights: { enneagram: { 9: 2 } } },
     ],
   },
   {
@@ -97,7 +133,7 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
       { text: "ข้อมูลสำหรับทำความเข้าใจ", weights: { enneagram: { 5: 2 } } },
       { text: "แผนที่ใช้อ้างอิงได้", weights: { enneagram: { 6: 2 } } },
       { text: "ทางเลือกที่ยังเปิดอยู่", weights: { enneagram: { 7: 2 } } },
-      { text: "สิทธิ์กำหนดทางของตัวเอง", weights: { enneagram: { 8: 2 } } },
+      { text: "สิทธิ์กำหนดทางของตัวเอง", weights: { enneagram: { 8: 2, 4: 1 } } },
     ],
   },
   {
@@ -109,11 +145,34 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
     ],
   },
   {
-    id: "f-e-6", kind: "foundation", context: "เวลาตึงเครียด", prompt: "เมื่อกังวลเรื่องงาน อะไรช่วยให้คุณผ่อนลงได้ก่อน?", options: [
-      { text: "ยอมรับความรู้สึกของตัวเอง", weights: { enneagram: { 4: 2 } } },
-      { text: "เตรียมรับความเสี่ยง", weights: { enneagram: { 6: 2 } } },
-      { text: "มองหาทางเลือกใหม่", weights: { enneagram: { 7: 2 } } },
-      { text: "กลับมาอยู่ในบรรยากาศสงบ", weights: { enneagram: { 9: 2 } } },
+    // The inner-voice item, and the second of the two with nine options.
+    //
+    // What it replaced asked "เมื่อกังวลเรื่องงาน อะไรช่วยให้คุณผ่อนลงได้ก่อน?" and was the worst item in
+    // the bank on two counts. Its four options carried cores 4, 6, 7 and 9 only, so five of nine
+    // respondents had to donate their answer -- and that donation is the measured cause of 3w2
+    // returning no wing at all: a core-3 respondent had nothing to pick, the answer landed on core
+    // 4, and the free +2 to 4 cancelled the wing signal for 2 exactly. And it was the second of
+    // two items asking about behaviour under pressure, which by the stress-arrow reasoning in
+    // docs/REFERENCE_TIM_ENNEAGRAM_TOOL.md measures where a type goes when stressed rather than
+    // what the type is. One such item is informative; two out of ten is a tilt.
+    //
+    // What replaces it is a different kind of measurement rather than a better-worded version of
+    // the same one. Every other item in this block is situational -- "เมื่อ X … คุณ Y?" -- which asks
+    // a respondent to predict their own behaviour. This one asks them to recognise their own
+    // voice. In the reference tool that modality is what fixed the wing where six situational
+    // questions had left it a coin flip, and it is the one thing that tool does which nothing here
+    // did at all.
+    id: "f-e-6", kind: "foundation", context: "เสียงข้างในตัวเอง",
+    prompt: "ประโยคไหนคล้ายเสียงที่คุณพูดกับตัวเองมากที่สุด?", options: [
+      { text: "“ถ้าฉันไม่ทำให้ถูก แล้วใครจะทำ”", hint: "รู้สึกว่าตัวเองเป็นคนที่ต้องรับผิดชอบให้มันถูกต้อง", weights: { enneagram: { 1: 2 } } },
+      { text: "“ฉันมักรู้ว่าใครต้องการอะไร ก่อนที่เขาจะบอก”", hint: "ความสัมพันธ์คือที่ที่เรารู้สึกว่าตัวเองมีค่า", weights: { enneagram: { 2: 2 } } },
+      { text: "“ถ้าฉันหยุด ทุกอย่างก็หยุดไปด้วย”", hint: "การเดินหน้าให้เห็นผลคือสิ่งที่ยืนยันว่าเรามีค่า", weights: { enneagram: { 3: 2 } } },
+      { text: "“ฉันไม่เหมือนใคร และฉันก็ไม่อยากเหมือน”", hint: "ความเป็นตัวเองสำคัญกว่าการเข้ากับที่อื่นได้พอดี", weights: { enneagram: { 4: 2 } } },
+      { text: "“ให้ฉันเข้าใจมันก่อน แล้วฉันจะเข้าไป”", hint: "ความเข้าใจคือพื้นที่ที่เรารู้สึกปลอดภัย", weights: { enneagram: { 5: 2 } } },
+      { text: "“ถ้าเตรียมไว้ก่อน ก็ไม่มีอะไรทำให้ตั้งตัวไม่ทัน”", hint: "การเห็นความเสี่ยงล่วงหน้าทำให้เราวางใจได้", weights: { enneagram: { 6: 2 } } },
+      { text: "“ยังมีทางอื่นอีกเยอะ ไม่ต้องรีบปิดทางไหน”", hint: "การมีทางเลือกคือสิ่งที่ทำให้เราหายใจออก", weights: { enneagram: { 7: 2 } } },
+      { text: "“ฉันจะไม่ปล่อยให้ใครมาตัดสินแทนฉัน”", hint: "การถือหางเสือของตัวเองเป็นเรื่องที่ต่อรองไม่ได้", weights: { enneagram: { 8: 2 } } },
+      { text: "“ไม่มีอะไรคุ้มกับการทะเลาะกัน”", hint: "ความสงบที่อยู่ร่วมกันได้สำคัญกว่าการเอาชนะ", weights: { enneagram: { 9: 2 } } },
     ],
   },
   {
@@ -135,7 +194,7 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
   {
     id: "f-e-9", kind: "foundation", context: "เมื่อเห็นต่าง", prompt: "เมื่อทีมเห็นไม่ตรงกันในเรื่องงาน คุณอยากให้เรื่องนั้นจบลงแบบไหน?", options: [
       { text: "จบโดยไม่ต้องฝืนยอมตาม", weights: { enneagram: { 8: 2 } } },
-      { text: "จบโดยทุกฝ่ายยังทำงานร่วมกันได้", weights: { enneagram: { 9: 2 } } },
+      { text: "จบโดยทุกฝ่ายยังทำงานร่วมกันได้", weights: { enneagram: { 9: 2, 7: 1 } } },
       { text: "จบด้วยข้อสรุปที่ตรวจสอบย้อนได้", weights: { enneagram: { 1: 2 } } },
       { text: "จบเมื่อเข้าใจเหตุผลของทุกฝ่ายแล้ว", weights: { enneagram: { 5: 2 } } },
     ],

@@ -804,3 +804,61 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
 @media (max-width: 390px) {
   .guild-logo { width: 34px; height: 34px; }
 }
+
+/* =============================================================================================
+   OPTION GLOSS — the second line under an answer.
+
+   Added because an option was a single Thai phrase averaging 21 characters with nothing to say
+   what picking it would mean, and `AssessmentOption` could not carry a second line at all. The
+   label answers "what" and the gloss answers "what that would mean about me", which is the
+   difference between guessing at an option and recognising yourself in it.
+
+   Sized against the review's own floor: the gloss is 13.5px on mobile, above the 13px minimum and
+   below the 16px label, so the two lines read as a hierarchy rather than as two sentences.
+   ============================================================================================= */
+.answers .answer-label em {
+  display: block;
+  margin-top: 5px;
+  font-size: 13.5px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #5d6862;
+}
+.answers button.selected .answer-label em { color: #dfeae2; }
+@media (min-width: 900px) { .answers .answer-label em { font-size: 13px; } }
+
+/* Two items carry nine options. At that length the grid has to go one column and the rows have to
+   get shorter, or the question stops fitting the screen that item 2 of the UX review just fixed. */
+.answers:has(> :nth-child(9)) { grid-template-columns: 1fr; gap: 8px; }
+.answers:has(> :nth-child(9)) button { min-height: 0; padding: 11px 13px; }
+.answers:has(> :nth-child(9)) .answer-label em { margin-top: 3px; font-size: 13px; }
+
+/* =============================================================================================
+   STICKY ACTION ROW ON MOBILE — the single authoritative definition.
+
+   An earlier layer sets `.question-actions{position:static}` at mobile widths and that was the
+   right call at the time: every question fitted the screen, so a sticky bar was a floating bar
+   that never needed to float. That stopped being true when the core-fear and inner-voice items
+   arrived with nine options each. Those two questions are 1303px against an 844px viewport, and
+   with a static row the "ถัดไป" button sat at y=1214 -- 370px below the fold, on the two most
+   important questions in the assessment.
+
+   Sticky is inert on the twenty-two questions that still fit: an element already inside the
+   viewport does not move. So the cost is only the chrome, which is kept light enough to read as
+   part of the card rather than as a floating toolbar. This is the fix the UX review named as the
+   better of the two options for the question step, held back then because 23px did not justify it.
+   ============================================================================================= */
+@media (max-width: 899px) {
+  .stage-questions .question-actions {
+    position: sticky;
+    bottom: 8px;
+    z-index: 8;
+    padding: 8px;
+    margin-top: 12px;
+    background: #fefdfaf2;
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    box-shadow: 0 6px 22px #16362f14;
+  }
+}

@@ -236,7 +236,30 @@ try {
     assert.equal(items.length, 2, `${axis}: two foundation items`);
     assert.equal(items.filter((question) => data.isReverseKeyed(question.id)).length, 1, `${axis}: exactly one of its two foundation items is reverse-keyed`);
   }
-  assert.ok(allQuestions.every((question) => question.options.length === 4), "every question has four scored choices");
+  // Four options everywhere except the two items that carry one per Enneagram core. That
+  // exception is the fix for four unreachable types, so it is asserted rather than tolerated: an
+  // item asking about fear or inner voice whose options cover only some of the nine forces the
+  // rest of the respondents to answer about somebody else, and a donated answer lands wherever the
+  // other options happen to point. See scripts/probe-type-reachability.mjs.
+  const NINE_OPTION_ITEMS = ["f-e-3", "f-e-6"];
+  for (const question of allQuestions) {
+    const expected = NINE_OPTION_ITEMS.includes(question.id) ? 9 : 4;
+    assert.equal(question.options.length, expected,
+      `${question.id}: ${expected} scored choices`);
+  }
+  for (const id of NINE_OPTION_ITEMS) {
+    const question = allQuestions.find((q) => q.id === id);
+    assert.ok(question, `${id} exists`);
+    const cores = question.options.map((option) => {
+      const carried = Object.keys(option.weights.enneagram ?? {});
+      assert.equal(carried.length, 1, `${id}: each option carries exactly one core`);
+      return Number(carried[0]);
+    }).sort((a, b) => a - b);
+    assert.deepEqual(cores, [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      `${id}: one option per core, so nobody has to donate their answer`);
+    assert.ok(question.options.every((option) => typeof option.hint === "string" && option.hint.length > 0),
+      `${id}: every option carries a gloss`);
+  }
 
   console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, sequential adaptive selection, the 24-question contract, and keyed direction balance.`);
 } finally {
