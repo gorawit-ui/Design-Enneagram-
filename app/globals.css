@@ -638,3 +638,36 @@ body{font-size:16px;line-height:1.65;color:#36433c}
     word-break:normal;
   }
 }
+
+/* The audience fork on the welcome page. Employee works today; the candidate path needs an HR
+   invite link and its own consent text, so it announces that rather than pretending to work. */
+.audience-pick { border: 0; margin: 0; padding: 0; }
+.audience-pick legend {
+  padding: 0 0 10px; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--green);
+}
+.audience-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.audience-options button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  text-align: left; min-width: 176px;
+}
+.audience-options button b { font-size: 1rem; font-weight: 700; }
+.audience-options button small { font-size: 0.76rem; opacity: 0.72; font-weight: 500; }
+.notice {
+  margin: 14px 0 0; max-width: 30rem; padding: 12px 14px; border-radius: 8px; color: #435048;
+  background: #eef2ec;
+  border: 1px solid #dbe5db;
+  font-size: 0.86rem; line-height: 1.55;
+}
+@media (max-width: 520px) {
+  .audience-options { flex-direction: column; }
+  .audience-options button { width: 100%; min-width: 0; }
+}
+
+/* The name picker, used when a roster exists (app/lib/roster.ts). Matches the text input it
+   replaces so the form does not shift when the roster arrives. */
+label > select {
+  width: 100%; margin-top: 7px; border: 1px solid #d9dfd9; border-radius: 5px;
+  padding: 12px 13px; background: #fcfcf9; outline: none; color: var(--charcoal);
+}
+label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b20; }

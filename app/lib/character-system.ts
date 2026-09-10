@@ -213,6 +213,18 @@ const CORE_FIVE_ASSETS: Record<GenderPresentation, string> = {
   neutral: "/character-assets/enneagram-5/neutral.png",
 };
 
+// Cores whose full female/male/neutral trio is produced, signed off in
+// `outputs/BASE_ASSET_SIGNOFF.md` and present as WebP. Listed explicitly rather than inferred from
+// the core number, because pointing at a file that does not exist gives the participant a broken
+// image instead of the empty state -- and every core past this list has no artwork yet.
+//
+// This is what `docs/CHARACTER_ASSET_SYSTEM.md` permits for an internal review build: a partial set
+// where the missing states resolve to the empty state. It is NOT the release gate, which still
+// wants all 27 plus the exploration fallback.
+const CORES_WITH_APPROVED_TRIO: readonly EnneagramCore[] = [1, 2, 3];
+const baseAssetPath = (core: EnneagramCore, presentation: GenderPresentation) =>
+  `/character-assets/enneagram-${core}/${presentation}.webp`;
+
 export function getCharacterProfile<Core extends EnneagramCore>(
   mbtiType: MbtiType,
   enneagramType: Core,
@@ -243,7 +255,9 @@ export function getCharacterProfile<Core extends EnneagramCore>(
   const shared: SharedResolved<Core> = {
     mbtiType, mbtiBaseType, enneagramType, genderPresentation, coreProfile, mbtiVisualProfile, identityModifier,
     // Presentation is visual only and must never affect assessment scoring or personality mappings.
-    assetPath: enneagramType === 5 ? CORE_FIVE_ASSETS[genderPresentation] : "",
+    assetPath: CORES_WITH_APPROVED_TRIO.includes(enneagramType)
+      ? baseAssetPath(enneagramType, genderPresentation)
+      : enneagramType === 5 ? CORE_FIVE_ASSETS[genderPresentation] : "",
     characterDesignRecipe: recipe,
   };
 
