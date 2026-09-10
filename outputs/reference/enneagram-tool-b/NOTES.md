@@ -21,12 +21,20 @@ sending: the first question is not like ours at all ("คำถามแรก�
 | `8-final-read-verdict-and-structure.png` | The final read, the verdict card (6 · The Defender · wing 5 · Head Center), and โครงสร้างพื้นฐาน — Core Fear, Core Desire, Defense Mechanism, Passion |
 | `9-result-strengths-and-challenges.png` | จุดแข็ง (5 items) and จุดท้าทาย (5 items) |
 | `10-result-health-arrows-growth-followups.png` | วงจรสุขภาวะ 3 ระดับ, ลูกศรพลังงาน (เครียด → 3, เติบโต → 9) each with a dark and a light side, เส้นทางเติบโต with attribution, and four follow-up chips |
+| `11-followup-work-dna-and-first-role.png` | The closing summary and its coping-layer note, the invitation to go deeper, then the answer to "วิเคราะห์ว่า 6w5 เหมาะกับงานและบทบาทแบบไหน": DNA การทำงาน (4 cells) and the first suited role |
+| `12-followup-more-roles-and-environment.png` | Three more suited roles with tag chips and a fit rating each, then สภาพแวดล้อมการทำงาน as a ชอบ / ไม่ชอบ pair |
+| `13-followup-work-traps-and-unlocks.png` | กับดักในการทำงานที่ 6w5 มักเจอ (4) and วิธีปลดล็อกศักยภาพสูงสุดในงาน (3) |
+| `14-followup-chips-and-mbti-shift-infp-isfp.png` | Three more follow-up chips, a closing key point, then the respondent types "เมื่อก่อนเป็น infp ตอนนี้เป็น isfp" and the tool analyses the shift — what changed, what did not |
+| `15-followup-function-stack-and-overlay.png` | FUNCTION STACK for ISFP (dominant / auxiliary / tertiary / inferior) and 6w5 + ISFP — จุดที่เสริมกัน (3) |
 
 ## Batches received
 
 **2026-09-10 ~15:40 — 5 screenshots** (files 1-5). Questions 1-9 across three batches.
 **2026-09-10 ~15:5x — 5 screenshots** (files 6-10). A fourth batch, questions 10-12, plus the
 whole result page.
+**2026-09-10 ~16:0x — 5 screenshots** (files 11-15). The conversation AFTER the result: the tool
+answering a work-fit question in depth, then the respondent volunteering that their MBTI changed
+(INFP → ISFP) and the tool overlaying that on the Enneagram verdict.
 
 The traces the tool printed for itself, verbatim:
 
@@ -43,9 +51,17 @@ to break it · final verdict **ลักษณ์ 6 wing 5 — The Defender**, o
 healthy state of 6w5 and the 7-flavoured answers are a coping mechanism.
 
 Note for later: this is a different respondent and a different tool from
-`tim-enneagram-tool/`. The Products Owner's own type (INTJ · 5w4) is not what was answered here, so
-this session is not a ground-truth case the way that one was — it is a sample of another tool's
-behaviour. Confirm with the Products Owner before treating the verdict as either right or wrong.
+`tim-enneagram-tool/`. The Products Owner's own type (INTJ · 5w4) is not what was answered here —
+this respondent states their own MBTI as ISFP, previously INFP — so this session is not a
+ground-truth case the way that one was. It is a sample of another tool's behaviour. Confirm with
+the Products Owner before treating the verdict as either right or wrong, and before assuming who
+the respondent was.
+
+Also worth noticing when the time comes, without drawing a conclusion now: files 11-15 are not part
+of the assessment at all. They are what the tool does once the result exists — a conversation the
+respondent steers, with work-fit content and an MBTI overlay produced on request. Our result page
+is a document; this part of their tool is a dialogue. Whether that is a direction we want is a
+question for the analysis, not something to decide from a screenshot.
 
 ## Awaiting
 
