@@ -299,3 +299,31 @@ names an award.
 from memory rather than read from `outputs/asset-prompts/core-3-1-female.txt`, and had the wrong
 pose, action, prop and expression. That cost a generation and was nobody's judgement but the
 assistant's. Prompts are now read from the generated file every time.
+
+## Core 3 — Goal Driver · female, regenerated 2026-09-10
+
+Second attempt, from the prompt file with the new `HOLD THE HEAD` block. In the repository at
+`public/character-assets/enneagram-3/female.webp`, 121 KB, alpha intact.
+
+**Mechanical: PASS.** Head width 13.2% against the female master's 14.3% — 1.1pp apart, inside the
+1.5pp tolerance.
+
+**Human ruling: pending.** Same person as the female master, and equal in standing.
+
+The wording worked, and it is worth recording how hard it pulled. The same prompt with one paragraph
+added moved the head from **+2.0pp above** the master to **1.1pp below** it — a 3.1pp swing, where
+the numeric target in the PROPORTIONS block has never moved a generation at all. It overshot: the
+instruction was "do not enlarge", and the generator responded by shrinking. That is inside tolerance
+and not worth another generation, but it says the block is a blunt instrument rather than a dial,
+and a later core that comes back small should be read as this block over-applying rather than as a
+new defect.
+
+Running tally of head width against each presentation's master, all cores:
+
+| Asset | Head | vs master |
+|---|---|---|
+| Core 2 female | 14.6% | +0.3 |
+| Core 2 male | 13.3% | +1.3 |
+| Core 2 neutral | 14.8% | −0.9 |
+| Core 3 female, first attempt | 16.3% | +2.0 REJECTED |
+| Core 3 female, with HOLD THE HEAD | 13.2% | −1.1 |

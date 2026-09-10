@@ -8,7 +8,7 @@
     "livingPilotAssets": 12
   },
   "present": {
-    "baseAssets": 9,
+    "baseAssets": 10,
     "explorationFallback": 0,
     "livingPilotAssets": 12
   },
@@ -230,6 +230,45 @@
         "value": "eb7ef8f77fb5237d2eead65948f09d1c05d65e41fb1845b6545cf107814ce5ce"
       },
       "accessibilityDescription": "ผู้นำทางความสัมพันธ์เปิดแผนผังเครือข่ายด้วยท่าทีเป็นมิตร",
+      "sourceTool": null,
+      "creator": null,
+      "licenceOwnership": null,
+      "generationProvenance": null,
+      "reviewer": null,
+      "approvalState": null,
+      "approvalDate": null,
+      "gaps": [
+        "sourceTool",
+        "creator",
+        "licenceOwnership",
+        "generationProvenance",
+        "reviewer",
+        "approvalState",
+        "approvalDate"
+      ]
+    },
+    {
+      "assetId": "enneagram-3-female",
+      "publicPath": "/character-assets/enneagram-3/female.webp",
+      "family": "base",
+      "enneagramCore": 3,
+      "presentation": "female",
+      "appliesTo": {
+        "mbti": null,
+        "wing": null,
+        "identity": null
+      },
+      "fileType": "image/webp",
+      "pixelDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "byteSize": 123796,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "4699de9747885bb8c16657733ce028b8db7c46da513f9b1f404a3e415074753a"
+      },
+      "accessibilityDescription": "นักขับเคลื่อนเป้าหมายชี้ไปยังกระดานหมุดหมายอย่างมั่นใจ",
       "sourceTool": null,
       "creator": null,
       "licenceOwnership": null,
