@@ -349,6 +349,11 @@ body. Do not enlarge either. "Gently idealised" in the STYLE block describes the
 proportions — it is not an instruction to push this figure further toward a cartoon than the master
 already is. A larger head or larger eyes makes this a different character, however appealing.
 
+HOLD THE FINISH: shade the face exactly as the master's face is shaded — the same amount of cheek
+contouring, brow definition and shadow, neither more nor less. A face modelled more finely than the
+master's reads as a more expensive asset, and this set cannot have expensive members and cheap ones:
+a participant sees one core, and every core must look like it cost the same to make.
+
 WHAT CHANGES: only the pose orientation, the action, the prop and the expression, exactly as listed
 above. Do not carry over core 1's notebook or seal — this core has its own prop and no other.`);
   }

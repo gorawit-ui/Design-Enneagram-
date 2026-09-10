@@ -362,8 +362,12 @@ Generated in the neutral master's chat with the `HOLD THE HEAD` block. In the re
 **Mechanical: PASS.** Head width 14.4% against the neutral master's 15.7% — 1.3pp apart, inside the
 1.5pp tolerance.
 
-**Human ruling: pending.** Same person as the neutral master, and equal in standing across the
-Core 3 trio.
+**Ruled 2026-09-10 by the Products Owner: approved, on a weak likeness.** The wording was
+"พอให้ผ่านได้ คล้ายอยู่" — passable, similar enough — not the clear yes the female and male got.
+Recorded as given rather than upgraded, because a marginal pass on the neutral is exactly the thing
+a contact-sheet review needs to look at again. Equal standing across the Core 3 trio: PASS.
+
+**Core 3 is complete.**
 
 Three generations under the new block, every one inside the tolerance: female −1.1pp, male +0.2pp,
 neutral −1.3pp. All three now sit *below* their masters, which is the overshoot recorded on the
@@ -378,3 +382,46 @@ so parity holds. But it is markedly less legible as its subject than Core 2's ne
 `character-system.ts` describes this core to a screen reader as pointing at a milestone board. If
 the contact sheet review finds the prop unreadable, this is a wording problem in the ACTION and
 PROP lines rather than anything wrong with these three files.
+
+## Finish parity across cores — raised 2026-09-10, deferred to the contact sheet
+
+The Products Owner observed, on the three neutral assets cropped to the face and enlarged, that
+Core 2's face looks cleaner than Core 1's and Core 3's, and asked whether that matters.
+
+It does, and the observation is correct. `docs/CHARACTER_ASSET_SYSTEM.md` requires "equal lighting,
+detail density and apparent production value across all cores and presentations", so a core rendered
+at a different level of finish fails a clause that is already binding — the same clause that
+withdrew the photo-real Core 2 male. Comparing the three faces:
+
+- **Core 2** is the smoothest: even skin, little cheek shading, large clear eyes.
+- **Core 3** is the most heavily modelled: visible cheek contouring, stronger brows, more shadow.
+- **Core 1** sits between them on shading but is the only one whose gaze is cast down, because its
+  action is to check an item in a notebook.
+
+Two separate things are therefore in play, and only one of them is a finish problem.
+
+**Finish spread: real, not yet worth a regeneration.** The difference is visible cropped to the head
+and enlarged roughly 1.7x, which is not how a participant sees these — they see one character, alone,
+at result-screen size, and never two side by side. Set against that, regenerating is expensive in a
+specific way: Core 1's shipped assets *are* the locked masters, so redoing Core 1 re-opens the
+proportion locks, every derived asset's comparison basis, and every equal-standing ruling taken so
+far. That is not a price worth paying for a difference that needs a crop tool to see.
+
+What was done instead is the cheap half: a `HOLD THE FINISH` block now follows `HOLD THE HEAD` in
+every pose prompt, naming shading the way the other block names head size. The same technique
+already moved head width 3.1pp where a numeric target moved it not at all, so there is direct
+evidence it works on this generator. Cores 4-9 will be generated against it.
+
+**The decision is deferred to the 27-asset contact sheet**, which the release gate requires anyway.
+That review is the first time all 27 are seen together, which is the only condition under which the
+finish spread is actually visible to a reviewer, and by then cores 4-9 will show whether the block
+held. If Core 2 still reads as the odd one out there, the choice will be between regenerating Core 2
+and Core 3 to match Core 1 — cheap, since neither is a master — or accepting the spread with a
+recorded reason. Regenerating Core 1 should stay off the table for the reason above.
+
+**Gaze direction is a separate question and is not a defect.** Core 1 looks down because it is
+examining something; Cores 2 and 3 look at the viewer because they are showing something. Reading
+the remaining action lines, roughly half the set will look down — cores 5, 7 and 9 at least. That is
+characterisation rather than inequality, and the equal-standing clause is scoped to presentations,
+not to cores. It is recorded here only so the contact-sheet review is not surprised by it and can
+rule on it deliberately.
