@@ -6,6 +6,7 @@ import { LIVING_CHARACTER_PILOT_ENABLED } from "./lib/living-character-flag";
 import { LIVING_CHARACTER_SCHEMA_VERSION, resolveLivingCharacterVisual, type LivingCharacterConfidence } from "./lib/living-character-resolver";
 import type { AnswerRecord, AssessmentResult, Confidence } from "./lib/scoring";
 import { buildSessionExport } from "./lib/session-export";
+import { CORE_VOICES, POLE_VOICES, WING_VOICES, crossReading } from "./lib/cross-reading";
 import { composeResultNarrative } from "./lib/result-insights";
 import {
   CORE_TRAITS, ENNEAGRAM_DEPTH, PASSIONS, centreOf, growthArrow, stressArrow, wingPersona,
@@ -91,6 +92,58 @@ function DepthSection({ core, wing }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
  * to apologise for it: this is not a weaker result, it is two readings of the same person, and
  * which is the core and which is the strategy is exactly the thing worth talking about.
  */
+/**
+ * The tension map: every part of the person that wants something, saying it in one line.
+ *
+ * This is the extended version of the two-lens tension. That comparison is a measurement and it
+ * stays where it is; this is the picture around it, built from things already established
+ * elsewhere on the page -- the core, the wing, and whichever MBTI poles pull against the core per
+ * lib/cross-reading.ts.
+ *
+ * Ordered core first, then wing, then poles, so it reads as one person with a loudest voice rather
+ * than as a committee. Shown only with at least three voices; two lines wanting different things is
+ * a sentence, not a map.
+ */
+function TensionMap({ core, wing, mbtiType, lensTension }: {
+  core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9; wing: number | null; mbtiType: string | null;
+  lensTension: AssessmentResult["tension"];
+}) {
+  const reading = crossReading(core, mbtiType as never);
+  const voices: { source: string; line: string }[] = [
+    { source: `ลักษณ์ ${core}`, line: CORE_VOICES[core] },
+  ];
+  if (wing !== null) {
+    voices.push({ source: `Wing ${wing}`, line: WING_VOICES[wing as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9] });
+  }
+  for (const pull of reading?.pulls ?? []) {
+    const line = POLE_VOICES[pull.pole];
+    if (line) voices.push({ source: `${pull.pole} (MBTI)`, line });
+  }
+  // The lens tension names an inward and an outward core, and one of them is usually the core
+  // already speaking first in this list. Adding it again produced a map with the same sentence
+  // twice under two labels, which reads as a bug because it is one. Only the lens that points
+  // somewhere else has a voice worth hearing.
+  for (const [lens, lensCore] of [
+    ["คำตอบด้านใน", lensTension?.inwardCore],
+    ["คำตอบด้านนอก", lensTension?.outwardCore],
+  ] as const) {
+    if (lensCore === undefined || lensCore === core) continue;
+    voices.push({ source: lens, line: CORE_VOICES[lensCore] });
+  }
+  if (voices.length < 3) return null;
+  return <section className="tension-map" aria-labelledby="tension-map-title">
+    <span className="step-label">เสียงในตัวคุณ</span>
+    <h2 id="tension-map-title">หลายเสียงที่ดึงกันอยู่</h2>
+    <p className="tension-map-note">
+      แต่ละบรรทัดคือส่วนหนึ่งของคุณที่ต้องการคนละอย่าง — ไม่ได้แปลว่ามีอะไรผิด
+      คนที่ตัดสินใจยากในบางเรื่องมักไม่ได้ลังเล แต่กำลังฟังหลายเสียงพร้อมกัน
+    </p>
+    <ul>{voices.map((voice) => (
+      <li key={voice.source}><b>{voice.source}</b><span>{voice.line}</span></li>
+    ))}</ul>
+  </section>;
+}
+
 function TensionNote({ tension }: { tension: NonNullable<AssessmentResult["tension"]> }) {
   const nameOf = (core: number) => ENNEAGRAM_PROFILES[core as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9].titleThai;
   return <section className="tension-note" aria-labelledby="tension-title">
@@ -272,6 +325,95 @@ function ExportRow({ result, answers, nickname, team, genderPresentation }: {
   </section>;
 }
 
+/**
+ * A radar of the nine Enneagram scores.
+ *
+ * The reference tool's radar has six invented axes -- Achievement drive, Competence, Adaptability
+ * and so on -- which look authoritative and are not measurements of anything the tool computed.
+ * Ours plots the nine numbers the scorer actually produced, so every point on it is traceable to
+ * the items that put it there. Less impressive, and true.
+ *
+ * Inline SVG on purpose: a chart library for one nine-point polygon would be the largest dependency
+ * in the project.
+ */
+function ScoreRadar({ scores, core, wing }: {
+  scores: Record<number, number>; core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9; wing: number | null;
+}) {
+  const cores = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+  const max = Math.max(...cores.map((c) => scores[c] ?? 0), 1);
+  const size = 260;
+  const centre = size / 2;
+  const radius = size / 2 - 34;
+  // Start at twelve o'clock so core 1 sits at the top and the ring reads clockwise like the symbol.
+  const pointAt = (index: number, distance: number) => {
+    const angle = (Math.PI * 2 * index) / cores.length - Math.PI / 2;
+    return [centre + Math.cos(angle) * distance, centre + Math.sin(angle) * distance] as const;
+  };
+  const polygon = cores
+    .map((c, index) => pointAt(index, ((scores[c] ?? 0) / max) * radius))
+    .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
+    .join(" ");
+  return <figure className="score-radar">
+    <svg viewBox={`0 0 ${size} ${size}`} role="img"
+      aria-label={`แผนภาพคะแนนทั้งเก้าลักษณ์ ลักษณ์ที่สูงที่สุดคือ ${core}`}>
+      {[0.25, 0.5, 0.75, 1].map((ring) => (
+        <polygon key={ring} className="radar-ring"
+          points={cores.map((_, index) => pointAt(index, radius * ring))
+            .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ")} />
+      ))}
+      {cores.map((_, index) => {
+        const [x, y] = pointAt(index, radius);
+        return <line key={index} className="radar-spoke" x1={centre} y1={centre} x2={x} y2={y} />;
+      })}
+      <polygon className="radar-shape" points={polygon} />
+      {cores.map((c, index) => {
+        const [x, y] = pointAt(index, radius + 15);
+        const emphasis = c === core ? "radar-label-core" : c === wing ? "radar-label-wing" : "";
+        return <text key={c} className={`radar-label ${emphasis}`} x={x} y={y}
+          textAnchor="middle" dominantBaseline="middle">{c}</text>;
+      })}
+    </svg>
+    <figcaption>
+      คะแนนทั้งเก้าลักษณ์จากคำตอบของคุณ — ตัวเลขรอบวงคือหมายเลขลักษณ์ ยิ่งไกลจากจุดกลางยิ่งได้คะแนนมาก
+    </figcaption>
+  </figure>;
+}
+
+/**
+ * Where the two lenses agree and where they pull against each other.
+ *
+ * Shown only when the MBTI type resolved, and labelled as an observation rather than a finding --
+ * see the header of lib/cross-reading.ts for why that labelling is load-bearing rather than modest.
+ */
+function CrossReadingSection({ core, mbtiType }: {
+  core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9; mbtiType: string | null;
+}) {
+  const reading = crossReading(core, mbtiType as never);
+  if (!reading) return null;
+  return <section className="cross-reading" aria-labelledby="cross-title">
+    <span className="step-label">สองมุมมองมาเจอกัน</span>
+    <h2 id="cross-title">{`MBTI ${mbtiType} กับ ลักษณ์ ${core} ตรงไหนเสริมกัน ตรงไหนดึงกัน`}</h2>
+    <div className="cross-grid">
+      <article className="cross-column cross-amplify">
+        <h3>เสริมกัน</h3>
+        <ul>{reading.amplifies.map((item) => (
+          <li key={item.pole}><b>{item.label}</b><span>{item.lineThai}</span></li>
+        ))}</ul>
+      </article>
+      <article className="cross-column cross-pull">
+        <h3>ดึงกัน</h3>
+        <ul>{reading.pulls.map((item) => (
+          <li key={item.pole}><b>{item.label}</b><span>{item.lineThai}</span></li>
+        ))}</ul>
+      </article>
+    </div>
+    <p className="cross-caveat">
+      ส่วนนี้เป็น <b>ข้อสังเกต ไม่ใช่ผลการวัด</b> — คะแนนลักษณ์ของคุณคำนวณจากคำตอบเสร็จก่อนแล้ว
+      ส่วนนี้ไม่ได้เข้าไปเปลี่ยนผล ถ้าอ่านแล้วไม่ตรงกับตัวเอง ให้เชื่อตัวเองก่อน
+    </p>
+  </section>;
+}
+
 function CharacterVisual({ character, ambiguous, sceneKit, mbtiConfidence, enneagramConfidence }: { character: ResolvedCharacterProfile; ambiguous: boolean; sceneKit: CharacterSceneKit; mbtiConfidence: LivingCharacterConfidence; enneagramConfidence: LivingCharacterConfidence }) {
   const [assetFailed, setAssetFailed] = useState(false);
   // Confidence is forwarded verbatim so the resolver stays the single owner of the ambiguity rule:
@@ -367,6 +509,12 @@ export default function ResultView({ result, answers, character, nickname, team,
     <SummaryCard result={result} nickname={nickname} team={team} mbtiLabel={typeLabel} />
     {/* Directly under the card, because the card is what the PDF prints and the code is what the
         calibration run needs — both are actions on the thing just above them. */}
+    {/* A sibling of the card rather than part of it. The card is 772px on a 390x844 phone and that
+        one-screen fit is the property it exists for; a 260px radar inside it would spend the fit on
+        a chart nobody needs in the first sixty seconds. It still prints -- the PDF has room. */}
+    {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"
+      && <ScoreRadar scores={result.scores.enneagram} core={result.enneagram.core}
+        wing={result.wingStatus === "valid" ? result.wing : null} />}
     <ExportRow result={result} answers={answers} nickname={nickname} team={team} genderPresentation={genderPresentation} />
     <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
     <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>
@@ -379,8 +527,13 @@ export default function ResultView({ result, answers, character, nickname, team,
     {/* After the arrows, which explain why two answers CAN point different ways, and before the
         insight grid, which assumes one core. This says yours actually did. */}
     {result.tension !== null && <TensionNote tension={result.tension} />}
+    {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"
+      && <CrossReadingSection core={result.enneagram.core} mbtiType={result.mbti.type} />}
+    {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"
+      && <TensionMap core={result.enneagram.core} wing={result.wingStatus === "valid" ? result.wing : null}
+        mbtiType={result.mbti.type} lensTension={result.tension} />}
     <div className="insight-grid"><InsightCard title="สิ่งที่ขับเคลื่อนคุณ" items={insight.motivation} /><InsightCard title="สไตล์การทำงานของคุณ" items={insight.workStyle} /><InsightCard title="เมื่อเจองานกดดัน" items={insight.pressure} soft /><InsightCard title="ทำงานร่วมกับคุณอย่างไรให้ลื่นขึ้น" items={insight.collaboration} /><InsightCard title="สิ่งที่ลองฝึกต่อได้" items={insight.growth} soft /></div>
-    {consent && <details className="facilitator-details"><summary>แนวทางคุยต่อสำหรับหัวหน้า / HR</summary><div className="facilitator-content"><section><h3>คำถามสำหรับคุยหนึ่งต่อหนึ่ง</h3><ul>{insight.facilitatorPrompts.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>สิ่งที่หัวหน้าช่วยได้</h3><ul>{insight.managerSupport.map((item) => <li key={item}>{item}</li>)}</ul></section><p className="privacy-reminder">ใช้เพื่อสนับสนุนการพัฒนาและการทำงานร่วมกันเท่านั้น ไม่ใช้ตัดสินผลงาน โอกาส หรือคุณค่าของบุคคล</p></div></details>}
+    {consent && <details className="facilitator-details"><summary>แนวทางคุยต่อสำหรับหัวหน้า / HR<span className="details-teaser">{`${insight.facilitatorPrompts.length} คำถามสำหรับคุยหนึ่งต่อหนึ่ง · ${insight.managerSupport.length} สิ่งที่หัวหน้าช่วยได้`}</span></summary><div className="facilitator-content"><section><h3>คำถามสำหรับคุยหนึ่งต่อหนึ่ง</h3><ul>{insight.facilitatorPrompts.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>สิ่งที่หัวหน้าช่วยได้</h3><ul>{insight.managerSupport.map((item) => <li key={item}>{item}</li>)}</ul></section><p className="privacy-reminder">ใช้เพื่อสนับสนุนการพัฒนาและการทำงานร่วมกันเท่านั้น ไม่ใช้ตัดสินผลงาน โอกาส หรือคุณค่าของบุคคล</p></div></details>}
     {process.env.NODE_ENV === "development" && <><CoreFiveDevPreview /><GateCDevPreview /></>}
     <details className="mapping-details"><summary>รายละเอียดการจับคู่ตัวละครสำหรับทีมงาน</summary><div className="design-recipe"><div><span className="step-label">MAPPING REVIEW</span><h2>Character design recipe</h2></div><dl><div><dt>Core</dt><dd>{ambiguous ? "Neutral fallback" : character.characterDesignRecipe.core}</dd></div><div><dt>Wing</dt><dd>{result.wingStatus === "valid" ? result.wing : "Ambiguous"}</dd></div><div><dt>MBTI visual energy</dt><dd>{ambiguous ? "Neutral" : character.characterDesignRecipe.mbtiVisualEnergy}</dd></div><div><dt>Presentation</dt><dd>{character.characterDesignRecipe.presentation}</dd></div></dl></div></details><button className="secondary-button restart" onClick={onRestart}>↻ ทำแบบประเมินอีกครั้ง</button>
   </div>;

@@ -1102,9 +1102,17 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   @page { size: A4 portrait; margin: 14mm; }
   html, body { background: #fff !important; }
   .app-shell { padding: 0 !important; overflow: visible !important; min-height: 0 !important; }
-  .ambient, .site-header, .export-row, .result-hero, .result-model-note, .depth-section,
-  .tension-note, .insight-grid, .facilitator-details, .mapping-details, .restart,
-  .stage-questions, .stage-welcome, .stage-profile, footer, .key-hint { display: none !important; }
+  /* An allow-list, and this rule is the second attempt. The first named every section that existed
+     when it was written -- and the comment above it warned that a deny-list would start printing
+     whatever got added next. Then the cross-reading and tension-map sections were added and the
+     PDF silently became two pages, which is exactly the predicted failure. Hiding every child of
+     the wrapper and opting two back in cannot fail that way: a new section is invisible to print
+     until somebody decides otherwise. */
+  .ambient, .site-header, footer, .key-hint,
+  .stage-questions, .stage-welcome, .stage-profile,
+  .result-wrap > * { display: none !important; }
+  .result-wrap > .summary-card, .result-wrap > .score-radar { display: grid !important; }
+  .result-wrap > .summary-card { display: block !important; }
   .stage, .result-wrap { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; }
   .summary-card {
     margin: 0 !important; padding: 0 !important;
@@ -1124,4 +1132,114 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
     display: block; margin-top: 10mm; padding-top: 4mm;
     border-top: 1px solid #dfe5df; font-size: 8pt; color: #5d6862;
   }
+}
+
+/* =============================================================================================
+   SCORE RADAR — the nine Enneagram scores, plotted.
+   ============================================================================================= */
+.score-radar {
+  margin: 0 0 20px; padding: 16px 18px 14px;
+  border: 1px solid #dfe5df; border-radius: 18px; background: #fff;
+  display: grid; justify-items: center; gap: 8px;
+}
+.score-radar svg { width: 100%; max-width: 260px; height: auto; overflow: visible; }
+.radar-ring { fill: none; stroke: #e5eae4; stroke-width: 1; }
+.radar-spoke { stroke: #eef1ec; stroke-width: 1; }
+.radar-shape { fill: #3e6d5833; stroke: var(--green); stroke-width: 2; stroke-linejoin: round; }
+.radar-label { font-size: 12px; font-weight: 600; fill: #8b968f; }
+.radar-label-core { font-size: 15px; font-weight: 700; fill: var(--matcha); }
+.radar-label-wing { font-size: 13px; font-weight: 700; fill: var(--green); }
+.score-radar figcaption {
+  max-width: 42ch; text-align: center;
+  font-size: 12.5px; line-height: 1.55; color: #5d6862;
+}
+
+/* =============================================================================================
+   CROSS-READING — where MBTI and the Enneagram core agree and where they pull.
+   ============================================================================================= */
+.cross-reading {
+  margin: 0 0 20px; padding: 22px 22px 18px;
+  border: 1px solid var(--line); border-radius: 20px; background: #fff;
+}
+.cross-reading h2 { margin: 8px 0 16px; font-size: 20px; font-weight: 600; color: var(--matcha); letter-spacing: -.3px; }
+.cross-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cross-column { padding: 15px 16px; border-radius: 14px; border: 1px solid #e7ece5; }
+.cross-column h3 { margin: 0 0 9px; font-size: 15px; font-weight: 700; }
+.cross-column ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+.cross-column li { display: grid; gap: 3px; }
+.cross-column li b { font-size: 13px; font-weight: 700; }
+.cross-column li span { font-size: 14px; line-height: 1.6; color: #454f4a; }
+.cross-amplify { background: #f2f8f3; border-color: #d8e6da; }
+.cross-amplify h3, .cross-amplify li b { color: #2f5f4a; }
+.cross-pull { background: #fdfbf5; border-color: #e6dfcd; }
+.cross-pull h3, .cross-pull li b { color: #6f6247; }
+.cross-caveat {
+  margin: 15px 0 0; padding: 12px 14px; border-radius: 12px; background: #f5f7f2;
+  font-size: 13px; line-height: 1.65; color: #454f4a;
+}
+
+@media (max-width: 899px) {
+  .cross-reading { padding: 19px 17px 16px; border-radius: 18px; }
+  .cross-reading h2 { font-size: 18px; }
+  .cross-grid { grid-template-columns: 1fr; }
+  .score-radar { padding: 14px 14px 12px; border-radius: 16px; }
+}
+
+/* The radar joins the card in print — the PDF has the room and a distribution is the kind of thing
+   a person shows someone else. Nothing else on the page does. */
+/* The radar joins the card in print, and has to earn its place in the page budget. At 62mm with
+   its caption it pushed a one-page PDF to two, which defeats the point of printing only the card.
+   Smaller, and the caption drops -- on paper the numbers around the ring explain themselves and the
+   sentence was there for a screen reader that print does not have. */
+@media print {
+  .score-radar {
+    display: grid !important; margin: 5mm 0 0 !important; padding: 0 !important;
+    border: 0 !important; break-inside: avoid;
+  }
+  .score-radar svg { max-width: 46mm; }
+  .score-radar figcaption { display: none; }
+}
+
+/* =============================================================================================
+   TENSION MAP — every part of the person that wants something, one line each.
+   ============================================================================================= */
+.tension-map {
+  margin: 0 0 20px; padding: 22px 22px 18px;
+  border: 1px solid var(--line); border-radius: 20px; background: #fff;
+}
+.tension-map h2 { margin: 8px 0 8px; font-size: 20px; font-weight: 600; color: var(--matcha); letter-spacing: -.3px; }
+.tension-map-note { margin: 0 0 15px; font-size: 14px; line-height: 1.7; color: #59645f; max-width: 62ch; }
+.tension-map ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.tension-map li {
+  display: grid; grid-template-columns: minmax(90px, 130px) 1fr; align-items: baseline; gap: 12px;
+  padding: 11px 14px; border-radius: 12px; background: #f5f7f2; border: 1px solid #e7ece5;
+}
+.tension-map li b { font-size: 13px; font-weight: 700; color: var(--green); }
+.tension-map li span { font-size: 15px; line-height: 1.55; color: var(--matcha); }
+
+@media (max-width: 899px) {
+  .tension-map { padding: 19px 17px 16px; border-radius: 18px; }
+  .tension-map h2 { font-size: 18px; }
+  .tension-map li { grid-template-columns: 1fr; gap: 2px; padding: 10px 12px; }
+  .tension-map li span { font-size: 14.5px; }
+}
+
+/* =============================================================================================
+   COLLAPSED-SECTION TEASER
+
+   The UX review found the two collapsible bars unopened because they were flat empty bars, and
+   that pass gave them a chevron, a hover state and a cursor. It did not fix the other half: a bar
+   labelled "แนวทางคุยต่อสำหรับหัวหน้า / HR" says what the section is called and nothing about what is
+   inside, so opening it is a gamble. A line saying how much is in there is the cheapest honest
+   answer, and it is what the reference tool's follow-up chips are actually doing -- naming the next
+   thing rather than offering a door.
+
+   This is where item 10 of the adopt list lands for us. Their version is a dialogue the respondent
+   steers, which needs a backend we do not have and a consent conversation we have not had. What we
+   already hold is a leader/HR conversation guide that nobody opens; surfacing it is the same
+   intent at the scale we can honestly deliver.
+   ============================================================================================= */
+.details-teaser {
+  display: block; margin-top: 3px;
+  font-size: 13px; font-weight: 400; line-height: 1.5; color: #5d6862;
 }
