@@ -25,7 +25,8 @@
     "assets:unbake": "node scripts/unbake-checkerboard.mjs",
     "assets:ingest": "node scripts/ingest-asset.mjs",
     "fixtures": "node scripts/find-fixtures.mjs --write",
-    "keying": "node scripts/find-keying.mjs"
+    "keying": "node scripts/find-keying.mjs",
+    "assets:hero": "node scripts/measure-hero-silhouettes.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
