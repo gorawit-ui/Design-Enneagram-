@@ -5,6 +5,20 @@ Recorded so they are asked for once and tracked, rather than remembered.
 
 Nothing in this list blocks the January outing except the first item.
 
+## 0. Not owed by HR, but parked here so it is not lost: the outing's anonymous write
+
+Deferred on the Products Owner's decision 2026-09-10, to be picked up after the question work.
+
+The calibration write for the January outing — an Apps Script behind a Google Sheet on the HR
+account, taking answers, time per item and the resulting confidence, with no name, no team and
+nothing identifying. Engineering can write both the script and the client call in advance without
+touching the HR account; what it cannot do is create the Sheet, so the last step is pasting the
+deployment URL in.
+
+Due at the same time as item 1 below, and for the same reason: the data has to be arriving by
+mid-October for the onsite activity to be designed around it, and if nothing records the outing then
+the evidence that decides the candidate instrument will not exist.
+
 ## 1. Consent text — employee, for the outing · needed before mid-October
 
 The consent checkbox on the profile page currently reads:
