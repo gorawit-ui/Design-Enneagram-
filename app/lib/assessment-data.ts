@@ -282,3 +282,29 @@ export const WING_CHALLENGES: readonly AssessmentQuestion[] = ([1,2,3,4,5,6,7,8,
 // block: the A/T challenge unconditionally, then five selected from the respondent's own answers.
 export const MAX_QUESTIONS = 24;
 export const ADAPTIVE_QUESTIONS = 6;
+
+/**
+ * A short fingerprint of the item bank: every question id in order, with its option count and
+ * whether it is reverse-keyed.
+ *
+ * It exists so that an exported session says which items produced it. The export carries the 24
+ * chosen option indexes and nothing else about the questions, because `selectNextQuestion` is
+ * deterministic and those indexes replay the session exactly -- but only against the same bank. The
+ * items are going to change again before January, and a session exported today replayed against a
+ * changed bank would silently describe a different person. This turns that into a mismatch anyone
+ * can see.
+ *
+ * Not a cryptographic hash and not trying to be: it is a legibility device, computed with a plain
+ * 32-bit rolling hash so the same bank always produces the same six characters.
+ */
+export const ITEM_BANK_VERSION: string = (() => {
+  const shape = [...FOUNDATION_QUESTIONS, ...DIMENSION_CHALLENGES, ...CORE_CHALLENGES, ...WING_CHALLENGES]
+    .map((question) => `${question.id}:${question.options.length}:${isReverseKeyed(question.id) ? "r" : "f"}`)
+    .join("|");
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < shape.length; index += 1) {
+    hash ^= shape.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36).padStart(6, "0").slice(-6);
+})();

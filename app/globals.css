@@ -959,3 +959,169 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   .tension-note { padding: 19px 17px 17px; border-radius: 16px; }
   .tension-note h3 { font-size: 18px; }
 }
+
+/* =============================================================================================
+   SUMMARY CARD — the whole result on one screen, and the page the PDF prints.
+
+   Sized so the card itself fits a 390x844 viewport with the type, the structure, both arrows and
+   six trait lines visible. That is the constraint: a reader who stops after one screen has had the
+   answer. Everything below the card on the result page is elaboration.
+   ============================================================================================= */
+.summary-card {
+  margin: 0 0 20px;
+  padding: 22px 22px 20px;
+  border: 1px solid #dfe5df;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 14px 40px #16362f14;
+}
+.summary-head { display: flex; align-items: flex-start; gap: 15px; }
+.summary-badge {
+  flex: none; width: 66px; height: 66px; border-radius: 18px;
+  display: grid; place-items: center;
+  background: var(--matcha); color: #fff;
+  font: 600 21px/1 var(--font-display); letter-spacing: -.5px;
+}
+.summary-identity { min-width: 0; }
+.summary-identity h1 { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.25; letter-spacing: -.6px; color: var(--matcha); }
+.summary-line { margin: 6px 0 0; font-size: 15px; line-height: 1.6; color: #454f4a; }
+.summary-meta { margin: 8px 0 0; font-size: 13px; letter-spacing: .2px; color: var(--green); font-weight: 600; }
+.summary-owner { margin: 14px 0 0; padding-top: 13px; border-top: 1px solid #eef1ec; font-size: 13.5px; color: #5d6862; }
+
+.summary-structure { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 14px 0 0; }
+.summary-structure > div { padding: 12px 13px; border-radius: 12px; background: #f5f7f2; border: 1px solid #e7ece5; }
+.summary-structure dt { font-size: 12.5px; font-weight: 700; color: var(--green); letter-spacing: .2px; }
+.summary-structure dd { margin: 5px 0 0; font-size: 14px; line-height: 1.55; color: #2f3a35; }
+.summary-structure dd b { font-weight: 700; }
+
+.summary-arrows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.summary-arrow { padding: 11px 12px; border-radius: 12px; border: 1px solid #e7ece5; text-align: center; }
+.summary-arrow span { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .2px; color: #6f7a74; }
+.summary-arrow b { display: block; margin-top: 4px; font-size: 13.5px; line-height: 1.4; color: var(--matcha); }
+.summary-arrow-stress { background: #fbf7f1; border-color: #ecdfcd; }
+.summary-arrow-core { background: var(--matcha); border-color: var(--matcha); }
+.summary-arrow-core span { color: #b4c6bd; }
+.summary-arrow-core b { color: #fff; font-size: 16px; }
+.summary-arrow-growth { background: #f2f8f3; border-color: #d8e6da; }
+
+.summary-traits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+.summary-traits h2 { margin: 0 0 7px; font-size: 14px; font-weight: 700; color: var(--matcha); }
+.summary-traits ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.summary-traits li { position: relative; padding-left: 15px; font-size: 13.5px; line-height: 1.55; color: #454f4a; }
+.summary-traits li::before { content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; }
+.summary-traits section:first-child li::before { background: #3e6d58; }
+.summary-traits section:last-child li::before { background: #b3a58c; }
+
+.summary-tension-flag {
+  margin: 15px 0 0; padding: 11px 13px; border-radius: 11px;
+  background: #fdfbf5; border: 1px solid #e6dfcd;
+  font-size: 13px; line-height: 1.6; color: #5c5340;
+}
+.summary-caveat { margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: #5d6862; }
+
+/* The caveat is on screen already, in the hero's own <small>. It is repeated here only for print,
+   where the hero is hidden and the card has to stand on its own as a document. Keeping it visible
+   in both places cost 40px of the one screen this card exists to fit inside. */
+.summary-caveat { display: none; }
+
+@media (max-width: 899px) {
+  /* Sized to fit a 390x844 viewport with everything visible. The first measurement came back at
+     1215px against 844 -- better than the 4797px page it replaces, and still not the single screen
+     this card is for. What got it under: the structure cells go to two columns rather than stacking
+     (they are one line each, so two columns costs nothing in legibility and saves ~170px), the
+     arrows become compact rows, and the spacing tightens. Re-measure after any content change --
+     one more line in any of the four blocks puts it back over. */
+  .summary-card { padding: 15px 15px 12px; border-radius: 18px; }
+  .summary-head { gap: 12px; }
+  .summary-badge { width: 52px; height: 52px; border-radius: 14px; font-size: 17px; }
+  .summary-identity h1 { font-size: 21px; }
+  .summary-line { margin-top: 4px; font-size: 14px; line-height: 1.5; }
+  .summary-meta { margin-top: 6px; font-size: 12.5px; }
+  .summary-owner { margin-top: 9px; padding-top: 9px; font-size: 13px; }
+  .summary-structure { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 11px; }
+  .summary-structure > div { padding: 9px 10px; border-radius: 10px; }
+  .summary-structure dt { font-size: 11.5px; }
+  .summary-structure dd { margin-top: 3px; font-size: 13px; line-height: 1.45; }
+  .summary-arrows { grid-template-columns: 1fr; gap: 6px; margin-top: 10px; }
+  .summary-arrow {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 10px; text-align: left; padding: 8px 11px; border-radius: 10px;
+  }
+  .summary-arrow span { font-size: 11px; }
+  .summary-arrow b { margin-top: 0; font-size: 13px; }
+  .summary-arrow-core b { font-size: 14px; }
+  .summary-traits { grid-template-columns: 1fr; gap: 10px; margin-top: 13px; }
+  .summary-traits h2 { margin-bottom: 5px; font-size: 13.5px; }
+  .summary-traits ul { gap: 5px; }
+  .summary-traits li { font-size: 13px; line-height: 1.5; }
+  .summary-tension-flag { margin-top: 9px; padding: 8px 10px; font-size: 12.5px; line-height: 1.45; }
+}
+
+@media print {
+  .summary-caveat { display: block; }
+}
+
+/* =============================================================================================
+   EXPORT ROW
+   ============================================================================================= */
+.export-row {
+  margin: 0 0 20px; padding: 18px 20px 16px;
+  border: 1px dashed #cfd9d0; border-radius: 18px; background: #f7f9f5;
+}
+.export-row h2 { margin: 0; font-size: 17px; font-weight: 600; color: var(--matcha); }
+.export-note { margin: 6px 0 0; font-size: 13.5px; line-height: 1.6; color: #5d6862; }
+.export-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 13px; }
+.export-actions button { min-width: 0; min-height: 46px; padding: 12px 16px; font-size: 14.5px; }
+.export-actions .primary-button { min-width: 0; }
+.export-hint { margin: 12px 0 0; font-size: 13.5px; line-height: 1.65; color: #5d6862; }
+.export-hint .text-button {
+  border: 0; background: none; padding: 0; font: inherit;
+  color: var(--green); font-weight: 700; text-decoration: underline; cursor: pointer;
+}
+.export-code {
+  display: block; margin-top: 10px; padding: 11px 12px;
+  border-radius: 10px; background: #fff; border: 1px solid #dfe5df;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 12px; line-height: 1.6; color: #2f3a35;
+  word-break: break-all; user-select: all;
+}
+
+/* =============================================================================================
+   PRINT — the PDF is the summary card and nothing else.
+
+   "Save as PDF" from a browser prints what is on screen, and what is on screen is a 4797px page
+   with a character illustration, two collapsible sections and a restart button. None of that is a
+   document a person keeps, and a fourteen-page PDF is worse than no PDF. So printing narrows the
+   page to the one thing built to stand alone.
+
+   Everything is hidden by default and the card is opted back in, rather than the other way round:
+   the result page will grow again, and a rule that hides what exists today would quietly start
+   printing whatever gets added next.
+   ============================================================================================= */
+@media print {
+  @page { size: A4 portrait; margin: 14mm; }
+  html, body { background: #fff !important; }
+  .app-shell { padding: 0 !important; overflow: visible !important; min-height: 0 !important; }
+  .ambient, .site-header, .export-row, .result-hero, .result-model-note, .depth-section,
+  .tension-note, .insight-grid, .facilitator-details, .mapping-details, .restart,
+  .stage-questions, .stage-welcome, .stage-profile, footer, .key-hint { display: none !important; }
+  .stage, .result-wrap { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; }
+  .summary-card {
+    margin: 0 !important; padding: 0 !important;
+    border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+    break-inside: avoid;
+  }
+  /* The badge is a solid green block; browsers drop backgrounds when printing unless asked. */
+  .summary-badge, .summary-arrow-core { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .summary-structure { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .summary-arrows { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .summary-traits { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .summary-identity h1 { font-size: 24pt; }
+  /* The caveat is already the last line of the card in print; repeating it in the footer read as
+     a stutter. The footer says where the page came from, and nothing else. */
+  .summary-card::after {
+    content: "TDFB Personality Quest";
+    display: block; margin-top: 10mm; padding-top: 4mm;
+    border-top: 1px solid #dfe5df; font-size: 8pt; color: #5d6862;
+  }
+}

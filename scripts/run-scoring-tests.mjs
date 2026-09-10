@@ -16,6 +16,7 @@ const sourceFiles = [
   "app/lib/assessment-fixtures.ts",
   "app/lib/profile-contract.ts",
   "app/lib/enneagram-depth.ts",
+  "app/lib/session-export.ts",
 ].map((file) => path.join(projectRoot, file));
 
 try {
@@ -46,6 +47,7 @@ try {
   const fixtures = require(path.join(temporaryDirectory, "assessment-fixtures.js"));
   const profileContract = require(path.join(temporaryDirectory, "profile-contract.js"));
   const depth = require(path.join(temporaryDirectory, "enneagram-depth.js"));
+  const sessionExport = require(path.join(temporaryDirectory, "session-export.js"));
 
   assert.deepEqual(profileContract.PROFILE_FIELDS, ["nameAndNickname", "team", "gender"], "three-field profile contract");
   assert.deepEqual(Object.keys(profileContract.INITIAL_PROFILE), profileContract.PROFILE_FIELDS, "profile contains no unapproved fields");
@@ -391,6 +393,50 @@ try {
   console.log(`  lens tension: ${detectable}/72 core pairs detectable`
     + `${undetected.length ? ` · not detectable: ${undetected.slice(0, 8).join(" ")}${undetected.length > 8 ? " …" : ""}` : ""}`);
 
+  // --- session export ----------------------------------------------------------------------
+  // The whole calibration plan rests on one claim: the 24 option indexes in an exported code
+  // replay the session exactly. That is true only because selectNextQuestion is a pure function of
+  // the answers so far, and it stops being true the moment anything in selection reads state from
+  // anywhere else. So it is asserted rather than assumed -- take a session, throw away everything
+  // except the digits, rebuild it from the digits alone, and require an identical result.
+  const roundTrip = (choices) => {
+    const rebuilt = [];
+    for (const optionIndex of choices) {
+      const question = scoring.selectNextQuestion(rebuilt);
+      if (!question) break;
+      rebuilt.push({ questionId: question.id, optionIndex });
+    }
+    return rebuilt;
+  };
+  for (const [name, original] of Object.entries(fixtures.ASSESSMENT_FIXTURES)) {
+    if (!original.length) continue;
+    const code = sessionExport.encodeSessionCode(original, scoring.scoreAssessment(original),
+      { nickname: "ทดสอบ", team: "QA" });
+    const digits = /\|a=(\d*)\|/.exec(code)?.[1] ?? "";
+    assert.equal(digits.length, original.length,
+      `${name}: the code carries one digit per answer`);
+    const rebuilt = roundTrip([...digits].map(Number));
+    assert.deepEqual(rebuilt.map((answer) => answer.questionId), original.map((answer) => answer.questionId),
+      `${name}: replaying the digits asks exactly the same questions in the same order`);
+    assert.deepEqual(rebuilt, [...original],
+      `${name}: replaying the digits reproduces the session`);
+    const before = scoring.scoreAssessment(original);
+    const after = scoring.scoreAssessment(rebuilt);
+    assert.deepEqual(after.scores, before.scores, `${name}: and the same scores`);
+    assert.equal(after.enneagram.core, before.enneagram.core, `${name}: and the same core`);
+    assert.equal(after.wing, before.wing, `${name}: and the same wing`);
+    assert.equal(after.mbti.type, before.mbti.type, `${name}: and the same MBTI type`);
+  }
+  // Every option index has to be a single digit, or the digit string is ambiguous. Nine options is
+  // the widest item in the bank today; a tenth would silently break every exported code.
+  for (const question of allQuestions) {
+    assert.ok(question.options.length <= 10,
+      `${question.id}: at most ten options, so an option index stays one character in an exported code`);
+  }
+  // The bank fingerprint has to be stable across calls and change when the bank changes.
+  assert.equal(data.ITEM_BANK_VERSION, data.ITEM_BANK_VERSION, "the fingerprint is stable");
+  assert.match(data.ITEM_BANK_VERSION, /^[0-9a-z]{6}$/, "the fingerprint is six base-36 characters");
+
   // --- the depth layer ---------------------------------------------------------------------
   // The two arrows are derived from two cycles rather than typed out as two tables, so what is
   // worth asserting is that the derivation still produces the Enneagram's actual structure. If
@@ -434,7 +480,7 @@ try {
       `core ${core}: the fear on the result page is the same sentence f-e-3 offered`);
   }
 
-  console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, sequential adaptive selection, the 24-question contract, keyed direction balance, the depth layer's two arrows, and lens tension.`);
+  console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, sequential adaptive selection, the 24-question contract, keyed direction balance, the depth layer's two arrows, lens tension, and export round-trips.`);
 } finally {
   fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 }

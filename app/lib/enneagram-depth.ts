@@ -184,3 +184,201 @@ export const ENNEAGRAM_DEPTH: Record<EnneagramCore, EnneagramDepth> = {
     towardGrowthThai: "พูดสิ่งที่ตัวเองต้องการออกมาก่อนที่จะถูกถาม แล้วจะพบว่าการมีจุดยืนไม่ได้ทำให้ความสัมพันธ์พัง",
   },
 };
+
+/**
+ * The three centres. Structural in the Enneagram model, so derived rather than typed out: Body/Gut
+ * is 8-9-1, Heart is 2-3-4, Head is 5-6-7.
+ */
+const CENTRES: readonly { readonly nameThai: string; readonly driveThai: string; readonly cores: readonly EnneagramCore[] }[] = [
+  { nameThai: "ศูนย์ร่างกาย", driveThai: "ลงมือและตั้งขอบเขต", cores: [8, 9, 1] },
+  { nameThai: "ศูนย์หัวใจ", driveThai: "ความสัมพันธ์และการถูกมองเห็น", cores: [2, 3, 4] },
+  { nameThai: "ศูนย์ความคิด", driveThai: "ความเข้าใจและความปลอดภัย", cores: [5, 6, 7] },
+];
+
+export function centreOf(core: EnneagramCore): { nameThai: string; driveThai: string } {
+  const centre = CENTRES.find((candidate) => candidate.cores.includes(core));
+  if (!centre) throw new Error(`no centre for core ${core}`);
+  return { nameThai: centre.nameThai, driveThai: centre.driveThai };
+}
+
+/**
+ * A name for each of the eighteen core-and-wing combinations.
+ *
+ * We already named the nine cores and already carried eighteen wing entries describing the
+ * influence -- but the wing surfaced on the result page as a bare number. "ลักษณ์ 5 · Wing 4" is
+ * not something a person repeats to their team; a name is. The reference tool names all eighteen
+ * (The Defender, The Advocate, The Dreamer, The Professional) and that is the single cheapest thing
+ * in its result page with the largest effect on whether the result is remembered at all.
+ *
+ * Written in Thai in the same register as the nine core titles in character-system.ts, rather than
+ * translated from the reference tool's English. Each is a name a person could introduce themselves
+ * with, and the line under it says what the wing changes about the core.
+ */
+export const WING_PERSONAS: Record<string, { nameThai: string; lineThai: string }> = {
+  "1w9": { nameThai: "ผู้วางหลักอย่างสงบ", lineThai: "ยกมาตรฐานได้โดยไม่ทำให้ใครรู้สึกถูกเร่ง" },
+  "1w2": { nameThai: "ผู้ยกมาตรฐานเพื่อคน", lineThai: "มาตรฐานมีไว้เพื่อให้คนทำงานร่วมกันได้ดีขึ้น ไม่ใช่เพื่อตรวจ" },
+  "2w1": { nameThai: "ผู้ดูแลที่มีหลัก", lineThai: "ช่วยอย่างมีขอบเขตและสม่ำเสมอ ไม่ใช่ตามอารมณ์" },
+  "2w3": { nameThai: "ผู้เชื่อมคนให้ไปถึงเป้า", lineThai: "เปลี่ยนความห่วงใยให้กลายเป็นผลลัพธ์ที่ทีมเห็นร่วมกัน" },
+  "3w2": { nameThai: "ผู้พาทีมไปด้วยกัน", lineThai: "ความสำเร็จนับเมื่อคนรอบตัวได้ไปด้วย" },
+  "3w4": { nameThai: "ผู้สร้างผลงานที่มีลายเซ็น", lineThai: "ไม่พอใจกับผลงานที่ใครทำก็ได้ ต้องมีอะไรที่เป็นของตัวเอง" },
+  "4w3": { nameThai: "ผู้เล่าเรื่องที่ส่งถึงคน", lineThai: "เปลี่ยนมุมมองส่วนตัวให้เป็นงานที่คนอื่นใช้ได้จริง" },
+  "4w5": { nameThai: "ผู้ค้นความหมายเชิงลึก", lineThai: "ต้องการเวลาและความสงบมากพอที่จะขุดให้ถึงชั้นที่จริง" },
+  "5w4": { nameThai: "นักคิดผู้มีสายตาเฉพาะตัว", lineThai: "รู้ลึกและมองในมุมที่ไม่มีใครมอง จึงไม่ยอมรับคำตอบสำเร็จรูป" },
+  "5w6": { nameThai: "นักคิดผู้เตรียมหลักฐาน", lineThai: "วิเคราะห์เป็นระบบและเตรียมข้อมูลให้ตรวจย้อนได้ก่อนเสนอ" },
+  "6w5": { nameThai: "ผู้เฝ้าระวังที่มีข้อมูล", lineThai: "สร้างความมั่นใจให้ทีมด้วยความรู้และแผนที่ตรวจสอบได้" },
+  "6w7": { nameThai: "ผู้เตรียมทางเลือกไว้เสมอ", lineThai: "รับมือความไม่แน่นอนด้วยหลายทาง ไม่ใช่ด้วยการยึดทางเดียว" },
+  "7w6": { nameThai: "นักสำรวจที่มีจุดตรวจ", lineThai: "เปิดทางใหม่ได้เร็ว แต่ยังวางจุดกลับให้ทีมด้วย" },
+  "7w8": { nameThai: "นักเปิดทางที่ลงมือจริง", lineThai: "ไม่หยุดที่ไอเดีย ผลักให้เกิดขึ้นจริงแม้จะติดขัด" },
+  "8w7": { nameThai: "ผู้นำที่เปิดทางใหม่", lineThai: "ตัดสินใจเร็วและระดมคนไปทดลองก่อนที่โอกาสจะปิด" },
+  "8w9": { nameThai: "ผู้คุมทิศอย่างหนักแน่น", lineThai: "ถือหางเสือไว้มั่นคง และใช้พลังเฉพาะตอนที่จำเป็นจริง" },
+  "9w8": { nameThai: "ผู้ประสานที่ยืนหยัดได้", lineThai: "ประสานคนอย่างสงบ แต่ไม่ยอมเมื่อสิ่งสำคัญถูกกระทบ" },
+  "9w1": { nameThai: "ผู้ประสานด้วยหลักที่ชัด", lineThai: "สร้างความร่วมมือผ่านขั้นตอนที่ยุติธรรมและสม่ำเสมอ" },
+};
+
+/** The persona for a core and wing, or null when the wing is not resolved. */
+export function wingPersona(core: EnneagramCore, wing: EnneagramCore | null) {
+  if (wing === null) return null;
+  return WING_PERSONAS[`${core}w${wing}`] ?? null;
+}
+
+/**
+ * The passion -- บาปหลัก -- per core, in the classical set. Included because it is the one piece of
+ * the standard structure our depth layer was missing, and because it names the thing a person
+ * recognises with a wince rather than a nod.
+ */
+export const PASSIONS: Record<EnneagramCore, { nameThai: string; lineThai: string }> = {
+  1: { nameThai: "ความโกรธที่ถูกกดไว้", lineThai: "ไม่ได้แสดงออกตรง ๆ แต่ออกมาเป็นมาตรฐานที่สูงขึ้นเรื่อย ๆ" },
+  2: { nameThai: "ความหยิ่งในการเป็นผู้ให้", lineThai: "เชื่อว่าตัวเองไม่ต้องการอะไร จนไม่ทันเห็นว่ากำลังต้องการมาก" },
+  3: { nameThai: "การหลอกตัวเอง", lineThai: "เชื่อไปเองว่าตัวตนคือผลงาน จนแยกสองอย่างออกจากกันไม่ได้" },
+  4: { nameThai: "ความอิจฉา", lineThai: "มองเห็นสิ่งที่ตัวเองขาดในคนอื่นได้ชัดกว่าสิ่งที่ตัวเองมี" },
+  5: { nameThai: "ความตระหนี่", lineThai: "กักความรู้ เวลา และพลังไว้กับตัวเอง เพราะกลัวว่าจะไม่พอ" },
+  6: { nameThai: "ความกลัว", lineThai: "ขับเคลื่อนชีวิตด้วยการสแกนหาสิ่งที่อาจผิดพลาด" },
+  7: { nameThai: "ความไม่รู้พอ", lineThai: "หันไปหาสิ่งถัดไปก่อนที่จะได้อยู่กับสิ่งตรงหน้าจริง ๆ" },
+  8: { nameThai: "ความมากเกินพอดี", lineThai: "ใช้แรงมากกว่าที่สถานการณ์ต้องการ เพราะน้อยเกินไปรู้สึกไม่ปลอดภัย" },
+  9: { nameThai: "ความเกียจคร้านต่อตัวเอง", lineThai: "ไม่ใช่ขี้เกียจทำงาน แต่หลับต่อสิ่งที่ตัวเองต้องการ" },
+};
+
+/**
+ * Three strengths and three challenges per core, for the one-page summary card.
+ *
+ * Written rather than assembled from what the page already had. The insight cards carry work style,
+ * pressure response and collaboration notes, and those are useful but they are not strengths and
+ * challenges -- relabelling them would have been the faster move and a dishonest one.
+ *
+ * Deliberately specific. A finding from reviewing the reference tool was that our result copy is
+ * flatter than it needs to be: nearly every line followed "ชอบ X และ Y" or "เมื่อ A อาจ B", which is
+ * safe, operational and forgettable, while theirs is clumsy in places and memorable anyway. So each
+ * line here names something a person could recognise in a specific week of their own work, and the
+ * challenges are written as costs of the same trait rather than as faults -- each challenge is the
+ * bill for the strength above it.
+ */
+export const CORE_TRAITS: Record<EnneagramCore, { strengths: readonly string[]; challenges: readonly string[] }> = {
+  1: {
+    strengths: [
+      "เห็นสิ่งที่ยังไม่เรียบร้อยก่อนใคร และรู้ว่าจะแก้ตรงไหน",
+      "งานที่ผ่านมือแล้วคนอื่นไม่ต้องตรวจซ้ำ",
+      "ยืนอยู่ในหลักได้แม้ตอนที่ยืนคนเดียว",
+    ],
+    challenges: [
+      "แก้เองเร็วกว่าสอนคนอื่น จึงกลายเป็นคนที่แบกไว้คนเดียว",
+      "ความไม่พอใจไม่ได้พูดออกมา แต่ออกมาเป็นน้ำเสียงที่คนรับได้",
+      "เส้น “ดีพอ” ขยับขึ้นเรื่อย ๆ จนไม่มีวันถึง",
+    ],
+  },
+  2: {
+    strengths: [
+      "รู้ว่าใครกำลังไม่โอเคก่อนที่เขาจะบอก",
+      "ทำให้คนใหม่รู้สึกว่ามีที่ยืนได้เร็วกว่าระบบไหน ๆ",
+      "จำสิ่งที่คนอื่นต้องการได้ในระดับรายละเอียด",
+    ],
+    challenges: [
+      "รับมาก่อนแล้วค่อยคิดว่าไหวไหม จนตัวเองเหลือน้อยที่สุดในห้อง",
+      "เก็บบัญชีในใจว่าใครไม่เคยตอบกลับ แล้วเหนื่อยจากบัญชีนั้น",
+      "บอกความต้องการของตัวเองช้าเกินไป จนกลายเป็นความขุ่นแทนคำขอ",
+    ],
+  },
+  3: {
+    strengths: [
+      "เปลี่ยนเป้าที่ยังลอย ๆ ให้เป็นสิ่งที่ส่งได้จริง",
+      "อ่านได้เร็วว่าที่นี่นับอะไรเป็นผลงาน แล้วไปทางนั้น",
+      "ทำให้คนรอบตัวเชื่อว่าเรื่องนี้เป็นไปได้",
+    ],
+    challenges: [
+      "พักได้ยากเมื่อยังไม่มีอะไรเสร็จ เพราะการหยุดรู้สึกว่างเปล่า",
+      "ปรับตัวเข้าสถานการณ์เก่งจนบางทีไม่แน่ใจว่าอันไหนคือตัวจริง",
+      "วัดคุณค่าตัวเองด้วยผลงาน ทำให้ความล้มเหลวแพงเกินจริง",
+    ],
+  },
+  4: {
+    strengths: [
+      "เห็นสิ่งที่คนอื่นเดินผ่าน และบอกได้ว่ามันสำคัญยังไง",
+      "งานที่ทำมีลายเซ็นที่คนดูออกว่าเป็นของเรา",
+      "อยู่กับความรู้สึกที่คนอื่นเลี่ยงได้ จึงเป็นที่พึ่งตอนเรื่องหนัก",
+    ],
+    challenges: [
+      "รออารมณ์มาก่อนจะเริ่ม ทำให้งานที่ตั้งใจไว้ค้างอยู่นาน",
+      "เทียบตัวเองกับคนอื่นตลอด แล้วเห็นสิ่งที่ขาดชัดกว่าสิ่งที่มี",
+      "โลกข้างในรวยกว่าที่แสดงออก จนคนประเมินเราต่ำกว่าความจริง",
+    ],
+  },
+  5: {
+    strengths: [
+      "เข้าใจเรื่องที่ซับซ้อนได้ลึกกว่าที่จำเป็น จึงเห็นทางที่คนอื่นไม่เห็น",
+      "สงบตอนที่คนอื่นตื่นตระหนก เพราะถอยมามองก่อน",
+      "ไม่พอใจกับคำอธิบายผิวเผิน ขุดจนเจอเหตุจริง",
+    ],
+    challenges: [
+      "รู้สึกว่า “ยังไม่พร้อม” อยู่เกือบตลอด จนลงมือช้ากว่าที่ควร",
+      "แบ่งความรู้น้อยกว่าที่มี คนรอบตัวจึงรู้สึกว่าถูกปิดกั้น",
+      "เครียดแล้วถอยเข้าไปอยู่คนเดียว ซึ่งบางครั้งคือตอนที่ทีมต้องการมากที่สุด",
+    ],
+  },
+  6: {
+    strengths: [
+      "เห็นความเสี่ยงที่คนอื่นมองข้าม ก่อนที่มันจะกลายเป็นปัญหา",
+      "ถามคำถามที่ยังไม่มีใครถามในห้อง",
+      "เมื่อไว้ใจใครแล้ว จะยืนเคียงข้างในยามยากโดยไม่ต้องรอให้ขอ",
+    ],
+    challenges: [
+      "ตรวจซ้ำจนไม่ได้เริ่ม เพราะข้อมูลไม่เคยครบร้อยเปอร์เซ็นต์",
+      "ต้องการการยืนยันจากภายนอกก่อนลงมือ ทั้งที่ตัวเองรู้คำตอบแล้ว",
+      "เหนื่อยจากการเฝ้าระวังที่ไม่ได้ปิดสวิตช์",
+    ],
+  },
+  7: {
+    strengths: [
+      "เห็นทางเลือกในตอนที่คนอื่นเห็นแต่ทางตัน",
+      "ทำให้บรรยากาศที่ตึงกลับเบาลงได้เร็ว",
+      "เริ่มสิ่งใหม่ได้โดยไม่รอให้ทุกอย่างพร้อม",
+    ],
+    challenges: [
+      "ช่วงกลางที่ต้องอดทนคือส่วนที่หลุดบ่อยที่สุด",
+      "รับเข้ามาหลายอย่างพร้อมกัน จนไม่มีอะไรไปถึงปลายทาง",
+      "ใช้ความยุ่งเป็นที่หลบจากเรื่องที่ยังไม่อยากรู้สึกกับมัน",
+    ],
+  },
+  8: {
+    strengths: [
+      "ตัดสินใจในตอนที่คนอื่นยังไม่กล้า และรับผลเอง",
+      "เปิดพื้นที่ให้คนที่เสียงเบากว่าได้ยืน",
+      "พูดตรงจนคนรู้ว่ายืนอยู่ตรงไหนกับเรา",
+    ],
+    challenges: [
+      "ใช้แรงมากกว่าที่สถานการณ์ต้องการ จนคนเริ่มไม่บอกเรื่องจริง",
+      "รับไม่ค่อยได้กับการถูกจัดการ แม้ในเรื่องที่ไม่สำคัญ",
+      "ให้คนเห็นด้านที่กระทบได้ยาก จึงดูแลตัวเองคนเดียวนานเกินไป",
+    ],
+  },
+  9: {
+    strengths: [
+      "เห็นมุมของทุกฝ่ายพร้อมกัน จึงเป็นคนที่หลายฝ่ายคุยกันได้จริง",
+      "อยู่กับสถานการณ์ที่ไม่สบายใจได้โดยไม่ระเบิด",
+      "ทำให้คนรอบตัวรู้สึกว่าไม่ถูกตัดสิน",
+    ],
+    challenges: [
+      "ยอมเร็วเพื่อให้เรื่องเดินต่อ แล้วเรื่องของตัวเองค้างอยู่ท้ายเสมอ",
+      "ตอบ “อะไรก็ได้” บ่อยจนหาไม่เจอว่าตัวเองอยากอะไร",
+      "ความไม่พอใจไม่ได้ออกมาเป็นคำพูด แต่ออกมาเป็นการไม่ขยับ",
+    ],
+  },
+};
