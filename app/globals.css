@@ -746,16 +746,16 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   object-fit: cover;
   object-position: center;
 }
-/* The elliptical outline and the soft floor gradient, both purely decorative. */
-.guild-visual::before {
-  content: "";
-  position: absolute;
-  inset: 7%;
-  z-index: 2;
-  border: 1px solid #fefdfa99;
-  border-radius: 50% / 39%;
-  pointer-events: none;
-}
+/* The soft floor gradient, purely decorative.
+   There was an elliptical outline here too -- `inset: 7%`, `border-radius: 50% / 39%`, drawn at
+   z-index 2, i.e. ON TOP of the artwork. It is gone, and not as a side effect of anything: it cut
+   a line across the figures' faces. On the deployed build it crossed the left figure's hair, the
+   right figure's head and all six boots; the soft defocused background of that artwork made it
+   easy to miss, and this review missed it. It cannot be moved behind the image either, because the
+   image is matted at inset 6%/5% and the ellipse at 7%, so the ellipse lives entirely inside the
+   picture area and would simply vanish. A decorative line across a person's face is worse than no
+   decorative line, so the frame keeps its border, its shadow and its floor gradient, and drops
+   this. */
 .guild-visual::after {
   content: "";
   position: absolute;

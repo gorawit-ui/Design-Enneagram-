@@ -272,3 +272,53 @@ Keep: the same three poses and arm heights (low / mid-and-wide / high), the same
 progress marker), the forest-green blazer, ivory knit top, charcoal trousers, the pale defocused
 interior, the soft warm light from the left, and no text or numbers anywhere in the image.
 ```
+
+---
+
+## Round 3, 2026-09-10 — the hero is no longer generated
+
+The Products Owner's note on round 2 was that the faces looked wrong, and asked whether the figures
+could change only pose and character while keeping the master faces. That question has a better
+answer than a third prompt: **stop generating the hero.**
+
+The nine approved base assets (cores 1–3 × female/male/neutral) are already cut-outs on genuine
+alpha, already the locked master faces, already one wardrobe, and already signed off per core. So
+`npm run assets:buildhero` (`scripts/build-hero.mjs`) composites three of them instead. Every
+property that used to be a paragraph of prose asking a generator to comply is now arithmetic:
+
+| Was a request in the prompt | Is now |
+|---|---|
+| "SAME PERSON as the master" | the master file itself |
+| "flat-soled boots, no heels" | whatever the approved asset has — round 2's heels cannot recur |
+| "same height, same head height" | one figure height, one floor line, computed |
+| "one presentation each" | the cast list |
+| "leave 11% clear each side" | `CAST_WIDTH_SHARE`, reported on every run |
+| a generation, each one different | one command, same output every time |
+
+Which presentation goes with which core is searched rather than chosen — six assignments, 4.4
+percentage points apart on the gate — and the winner is core 1 neutral / core 2 female / core 3
+male at 66.0%.
+
+**What this costs.** Distinctness. Cores 1, 2 and 3 were all authored standing square-on with the
+prop at chest height, so no arrangement of them differs much above the waist: 61.9 / 66.0 / 61.0,
+with one pair 1.0pp over the ceiling. A fresh generation reached 58.0 / 52.4 / 66.2 — better on two
+pairs, at the price of invented faces and heeled boots. The trade was resolved in favour of
+identity, because being the same characters the participant is later given is a product property
+and 1pp of silhouette agreement is not. The proper fix is a core whose approved pose has a
+genuinely different arm height, and that arrives with cores 4–9.
+
+**One pre-existing defect found while looking at this in the real frame.** `.guild-visual::before`
+drew a 1px elliptical outline at `inset: 7%` with `z-index: 2` — on top of the artwork. On the
+deployed build it cut a line across the left figure's hair, the right figure's head and all six
+boots. The old artwork's soft defocused background made it easy to miss, and this review missed it.
+It cannot be moved behind the picture (the image is matted at inset 6%/5%, the ellipse at 7%, so it
+would vanish), so it is gone. The frame keeps its border, its two-layer shadow and its floor
+gradient.
+
+**And one thing the script deliberately does not draw: a room.** Two attempts at window panes, a
+plant and a floor plane both looked wrong in place, because `.guild-visual` already paints a
+`#eef2ec` ground and a floor gradient across the bottom 24% of the frame. Two rooms have a seam,
+and the seam is what reads as "off". The image is now a soft field lit from the left — matching
+where the assets' own key light comes from — landing on the frame's own background colour at the
+bottom, plus one contact shadow per sole, which is the only part the frame cannot supply because
+only this script knows where the feet are.
