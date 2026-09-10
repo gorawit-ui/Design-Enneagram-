@@ -14,7 +14,7 @@ One directory per respondent, since this tool is being sampled with more than on
 ```
 respondent-1/   17 screenshots — complete
 respondent-2/   15 screenshots — collecting
-respondent-3/    5 screenshots — collecting (and possibly not this tool at all, see below)
+respondent-3/   10 screenshots — collecting (and possibly not this tool at all, see below)
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -181,6 +181,11 @@ Products Owner which tool this session came from before the analysis starts.
 | `respondent-3/3-batch3-wing-and-wing-tension.png` | Batch 3 for the wing, and a tension between wing 1 and wing 8 — the tool's reading being that item 1 is what actually happens and item 3 is an aspiration |
 | `respondent-3/4-batch4-confirmation-and-wing-verdict.png` | A fourth batch of four questions "เพื่อยืนยันให้ 100%", asked explicitly for real behaviour rather than aspiration, and the wing verdict: 9w1 with access to 8 in some situations |
 | `respondent-3/5-result-9w1-structure-and-strengths.png` | ผลวิเคราะห์ ลักษณ์ 9w1 — The Dreamer / นักสร้างสันติผู้มีอุดมคติ, then โครงสร้างพื้นฐาน (Archetype, Core Fear, Core Desire, Defense Mechanism — Narcotization, Passion — Sloth, attributed to Helen Palmer) and จุดแข็ง as prose |
+| `respondent-3/6-result-weaknesses-health-levels-and-stress-arrow.png` | จุดอ่อน as prose, วงจรสุขภาวะ 3 ระดับ as prose, and the stress arrow → ลักษณ์ 6 with both a dark and a light side |
+| `respondent-3/7-result-growth-arrow-and-growth-path.png` | The growth arrow → ลักษณ์ 3, including a caution about its dark side, then เส้นทางเติบโต — 3 สิ่งที่ต้องฝึก, attributed to อ.ธนา นิลชัยโกวิทย์ and Helen Palmer |
+| `respondent-3/8-overlay-9w1-x-isfp-t-x-disc-lom.png` | The respondent types "ISFP-T ลม" and the tool produces **Overlay Analysis: 9w1 × ISFP-T × ลม (DISC)** — the ISFP function stack read against 9w1 one function at a time, plus the T identity |
+| `respondent-3/9-overlay-disc-and-tension-map.png` | DISC ลม (I — Influence) against 9w1, as a เสริมกัน / ขัดแย้ง pair, then **ภาพรวม — Tension Map ของคุณ**: six one-line voices (Fi, 9, Wing 1, Te inferior, I, T) each saying what it wants |
+| `respondent-3/10-overlay-additional-growth-path.png` | เส้นทางเติบโตเพิ่มเติม (เมื่อ overlay แล้ว) — three items that only exist because of the overlay |
 
 Answers, as they appear in the transcript blocks rather than as machine keys:
 
@@ -199,3 +204,16 @@ Its narrowing, as stated: batch 1 → Head with a Heart signal, ลักษณ�
 lands on 9, wing still open between 9w1 and 9w8 · batch 3 → wing 1 and wing 8 both signalled, read
 as "what happens" versus "what is aspired to" · batch 4 → **ลักษณ์ 9w1 — The Dreamer**, with the
 note that 8 energy appears only when pushed to a limit. Twelve questions across four batches.
+
+Two things on file here, recorded without conclusions:
+
+- The overlay in files 8-10 is produced from a **two-word message** ("ISFP-T ลม") typed after the
+  result, not from an intake form the way respondent 2's was. The **Tension Map** in file 9 —
+  six one-line voices, each naming what it wants — is a form neither of the other two sessions
+  produced.
+- This respondent gives their MBTI as **ISFP-T**, which is the same type respondent 1 gave, on a
+  different Enneagram verdict (9w1 against 6w5). Noted because it is the kind of coincidence worth
+  checking rather than assuming: whether these are two different people, or the same person on two
+  different runs, is a question for the Products Owner.
+- "ลม" is the Thai element naming for DISC's I (Influence). Worth knowing if any of this is ever
+  compared against DISC data of our own.
