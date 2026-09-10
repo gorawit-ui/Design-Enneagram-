@@ -13,7 +13,7 @@ One directory per respondent, since this tool is being sampled with more than on
 
 ```
 respondent-1/   17 screenshots — complete
-respondent-2/   collecting
+respondent-2/    5 screenshots — collecting
 ```
 
 ## Respondent 1 — screenshots on file, in reading order
@@ -84,3 +84,41 @@ question for the analysis, not something to decide from a screenshot.
 
 The Products Owner said again: "ยังไม่ครบ อย่าเพิ่งทำอะไร เก็บเป็นข้อมูลก่อน". More screenshots
 expected. Do not begin the analysis until the set is declared complete.
+
+---
+
+## Respondent 2 — screenshots on file, in reading order
+
+**Collecting.** Filed 2026-09-10 from the same tool, a different respondent.
+
+| File | What it shows |
+|---|---|
+| `respondent-2/1-welcome-and-intake-form.png` | Welcome, then a preliminary intake card — whether they have taken an Enneagram test before, which other framework results they want overlaid (MBTI / DISC / BOSI DNA / none), and who is being analysed (self / someone else / a relationship between two people) |
+| `respondent-2/2-intake-trace-and-existing-results-mbti-disc.png` | The intake trace line, then a second card asking for those existing results: all 16 MBTI types as chips, and DISC as four cards with descriptions |
+| `respondent-2/3-existing-results-bosi-and-trace.png` | BOSI DNA as four cards, the confirm button, and the trace of what was entered |
+| `respondent-2/4-batch1-energy-centre-q1-q2.png` | ชุดที่ 1 — ศูนย์พลังงาน, Q1 and Q2 |
+| `respondent-2/5-batch1-q3-core-fear-and-trace.png` | Q3 (core fear, five options) and the batch-1 trace line |
+
+Traces printed so far, verbatim:
+
+```
+ข้อมูลเบื้องต้น — Prior enneagram: ไม่เคย · Other frameworks: MBTI, DISC, BOSI · Analysis target: ตัวเอง
+ผลทดสอบที่มี — Mbti: ESFJ · Disc: D, S · Bosi: S, I
+ชุดที่ 1 — ศูนย์พลังงาน — Q1 pressure: gut_action · Q2 perception: creative_unique · Q3 core fear: fear_wrong
+```
+
+Recorded as an observation, not a conclusion: this session begins with two intake cards that
+respondent 1's session did not have — prior-test experience, which other frameworks to overlay,
+who is being analysed, and then the actual MBTI / DISC / BOSI results collected up front rather
+than volunteered mid-conversation the way respondent 1's MBTI was. Whether that is a newer version
+of the tool, a different entry point, or a branch that only appears for some answers is not
+something to infer from screenshots — worth asking the Products Owner when the analysis starts.
+
+Also differing from respondent 1's flow, at face value: the batch is titled ศูนย์พลังงาน rather than
+รู้จักตัวเอง, Q1 and Q2 offer three and five options against respondent 1's three and four, and the
+core-fear item has five options against respondent 1's four.
+
+## Awaiting
+
+More of respondent 2's session, and possibly further respondents. The Products Owner said again:
+"ยังไม่ครบ อย่าเพิ่งทำอะไร เก็บเป็นข้อมูลก่อน".
