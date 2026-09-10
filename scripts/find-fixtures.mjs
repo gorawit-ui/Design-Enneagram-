@@ -103,29 +103,28 @@ function distance(result, target) {
   return miss;
 }
 
-function buildAnswers({ scoring, data }, foundationChoices, adaptiveChoices) {
-  const foundation = data.FOUNDATION_QUESTIONS.map((question, index) => ({
-    questionId: question.id,
-    optionIndex: foundationChoices[index],
-  }));
-  const adaptive = scoring.selectChallengeQuestions(foundation).map((question, index) => ({
-    questionId: question.id,
-    optionIndex: adaptiveChoices[index],
-  }));
-  return [...foundation, ...adaptive];
+// Selection is sequential -- each question is chosen from the answers before it -- so a session is
+// built by folding the choice vector through selectNextQuestion rather than by concatenating a
+// foundation block and a separately chosen adaptive block.
+function buildAnswers({ scoring, data }, choices) {
+  const answers = [];
+  for (let position = 0; position < data.MAX_QUESTIONS; position += 1) {
+    const question = scoring.selectNextQuestion(answers);
+    if (!question) break;
+    answers.push({ questionId: question.id, optionIndex: choices[position] });
+  }
+  return answers;
 }
 
 function search(modules, target, random) {
   const { scoring, data } = modules;
-  const foundationSize = data.FOUNDATION_QUESTIONS.length;
-  const adaptiveSize = data.ADAPTIVE_QUESTIONS;
   let best = null;
 
   for (let restart = 0; restart < RESTARTS; restart += 1) {
-    const vector = Array.from({ length: foundationSize + adaptiveSize }, () => Math.floor(random() * 4));
+    const vector = Array.from({ length: data.MAX_QUESTIONS }, () => Math.floor(random() * 4));
     let current = { vector: [...vector], score: Infinity };
     const evaluate = (candidate) => {
-      const answers = buildAnswers(modules, candidate.slice(0, foundationSize), candidate.slice(foundationSize));
+      const answers = buildAnswers(modules, candidate);
       return { answers, score: distance(scoring.scoreAssessment(answers), target) };
     };
     let evaluated = evaluate(current.vector);

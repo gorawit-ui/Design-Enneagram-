@@ -80,9 +80,13 @@ function straightLinePenalty({ scoring, data }) {
   let penalty = 0;
   const detail = [];
   for (const position of [0, 1, 2, 3]) {
-    const foundation = data.FOUNDATION_QUESTIONS.map((q) => ({ questionId: q.id, optionIndex: position }));
-    const adaptive = scoring.selectChallengeQuestions(foundation).map((q) => ({ questionId: q.id, optionIndex: position }));
-    const result = scoring.scoreAssessment([...foundation, ...adaptive]);
+    const answers = [];
+    for (let slot = 0; slot < data.MAX_QUESTIONS; slot += 1) {
+      const question = scoring.selectNextQuestion(answers);
+      if (!question) break;
+      answers.push({ questionId: question.id, optionIndex: position });
+    }
+    const result = scoring.scoreAssessment(answers);
     // "close" is a partial failure and "clear" a full one: both name a type or core off answers
     // that carry no preference at all.
     const cost = (confidence) => (confidence === "ambiguous" ? 0 : confidence === "close" ? 1 : 3);

@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { type FormEvent, useMemo, useState } from "react";
-import { FOUNDATION_QUESTIONS, MAX_QUESTIONS, type AssessmentQuestion } from "./lib/assessment-data";
+import { MAX_QUESTIONS } from "./lib/assessment-data";
 import { getCharacterProfile, type GenderPresentation } from "./lib/character-system";
-import { scoreAssessment, selectChallengeQuestions, type AnswerRecord } from "./lib/scoring";
+import { scoreAssessment, sessionQuestions, type AnswerRecord } from "./lib/scoring";
 import { INITIAL_PROFILE, type Profile } from "./lib/profile-contract";
 import ResultView from "./result-view";
 
@@ -16,11 +16,15 @@ export default function Home() {
   const [consent, setConsent] = useState(false);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
-  const [challenges, setChallenges] = useState<readonly AssessmentQuestion[]>([]);
   const [error, setError] = useState("");
-  const questions = useMemo(() => [...FOUNDATION_QUESTIONS, ...challenges].slice(0, MAX_QUESTIONS), [challenges]);
+  // The whole sequence is derived from the answers before each position rather than stored, so
+  // going back and changing an answer re-derives every question after it instead of leaving the
+  // session carrying an adaptive block chosen for answers that no longer exist.
+  // Only as far as the answers reach, plus the one being asked now. Anything past that would be
+  // selected from answers that do not exist yet.
+  const questions = useMemo(() => sessionQuestions(answers), [answers]);
   const question = questions[index];
-  const selected = answers.find((answer) => answer.questionId === question?.id)?.optionIndex ?? null;
+  const selected = answers[index]?.questionId === question?.id ? answers[index].optionIndex : null;
   const result = useMemo(() => scoreAssessment(answers), [answers]);
   // Thai gender choices map to visual presentation only and never participate in scoring.
   const gender: GenderPresentation = profile.gender === "ผู้หญิง" ? "female" : profile.gender === "ผู้ชาย" ? "male" : "neutral";
@@ -28,13 +32,16 @@ export default function Home() {
 
   const update = (field: keyof Profile, value: string) => setProfile((current) => ({ ...current, [field]: value }));
   const submitProfile = (event: FormEvent) => { event.preventDefault(); if (!profile.nameAndNickname.trim() || !profile.team.trim()) return setError("กรุณากรอกข้อมูลที่จำเป็นให้ครบ"); if (!consent) return setError("กรุณายินยอมให้ใช้ข้อมูลเพื่อสรุปผลกิจกรรม"); setError(""); setStep("questions"); };
-  const choose = (optionIndex: number) => { setAnswers((current) => [...current.filter((answer) => answer.questionId !== question.id), { questionId: question.id, optionIndex }]); setError(""); };
+  // Answers are positional: index i is the answer to questions[i]. Changing one drops every answer
+  // after it, because those questions were selected from this answer and may no longer be the
+  // questions this respondent should see. Dropping them is the transparent invalidation the
+  // blueprint asks for -- the alternative is scoring a session that was never coherent.
+  const choose = (optionIndex: number) => { setAnswers((current) => [...current.slice(0, index), { questionId: question.id, optionIndex }]); setError(""); };
   const next = () => {
     if (selected === null) return setError("เลือกคำตอบที่ใกล้เคียงตัวคุณที่สุดก่อนนะ");
-    if (index === FOUNDATION_QUESTIONS.length - 1 && challenges.length === 0) { setChallenges(selectChallengeQuestions(answers)); setIndex(index + 1); return; }
     if (index === MAX_QUESTIONS - 1) setStep("result"); else setIndex(index + 1);
   };
-  const restart = () => { setStep("welcome"); setProfile(INITIAL_PROFILE); setConsent(false); setIndex(0); setAnswers([]); setChallenges([]); setError(""); };
+  const restart = () => { setStep("welcome"); setProfile(INITIAL_PROFILE); setConsent(false); setIndex(0); setAnswers([]); setError(""); };
 
   return <main className="app-shell"><div className="ambient ambient-one" /><div className="ambient ambient-two" />
     <header className="site-header"><button className="brand" type="button" onClick={() => setStep("welcome")}><Image className="brand-logo" src="/brand/td-logo.png" alt="โลโก้ TD" width={52} height={52} /><span><b>TDFB</b><small>Personality Quest</small></span></button><span className="secure-note"><i /> พื้นที่สำหรับทำความเข้าใจตัวเอง</span></header>

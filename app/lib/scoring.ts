@@ -1,4 +1,4 @@
-import { CORE_CHALLENGES, DIMENSION_CHALLENGES, FOUNDATION_QUESTIONS, WING_CHALLENGES, type AssessmentQuestion } from "./assessment-data";
+import { CORE_CHALLENGES, DIMENSION_CHALLENGES, FOUNDATION_QUESTIONS, MAX_QUESTIONS, WING_CHALLENGES, type AssessmentQuestion } from "./assessment-data";
 import type { BaseMbtiType, EnneagramCore, Identity, MbtiType } from "./character-system";
 
 export type AnswerRecord = { questionId: string; optionIndex: number };
@@ -57,38 +57,140 @@ export function scoreAssessment(answers: readonly AnswerRecord[]): AssessmentRes
   };
 }
 
-// The six adaptive slots. Slots 1-2 are the two A/T challenges unconditionally. The spec's eight
-// MBTI foundation items are two each across four axes, which leaves A/T with no foundation
-// coverage at all -- and scoreAssessment calls an axis ambiguous on fewer than two answers, so
-// reserving a single A/T slot would have made mbti.type null for every respondent alive. Two
-// reserved slots is the smallest arrangement that keeps the spec's foundation split and still
-// yields a type.
+// --- adaptive selection ------------------------------------------------------------------------
 //
-// The remaining four go three to Enneagram and one to MBTI, because Enneagram is the thinner side:
-// it separates nine cores and then a wing, where the four MBTI axes already have two foundation
-// items each.
-export function selectChallengeQuestions(answers: readonly AnswerRecord[]): readonly AssessmentQuestion[] {
+// One question at a time, recomputed from everything answered so far. This is not a refactor for
+// tidiness: the previous version chose all six adaptive questions in one call at question 18 and
+// page.tsx stored the result, so pressing the back button and changing a foundation answer left the
+// session carrying the block picked for the old answers. Reproduced before it was changed -- a
+// respondent whose leading core moved from 9 to 1 kept `c-core-9`, `c-core-2` and `c-wing-9`, so
+// the wing question asked about a core that was no longer theirs, and the core it actually landed
+// on got no adaptive evidence at all.
+//
+// `docs/PRODUCT_BLUEPRINT.md` already required this: "เปลี่ยนคำตอบย้อนหลังแล้วต้อง replay
+// selection/scoring อย่าง deterministic หรือ invalidate เฉพาะ adaptive suffix อย่างโปร่งใส".
+// Deriving each question from the answers before it makes replay the only behaviour there is.
+//
+// It also makes the block genuinely adaptive rather than six picks off one snapshot: the answer to
+// the fifth question is visible when the sixth is chosen.
+
+const ADAPTIVE_POOL = [...DIMENSION_CHALLENGES, ...CORE_CHALLENGES, ...WING_CHALLENGES];
+const byId = (id: string) => ADAPTIVE_POOL.find((question) => question.id === id);
+const adjacent = (core: EnneagramCore) =>
+  [(core === 1 ? 9 : core-1) as EnneagramCore, (core === 9 ? 1 : core+1) as EnneagramCore];
+
+/**
+ * The question at position `answers.length`, or null once the session is complete.
+ *
+ * Pure and total: the same answers always produce the same question, and it never returns one that
+ * has already been asked.
+ */
+export function selectNextQuestion(answers: readonly AnswerRecord[]): AssessmentQuestion | null {
+  if (answers.length >= MAX_QUESTIONS) return null;
+  if (answers.length < FOUNDATION_QUESTIONS.length) return FOUNDATION_QUESTIONS[answers.length];
+
+  const asked = new Set(answers.map((answer) => answer.questionId));
+  const unasked = (id: string) => (asked.has(id) ? null : byId(id) ?? null);
+
+  // Slots 1-2, unconditionally. A/T has no foundation coverage since the count moved to 24, and
+  // scoreAssessment calls an axis ambiguous below two answers, so one A/T item would leave every
+  // respondent with a null MBTI type.
+  const atSlot = unasked("c-at") ?? unasked("c-at2");
+  if (atSlot) return atSlot;
+
   const result = scoreAssessment(answers);
-  const byId = (id: string) => [...DIMENSION_CHALLENGES, ...CORE_CHALLENGES, ...WING_CHALLENGES].find((q) => q.id === id)!;
-
-  // Slot 3: the axis the answers came closest to splitting, A/T excluded since it holds slots 1-2
-  // already. Ties break on name so the selection stays deterministic and replayable.
-  const closestAxes = (Object.entries(result.dimensions) as [keyof typeof pairs, AssessmentResult["dimensions"]["IE"]][])
+  const narrowestAxis = (Object.entries(result.dimensions) as [keyof typeof pairs, AssessmentResult["dimensions"]["IE"]][])
     .filter(([name]) => name !== "AT")
-    .sort((a,b) => a[1].margin-b[1].margin || a[0].localeCompare(b[0]))
-    .slice(0, 1)
-    .map(([name]) => DIMENSION_CHALLENGES.find((q) => q.challengeFor?.dimension === name)!);
+    .filter(([name]) => !asked.has(`c-${name.toLowerCase()}`))
+    .sort((a, b) => a[1].margin - b[1].margin || a[0].localeCompare(b[0]))[0];
+  const mbtiSpent = [...asked].filter((id) => /^c-(ie|sn|tf|jp)$/.test(id)).length;
 
-  // Slots 4-5: the two leading cores. Asking about the runner-up as well as the leader is what
-  // separates them, where asking twice about the leader only confirms it.
-  const coreQuestions = [result.enneagram.top.value, result.enneagram.runnerUp.value]
-    .map((core) => CORE_CHALLENGES.find((q) => q.challengeFor?.core === core)!);
+  // The four remaining slots are allocated to a BUDGET, not to a priority queue, and the budget is
+  // the thing that stops one side starving the other. A plain "always ask about the narrowest gap"
+  // rule looked right and was not: measured on it, a respondent whose four MBTI axes all landed
+  // inside a point of each other -- which is common, since each axis has only two foundation items
+  // -- spent every remaining slot on c-ie, c-sn, c-tf and c-jp and reached the result with NO
+  // adaptive Enneagram evidence at all. That is the opposite of why the count moved to 24.
+  //
+  // So: one slot to MBTI and three to Enneagram, as the spec allocates, with the adaptivity inside
+  // each side -- which axis, which cores, which wing -- and each choice recomputed from the answers
+  // before it. MBTI takes a second slot only when the Enneagram side has nothing left to ask.
 
-  // Slot 6: the wing question for the leading core. It adds weight to the two cores adjacent to
-  // that core, which is what scoreAssessment compares to decide the wing.
-  const wingQuestion = WING_CHALLENGES.find((q) => q.challengeFor?.wingCore === result.enneagram.top.value)!;
+  // 1. One MBTI axis, and only if it is not already settled. An unresolved axis is the costliest
+  //    gap because the result still shows a letter for it -- the character resolver falls back to
+  //    `mbti.candidate` when the type is null -- so a coin-flip reaches the screen looking decided.
+  if (mbtiSpent === 0 && narrowestAxis && narrowestAxis[1].margin < 4) {
+    return byId(`c-${narrowestAxis[0].toLowerCase()}`)!;
+  }
 
-  return [byId("c-at"), byId("c-at2"), ...closestAxes, ...coreQuestions, wingQuestion];
+  // Two core challenges and one wing challenge is the Enneagram budget, and the cap belongs on the
+  // total rather than on any one rule. Capping only the rival rule was not enough: when an adaptive
+  // answer moved the lead, the leader rule fired again for the new leader, and that third core
+  // challenge took the wing's slot -- 14% of simulated respondents finished with three core
+  // challenges and no wing question at all.
+  const coreChallengesSpent = [...asked].filter((id) => /^c-core-/.test(id)).length;
+
+  // 2. The leading core, so the leader has adaptive evidence of its own rather than only the
+  //    foundation block's.
+  if (coreChallengesSpent < 2) {
+    const leader = unasked(`c-core-${result.enneagram.top.value}`);
+    if (leader) return leader;
+  }
+
+  // 3. Its strongest rival, preferring one that is NOT adjacent. The wing question below already
+  //    weights both neighbours, so asking a neighbour's core challenge as well pushes the same core
+  //    twice and can hand it the lead on duplicated evidence. A non-adjacent rival asks something
+  //    the wing question cannot.
+  //
+  if (coreChallengesSpent < 2 && result.enneagram.confidence !== "clear") {
+    const neighbours = adjacent(result.enneagram.top.value);
+    const rivals = cores
+      .map((value) => ({ value, score: result.scores.enneagram[value] }))
+      .filter((candidate) => candidate.value !== result.enneagram.top.value)
+      .filter((candidate) => !asked.has(`c-core-${candidate.value}`))
+      .sort((a, b) => b.score - a.score || a.value - b.value);
+    const preferred = rivals.find((candidate) => !neighbours.includes(candidate.value)) ?? rivals[0];
+    if (preferred) return byId(`c-core-${preferred.value}`)!;
+  }
+
+  // 4. The wing, for whichever core is leading *now*. scoreAssessment reads the wing off the two
+  //    cores adjacent to the leader, and this question is what puts weight on them.
+  const wing = unasked(`c-wing-${result.enneagram.top.value}`);
+  if (wing) return wing;
+
+  // 5. Only now may MBTI take a second slot, and only for an axis that is still unsettled.
+  if (narrowestAxis && narrowestAxis[1].margin < 4) return byId(`c-${narrowestAxis[0].toLowerCase()}`)!;
+
+  // Everything the answers asked for is covered, so spend what is left confirming rather than
+  // leaving the session short. Deterministic order, and never a repeat.
+  const confirmations = [
+    `c-core-${result.enneagram.runnerUp.value}`,
+    ...(narrowestAxis ? [`c-${narrowestAxis[0].toLowerCase()}`] : []),
+    ...ADAPTIVE_POOL.map((question) => question.id),
+  ];
+  for (const id of confirmations) {
+    const question = unasked(id);
+    if (question) return question;
+  }
+  return null;
+}
+
+/**
+ * The questions this answer list determines: one per answer, plus the next one still to come.
+ *
+ * It cannot return more than that, and quietly returning `MAX_QUESTIONS` of them would be a lie --
+ * every question past the answers is selected from answers that do not exist yet, so it would
+ * repeat whatever the first unasked adaptive question happens to be. A full session in gives a full
+ * session out; a prefix in gives that prefix plus one.
+ */
+export function sessionQuestions(answers: readonly AnswerRecord[]): readonly AssessmentQuestion[] {
+  const questions: AssessmentQuestion[] = [];
+  for (let index = 0; index <= answers.length && index < MAX_QUESTIONS; index += 1) {
+    const question = selectNextQuestion(answers.slice(0, index));
+    if (!question) break;
+    questions.push(question);
+  }
+  return questions;
 }
 
 export function isValidWing(core: EnneagramCore, wing: EnneagramCore | null): boolean {

@@ -724,3 +724,97 @@ Two notes on the choices:
 
 The Products Owner accepted *ผลลัพธ์ที่ตั้งเป้าไว้* (core 3) and did not flag the core 1 and core 5
 options in `f-e-9`, which stand as drafted.
+
+---
+
+# The adaptive block, rebuilt 2026-09-10
+
+The Products Owner asked for this part to be as complete as it can be. Three defects came out of
+looking at it properly, each found by measurement rather than by reading, and each recorded with the
+number that exposed it.
+
+## Defect 1: the adaptive block was chosen once and then went stale
+
+`page.tsx` computed all six adaptive questions at question 18 and stored them. The question step has
+a back button, so a respondent could then change a foundation answer — and the session kept the
+block picked for the answers they no longer had.
+
+Reproduced before it was changed. A respondent whose leading core moved from **9 to 1** kept
+`c-core-9`, `c-core-2` and `c-wing-9`: the wing question asked about a core that was not theirs, and
+core 1, the core they actually landed on, received no adaptive evidence at all.
+
+`docs/PRODUCT_BLUEPRINT.md` already required the fix — *"เปลี่ยนคำตอบย้อนหลังแล้วต้อง replay
+selection/scoring อย่าง deterministic หรือ invalidate เฉพาะ adaptive suffix อย่างโปร่งใส"*.
+
+Fixed by replacing the batch API with `selectNextQuestion(answers)`, which returns the question for
+one position given everything answered before it. The session is now a fold rather than a stored
+plan, so replay is the only behaviour there is; and choosing an answer drops every answer after it,
+which is the transparent invalidation the blueprint asks for. It also makes the block genuinely
+adaptive: the answer to the fifth question is visible when the sixth is chosen.
+
+## Defect 2: a greedy "ask about the narrowest gap" rule starved the Enneagram completely
+
+The first version of the new selector picked, at each slot, whichever open question addressed the
+narrowest margin. It reads as the obviously right rule and it is not.
+
+Each MBTI axis has only two foundation items, so all four axes commonly land within a point of each
+other. Measured: a respondent in that ordinary situation spent **all four** remaining slots on
+`c-ie`, `c-sn`, `c-tf` and `c-jp`, and reached the result with **no adaptive Enneagram evidence
+whatsoever** — the exact opposite of why the count moved to 24 in the first place.
+
+Fixed by allocating the four open slots to a **budget** rather than to a priority queue: one slot to
+MBTI and three to the Enneagram, as the spec allocates, with the adaptivity living inside each side
+— which axis, which cores, which wing — and each choice still recomputed from the answers before it.
+MBTI may take a second slot only when the Enneagram side has nothing left to ask, and takes its
+first only when an axis is actually unsettled.
+
+## Defect 3: a third core challenge ate the wing's slot
+
+With the budget in place, capping only the *rival* rule was not enough. When an adaptive answer moved
+the lead, the leader rule fired again for the new leader, and that third core challenge took the
+wing's slot. Measured across 300 simulated sessions: **14% finished with three core challenges and
+no wing question at all**, so `wingStatus` stayed ambiguous for want of ever being asked.
+
+Fixed by capping the total at two core challenges rather than capping one rule. The Enneagram budget
+is now exactly two core challenges and one wing challenge.
+
+## The block as it stands
+
+| Slot | Content | Chosen how |
+|---:|---|---|
+| 1–2 | `c-at`, `c-at2` | always, unconditionally |
+| 3 | one MBTI dimension challenge | the narrowest unsettled non-A/T axis; skipped if every axis is already clear |
+| 4 | core challenge for the leading core | the leader at this moment |
+| 5 | core challenge for its strongest rival | prefers a rival **not** adjacent to the leader |
+| 6 | wing challenge | for the core leading at this moment |
+
+Two design points inside that worth keeping.
+
+**The rival is preferred non-adjacent.** The wing question already weights both cores adjacent to the
+leader, so asking a neighbour's core challenge as well pushes the same core twice and can hand it
+the lead on duplicated evidence. A non-adjacent rival asks something the wing question cannot.
+
+**Slot 6 follows the current leader, not the one after question 18.** That is what one-at-a-time
+selection buys, and it is asserted as such — the test checks the wing question against the leader at
+the moment it was chosen, because checking it against the post-foundation leader would be asserting
+the old batch behaviour.
+
+## Measured shape, 300 simulated sessions
+
+| Adaptive shape (excluding the A/T pair) | Share |
+|---|---:|
+| 1 MBTI / 2 core / 1 wing | 70% |
+| 2 MBTI / 1 core / 1 wing | 16% |
+| 1 MBTI / 3 core / 0 wing | 0% *(was 14% before defect 3 was fixed)* |
+
+Answer patterns here are uniform random, so most produce ambiguous results — as they should. That
+random answering yields a named type only rarely is the instrument declining to manufacture
+confidence out of noise, not a defect in it.
+
+## What the tests now hold
+
+Four fixtures do not cover a selector's behaviour, and both starvation defects were invisible on
+them. The suite now runs **300 simulated sessions** and asserts on every one: full length, no
+question asked twice, the A/T pair in slots 1–2, MBTI takes one or two slots, at most two core
+challenges, exactly one wing challenge, and all four open slots spent on something targeted. Plus
+the replay property, and the wing-follows-the-leader property.
