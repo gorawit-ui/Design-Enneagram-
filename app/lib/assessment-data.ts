@@ -16,6 +16,21 @@ export type AssessmentQuestion = {
   context?: string;
   prompt: string;
   /**
+   * Which direction an Enneagram item looks from. Only the ten foundation items carry it, and only
+   * they are used to detect tension -- the adaptive challenges are selected BY the leading core, so
+   * including them would amplify whatever already leads and could never disagree with it.
+   *
+   * "inward" asks what the respondent fears, wants, or says to themselves. "outward" asks what
+   * they do, and what they want to be seen as. The two can disagree, and when they do the
+   * disagreement is the finding rather than noise to average away: a type that answers inward as
+   * one core and outward as another is usually showing a strategy they built to work with the
+   * world, sitting on top of a different core. A reference tool named exactly this on the
+   * Products Owner's own session (docs/REFERENCE_TIM_ENNEAGRAM_TOOL.md) and it was the one thing
+   * this scorer had no way to express: it had `ambiguous`, meaning not enough signal, and nothing
+   * for two signals that point different ways.
+   */
+  lens?: "inward" | "outward";
+  /**
    * At least four. Four everywhere except the core-fear item, which carries one option per
    * Enneagram core: a fear question whose options cover only some of the nine forces the rest of
    * the respondents to answer about somebody else's fear, which is how cores 4 and 7 became
@@ -81,19 +96,19 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
   mbtiQuestion("f-jp-1", "จัดการเวลา", "เมื่องานยังไม่เสร็จแต่มีเส้นตายชัดเจน อะไรช่วยให้คุณเดินหน้าต่อ?", "J", "P", ["เดินหน้าตามแผน", "ใช้แผน แล้วปรับเมื่อจำเป็น", "เปิดทางปรับ แล้วค่อยวางแผน", "ปรับวิธีตามข้อมูลใหม่"]),
   mbtiQuestion("f-jp-2", "วิธีเดินหน้า", "เมื่อข้อมูลสำหรับงานยังมาไม่ครบ คุณมักเลือกแบบใด?", "J", "P", ["เดินตามทิศทางเดิม", "ยึดทางเดิม แล้วทบทวนภายหลัง", "รอข้อมูล แล้วค่อยกำหนดทาง", "เปิดทางให้เปลี่ยนทิศทาง"]),
   {
-    id: "f-e-1", kind: "foundation", context: "แรงขับภายใน", prompt: "เมื่อทำงานชิ้นหนึ่งเสร็จ อะไรทำให้คุณรู้สึกพอใจจากข้างในมากที่สุด?", options: [
-      { text: "งานตรงตามหลักที่ยึดถือ", weights: { enneagram: { 1: 2, 6: 1 } } },
-      { text: "งานนั้นช่วยคนอื่นได้", weights: { enneagram: { 2: 2, 6: 1 } } },
-      { text: "งานนั้นไปถึงเป้าหมาย", weights: { enneagram: { 3: 2, 8: 1 } } },
-      { text: "งานนั้นสะท้อนความเป็นตัวเอง", weights: { enneagram: { 4: 2, 9: 1, 7: 1 } } },
+    id: "f-e-1", kind: "foundation", lens: "inward", context: "แรงขับภายใน", prompt: "เมื่อทำงานชิ้นหนึ่งเสร็จ อะไรทำให้คุณรู้สึกพอใจจากข้างในมากที่สุด?", options: [
+      { text: "งานตรงตามหลักที่ยึดถือ", hint: "ทำถูกตามหลักแล้วก็พอใจ แม้จะไม่มีใครเห็น", weights: { enneagram: { 1: 2, 6: 1 } } },
+      { text: "งานนั้นช่วยคนอื่นได้", hint: "รู้ว่ามีคนได้ประโยชน์จริง คือสิ่งที่ทำให้อิ่มใจ", weights: { enneagram: { 2: 2, 6: 1 } } },
+      { text: "งานนั้นไปถึงเป้าหมาย", hint: "ผลที่วัดได้คือสิ่งที่ทำให้รู้สึกว่างานจบจริง", weights: { enneagram: { 3: 2, 8: 1 } } },
+      { text: "งานนั้นสะท้อนความเป็นตัวเอง", hint: "อยากให้คนดูออกว่านี่เป็นงานของเรา ไม่ใช่ของใครก็ได้", weights: { enneagram: { 4: 2, 9: 1, 7: 1 } } },
     ],
   },
   {
-    id: "f-e-2", kind: "foundation", context: "ความมั่นคง", prompt: "เมื่อเจอความไม่แน่นอนทั่วไป อะไรช่วยให้คุณตั้งหลักได้มากที่สุด?", options: [
-      { text: "มีข้อมูลให้ตรวจสอบ", weights: { enneagram: { 5: 2, 4: 1 } } },
-      { text: "มีคนหรือแผนให้อ้างอิง", weights: { enneagram: { 6: 2, 1: 1 } } },
-      { text: "ยังเลือกเส้นทางอื่นได้", weights: { enneagram: { 7: 2, 5: 1 } } },
-      { text: "กำหนดการตัดสินใจของตัวเองได้", weights: { enneagram: { 8: 2, 3: 1 } } },
+    id: "f-e-2", kind: "foundation", lens: "outward", context: "ความมั่นคง", prompt: "เมื่อเจอความไม่แน่นอนทั่วไป อะไรช่วยให้คุณตั้งหลักได้มากที่สุด?", options: [
+      { text: "มีข้อมูลให้ตรวจสอบ", hint: "ถ้ายังตรวจสอบได้ ก็ยังตั้งหลักได้", weights: { enneagram: { 5: 2, 4: 1 } } },
+      { text: "มีคนหรือแผนให้อ้างอิง", hint: "อยากรู้ว่ามีอะไรรองรับอยู่ก่อนจะขยับ", weights: { enneagram: { 6: 2, 1: 1 } } },
+      { text: "ยังเลือกเส้นทางอื่นได้", hint: "แค่รู้ว่ายังมีทางออกอื่น ก็เบาลงแล้ว", weights: { enneagram: { 7: 2, 5: 1 } } },
+      { text: "กำหนดการตัดสินใจของตัวเองได้", hint: "ขอเป็นคนตัดสินใจเอง แล้วรับผลเอง", weights: { enneagram: { 8: 2, 3: 1 } } },
     ],
   },
   {
@@ -115,7 +130,7 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
     // drained and invaded until they cannot cope, which lands on that tool's core-8 option and
     // hands it evidence against 5. Here 5 is depletion and 8 is loss of authorship, and they do
     // not overlap.
-    id: "f-e-3", kind: "foundation", context: "สิ่งที่กลัวจริง ๆ",
+    id: "f-e-3", kind: "foundation", lens: "inward", context: "สิ่งที่กลัวจริง ๆ",
     prompt: "ถ้ามองลึกลงไป อะไรคือสิ่งที่คุณไม่อยากให้เกิดขึ้นกับตัวเองที่สุด?", options: [
       { text: "ปล่อยให้บางอย่างผิดไปแล้วไม่ได้แก้", hint: "ไม่กลัวงานหนัก แต่กลัวปล่อยผ่านสิ่งที่รู้ว่าไม่ถูก", weights: { enneagram: { 1: 2 } } },
       { text: "ไม่มีใครต้องการเราจริง ๆ", hint: "กลัวว่าคนที่เราดูแลมาจะไม่ได้ต้องการเราตั้งแต่แรก", weights: { enneagram: { 2: 2 } } },
@@ -129,19 +144,19 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
     ],
   },
   {
-    id: "f-e-4", kind: "foundation", context: "สิ่งที่ต้องการ", prompt: "เมื่อสถานการณ์ไม่แน่นอน คุณต้องการสิ่งใดก่อนเพื่อให้พร้อมรับมือ?", options: [
-      { text: "ข้อมูลสำหรับทำความเข้าใจ", weights: { enneagram: { 5: 2 } } },
-      { text: "แผนที่ใช้อ้างอิงได้", weights: { enneagram: { 6: 2 } } },
-      { text: "ทางเลือกที่ยังเปิดอยู่", weights: { enneagram: { 7: 2 } } },
-      { text: "สิทธิ์กำหนดทางของตัวเอง", weights: { enneagram: { 8: 2, 4: 1 } } },
+    id: "f-e-4", kind: "foundation", lens: "outward", context: "สิ่งที่ต้องการ", prompt: "เมื่อสถานการณ์ไม่แน่นอน คุณต้องการสิ่งใดก่อนเพื่อให้พร้อมรับมือ?", options: [
+      { text: "ข้อมูลสำหรับทำความเข้าใจ", hint: "ยังไม่ขยับจนกว่าจะเห็นภาพว่าเกิดอะไรขึ้น", weights: { enneagram: { 5: 2 } } },
+      { text: "แผนที่ใช้อ้างอิงได้", hint: "อยากมีอะไรให้กลับมาดูได้เมื่อเรื่องเปลี่ยน", weights: { enneagram: { 6: 2 } } },
+      { text: "ทางเลือกที่ยังเปิดอยู่", hint: "ไม่อยากถูกล็อกไว้กับทางเดียวเร็วเกินไป", weights: { enneagram: { 7: 2 } } },
+      { text: "สิทธิ์กำหนดทางของตัวเอง", hint: "ขอเป็นคนเลือกว่าจะเดินทางไหน ไม่ใช่ถูกจัดให้", weights: { enneagram: { 8: 2, 4: 1 } } },
     ],
   },
   {
-    id: "f-e-5", kind: "foundation", context: "เวลาตึงเครียด", prompt: "เมื่อเจอแรงกดดันในงาน ปฏิกิริยาแรกของคุณมักเป็นแบบใด?", options: [
-      { text: "จัดสิ่งต่าง ๆ ให้เป็นระเบียบ", weights: { enneagram: { 1: 2, 3: 1 } } },
-      { text: "เข้าไปดูแลคนที่เกี่ยวข้อง", weights: { enneagram: { 2: 2, 9: 1 } } },
-      { text: "เร่งทำให้เห็นผลลัพธ์", weights: { enneagram: { 3: 2, 8: 1 } } },
-      { text: "ถอยมารวบรวมข้อมูล", weights: { enneagram: { 5: 2, 6: 1 } } },
+    id: "f-e-5", kind: "foundation", lens: "outward", context: "เวลาตึงเครียด", prompt: "เมื่อเจอแรงกดดันในงาน ปฏิกิริยาแรกของคุณมักเป็นแบบใด?", options: [
+      { text: "จัดสิ่งต่าง ๆ ให้เป็นระเบียบ", hint: "เริ่มจากทำให้ตรงหน้าเป็นระเบียบก่อน", weights: { enneagram: { 1: 2, 3: 1 } } },
+      { text: "เข้าไปดูแลคนที่เกี่ยวข้อง", hint: "ห่วงว่าคนรอบตัวจะรับไหวหรือเปล่าก่อนห่วงงาน", weights: { enneagram: { 2: 2, 9: 1 } } },
+      { text: "เร่งทำให้เห็นผลลัพธ์", hint: "ขยับเร็วขึ้นแล้วทำให้เห็นผลเป็นทางออก", weights: { enneagram: { 3: 2, 8: 1 } } },
+      { text: "ถอยมารวบรวมข้อมูล", hint: "ถอยออกมาหนึ่งก้าวเพื่อดูให้ครบก่อนตอบ", weights: { enneagram: { 5: 2, 6: 1 } } },
     ],
   },
   {
@@ -162,7 +177,7 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
     // voice. In the reference tool that modality is what fixed the wing where six situational
     // questions had left it a coin flip, and it is the one thing that tool does which nothing here
     // did at all.
-    id: "f-e-6", kind: "foundation", context: "เสียงข้างในตัวเอง",
+    id: "f-e-6", kind: "foundation", lens: "inward", context: "เสียงข้างในตัวเอง",
     prompt: "ประโยคไหนคล้ายเสียงที่คุณพูดกับตัวเองมากที่สุด?", options: [
       { text: "“ถ้าฉันไม่ทำให้ถูก แล้วใครจะทำ”", hint: "รู้สึกว่าตัวเองเป็นคนที่ต้องรับผิดชอบให้มันถูกต้อง", weights: { enneagram: { 1: 2 } } },
       { text: "“ฉันมักรู้ว่าใครต้องการอะไร ก่อนที่เขาจะบอก”", hint: "ความสัมพันธ์คือที่ที่เรารู้สึกว่าตัวเองมีค่า", weights: { enneagram: { 2: 2 } } },
@@ -176,35 +191,35 @@ const AUTHORED_FOUNDATION: readonly AssessmentQuestion[] = [
     ],
   },
   {
-    id: "f-e-7", kind: "foundation", context: "สิ่งที่มีความหมาย", prompt: "คำชื่นชมเรื่องใดมีความหมายกับคุณเป็นการส่วนตัวมากที่สุด?", options: [
-      { text: "เป็นคนมีหลักการ", weights: { enneagram: { 1: 2, 6: 1 } } },
-      { text: "เป็นคนใส่ใจผู้อื่น", weights: { enneagram: { 2: 2, 9: 1 } } },
-      { text: "เป็นคนสร้างผลงานได้", weights: { enneagram: { 3: 2, 8: 1 } } },
-      { text: "เป็นคนมีมุมมองเฉพาะตัว", weights: { enneagram: { 4: 2, 5: 1 } } },
+    id: "f-e-7", kind: "foundation", lens: "outward", context: "สิ่งที่มีความหมาย", prompt: "คำชื่นชมเรื่องใดมีความหมายกับคุณเป็นการส่วนตัวมากที่สุด?", options: [
+      { text: "เป็นคนมีหลักการ", hint: "อยากถูกเชื่อว่าเราจะไม่ลดมาตรฐานลง", weights: { enneagram: { 1: 2, 6: 1 } } },
+      { text: "เป็นคนใส่ใจผู้อื่น", hint: "อยากถูกจำได้ว่าเราเห็นคนอื่นจริง ๆ", weights: { enneagram: { 2: 2, 9: 1 } } },
+      { text: "เป็นคนสร้างผลงานได้", hint: "อยากถูกนับว่าเป็นคนที่ทำให้เกิดขึ้นได้", weights: { enneagram: { 3: 2, 8: 1 } } },
+      { text: "เป็นคนมีมุมมองเฉพาะตัว", hint: "อยากถูกมองว่าคิดในแบบที่ไม่มีใครคิด", weights: { enneagram: { 4: 2, 5: 1 } } },
     ],
   },
   {
-    id: "f-e-8", kind: "foundation", context: "สิ่งที่ต้องการ", prompt: "หากมีเวลาว่างจากภาระหนึ่งวัน คุณอยากได้สิ่งใดมากที่สุด?", options: [
-      { text: "อยู่กับความสนใจของตัวเอง", weights: { enneagram: { 5: 2 } } },
-      { text: "รู้ว่าสิ่งต่าง ๆ มีแผนรองรับ", weights: { enneagram: { 6: 2 } } },
-      { text: "มีอิสระไปลองสิ่งใหม่", weights: { enneagram: { 7: 2 } } },
-      { text: "ได้พักโดยไม่ต้องตามใจใคร", weights: { enneagram: { 9: 2, 8: 1 } } },
+    id: "f-e-8", kind: "foundation", lens: "inward", context: "สิ่งที่ต้องการ", prompt: "หากมีเวลาว่างจากภาระหนึ่งวัน คุณอยากได้สิ่งใดมากที่สุด?", options: [
+      { text: "อยู่กับความสนใจของตัวเอง", hint: "อยากได้เวลาที่ไม่มีใครมาเรียก", weights: { enneagram: { 5: 2 } } },
+      { text: "รู้ว่าสิ่งต่าง ๆ มีแผนรองรับ", hint: "พักได้จริงเมื่อรู้ว่าไม่มีอะไรค้างอยู่", weights: { enneagram: { 6: 2 } } },
+      { text: "มีอิสระไปลองสิ่งใหม่", hint: "อยากใช้วันว่างไปกับอะไรที่ยังไม่เคยทำ", weights: { enneagram: { 7: 2 } } },
+      { text: "ได้พักโดยไม่ต้องตามใจใคร", hint: "อยากได้วันที่ไม่ต้องปรับตัวเข้าหาใคร", weights: { enneagram: { 9: 2, 8: 1 } } },
     ],
   },
   {
-    id: "f-e-9", kind: "foundation", context: "เมื่อเห็นต่าง", prompt: "เมื่อทีมเห็นไม่ตรงกันในเรื่องงาน คุณอยากให้เรื่องนั้นจบลงแบบไหน?", options: [
-      { text: "จบโดยไม่ต้องฝืนยอมตาม", weights: { enneagram: { 8: 2 } } },
-      { text: "จบโดยทุกฝ่ายยังทำงานร่วมกันได้", weights: { enneagram: { 9: 2, 7: 1 } } },
-      { text: "จบด้วยข้อสรุปที่ตรวจสอบย้อนได้", weights: { enneagram: { 1: 2 } } },
-      { text: "จบเมื่อเข้าใจเหตุผลของทุกฝ่ายแล้ว", weights: { enneagram: { 5: 2 } } },
+    id: "f-e-9", kind: "foundation", lens: "outward", context: "เมื่อเห็นต่าง", prompt: "เมื่อทีมเห็นไม่ตรงกันในเรื่องงาน คุณอยากให้เรื่องนั้นจบลงแบบไหน?", options: [
+      { text: "จบโดยไม่ต้องฝืนยอมตาม", hint: "ยอมให้เรื่องค้างไว้ ดีกว่ายอมในสิ่งที่ไม่เห็นด้วย", weights: { enneagram: { 8: 2 } } },
+      { text: "จบโดยทุกฝ่ายยังทำงานร่วมกันได้", hint: "ความสัมพันธ์ที่ยังไปต่อได้ สำคัญกว่าใครถูก", weights: { enneagram: { 9: 2, 7: 1 } } },
+      { text: "จบด้วยข้อสรุปที่ตรวจสอบย้อนได้", hint: "อยากให้มีข้อสรุปที่กลับมาอ้างอิงได้ทีหลัง", weights: { enneagram: { 1: 2 } } },
+      { text: "จบเมื่อเข้าใจเหตุผลของทุกฝ่ายแล้ว", hint: "ยังไม่อยากปิดเรื่องถ้ายังไม่เข้าใจว่าทำไม", weights: { enneagram: { 5: 2 } } },
     ],
   },
   {
-    id: "f-e-10", kind: "foundation", context: "เมื่องานถูกแทรก", prompt: "เมื่อมีงานแทรกเข้ามากลางสัปดาห์ อะไรที่คุณอยากรักษาไว้มากที่สุด?", options: [
-      { text: "การจัดลำดับงานของตัวเอง", weights: { enneagram: { 8: 2 } } },
-      { text: "จังหวะการทำงานที่ไม่ถูกเร่ง", weights: { enneagram: { 9: 2 } } },
-      { text: "สิ่งที่รับปากคนอื่นไว้", weights: { enneagram: { 2: 2 } } },
-      { text: "ผลลัพธ์ที่ตั้งเป้าไว้", weights: { enneagram: { 3: 2 } } },
+    id: "f-e-10", kind: "foundation", lens: "outward", context: "เมื่องานถูกแทรก", prompt: "เมื่อมีงานแทรกเข้ามากลางสัปดาห์ อะไรที่คุณอยากรักษาไว้มากที่สุด?", options: [
+      { text: "การจัดลำดับงานของตัวเอง", hint: "ขอเป็นคนบอกว่าอะไรมาก่อน", weights: { enneagram: { 8: 2 } } },
+      { text: "จังหวะการทำงานที่ไม่ถูกเร่ง", hint: "ถูกเร่งแล้วงานเสีย มากกว่าถูกเพิ่มงาน", weights: { enneagram: { 9: 2 } } },
+      { text: "สิ่งที่รับปากคนอื่นไว้", hint: "รับปากไปแล้วก็ต้องได้ ไม่อยากให้ใครรอเปล่า", weights: { enneagram: { 2: 2 } } },
+      { text: "ผลลัพธ์ที่ตั้งเป้าไว้", hint: "งานแทรกได้ แต่เป้าต้องไม่ขยับ", weights: { enneagram: { 3: 2 } } },
     ],
   },
 ] as const;

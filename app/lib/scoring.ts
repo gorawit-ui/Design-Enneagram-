@@ -10,8 +10,68 @@ export type AssessmentResult = {
   enneagram: { status: Confidence; core: EnneagramCore | null; top: Candidate<EnneagramCore>; runnerUp: Candidate<EnneagramCore>; confidence: Confidence };
   wing: EnneagramCore | null;
   wingStatus: "valid" | "ambiguous" | "unavailable";
+  /**
+   * Set when the inward-looking items and the outward-looking ones lead to different cores, and
+   * both lead their own runner-up clearly enough to be worth saying so.
+   *
+   * This is not a lower-confidence result. `confidence: "ambiguous"` already means "not enough
+   * signal"; this means the opposite -- two signals, each reasonably clear, pointing different
+   * ways. Usually that says the outward core is a strategy the person built to work with the world
+   * and the inward one is what it sits on top of, which is a more useful thing to be told than an
+   * average of the two.
+   */
+  tension: {
+    inwardCore: EnneagramCore;
+    outwardCore: EnneagramCore;
+    inwardMargin: number;
+    outwardMargin: number;
+  } | null;
   scores: { mbti: Record<string, number>; enneagram: Record<EnneagramCore, number> };
 };
+
+/**
+ * A lens's answer must be "clear" on the scorer's own terms before it is allowed to disagree with
+ * the other lens: the same margin and evidence thresholds `enneagramConfidence` uses for "clear".
+ *
+ * Reused rather than invented, and the numbers are not arbitrary. At margin 2 -- the "not
+ * ambiguous" boundary -- the tests found a false positive: the outward lens has six items and core
+ * 4 has a primary option on only one of them, so a consistent core-4 respondent donates their
+ * other outward answers, the donations settle on one core, and that core leads the outward lens by
+ * 2. The page would then tell a perfectly consistent person that their inside and outside
+ * disagree, off a signal our own item coverage manufactured. Telling someone two clear things
+ * about them disagree is a strong claim, so it takes the scorer's strong threshold.
+ */
+const TENSION_MARGIN = 4;
+/** Items in a lens that must have named the leading core -- again the "clear" threshold. */
+const TENSION_EVIDENCE = 3;
+
+/**
+ * The leading core within one lens: how far it leads, and how many items named it. Returns null
+ * when that lens produced no signal at all, which happens on a partial session.
+ */
+function leadingCore(
+  answers: readonly AnswerRecord[],
+  lens: "inward" | "outward",
+): { core: EnneagramCore; margin: number; evidence: number } | null {
+  const tally = Object.fromEntries(cores.map((core) => [core, 0])) as Record<EnneagramCore, number>;
+  const itemsNaming = Object.fromEntries(cores.map((core) => [core, 0])) as Record<EnneagramCore, number>;
+  let scored = 0;
+  for (const answer of answers) {
+    const question = questionMap.get(answer.questionId);
+    if (question?.lens !== lens) continue;
+    const option = question.options[answer.optionIndex];
+    if (!option) continue;
+    for (const [core, value] of Object.entries(option.weights.enneagram ?? {})) {
+      const key = Number(core) as EnneagramCore;
+      tally[key] += value ?? 0;
+      itemsNaming[key] += 1;
+      scored += 1;
+    }
+  }
+  if (scored === 0) return null;
+  const ranked = cores.map((core) => ({ core, score: tally[core] })).sort((a, b) => b.score - a.score || a.core - b.core);
+  return { core: ranked[0].core, margin: ranked[0].score - ranked[1].score, evidence: itemsNaming[ranked[0].core] };
+}
 
 const ALL_QUESTIONS = [...FOUNDATION_QUESTIONS, ...DIMENSION_CHALLENGES, ...CORE_CHALLENGES, ...WING_CHALLENGES];
 const questionMap = new Map(ALL_QUESTIONS.map((question) => [question.id, question]));
@@ -49,11 +109,22 @@ export function scoreAssessment(answers: readonly AnswerRecord[]): AssessmentRes
     const right = (core === 9 ? 1 : core+1) as EnneagramCore;
     if (Math.abs(enneagram[left]-enneagram[right]) >= 2) { wing = enneagram[left] > enneagram[right] ? left : right; wingStatus = "valid"; }
   }
+  // Tension between the two lenses. Computed from the foundation items only -- see the `lens`
+  // comment in assessment-data.ts for why the adaptive challenges are excluded.
+  const inward = leadingCore(answers, "inward");
+  const outward = leadingCore(answers, "outward");
+  const tension = inward && outward
+    && inward.core !== outward.core
+    && inward.margin >= TENSION_MARGIN && outward.margin >= TENSION_MARGIN
+    && inward.evidence >= TENSION_EVIDENCE && outward.evidence >= TENSION_EVIDENCE
+    ? { inwardCore: inward.core, outwardCore: outward.core, inwardMargin: inward.margin, outwardMargin: outward.margin }
+    : null;
+
   return {
     dimensions,
     mbti: { status: mbtiConfidence, type: mbtiConfidence === "ambiguous" ? null : `${base}-${identity}` as MbtiType, candidate: `${base}-${identity}`, runnerUp: `${runnerLetters.slice(0,4).join("")}-${runnerLetters[4] === "Turbulent" ? "T" : "A"}`, confidence: mbtiConfidence },
     enneagram: { status: enneagramConfidence, core, top, runnerUp, confidence: enneagramConfidence },
-    wing, wingStatus, scores: { mbti, enneagram },
+    wing, wingStatus, tension, scores: { mbti, enneagram },
   };
 }
 

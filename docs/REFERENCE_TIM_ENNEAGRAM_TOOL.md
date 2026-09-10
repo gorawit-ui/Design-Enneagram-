@@ -162,3 +162,55 @@ npm run items:reachability     # 18 core+wing pairs; exits non-zero on any unrea
 npm run items:coverage         # per-core weight and the forced-donation table
 npm run items:probe            # answer our items as 5w4, then as 5w6, and score
 ```
+
+---
+
+## What was built from this, 2026-09-10
+
+All of it, in one pass. The commits carry the detail; this is the ledger.
+
+| Borrowed | Built | Verification |
+|---|---|---|
+| An item that asks the core fear directly | `f-e-3` replaced: nine options, one per core, each with a gloss | `npm run items:coverage` — the only item silent on nothing |
+| A first-person inner-voice item | `f-e-6` replaced: nine first-person sentences, one per core | it is what closed 3w2, the last unreachable type |
+| Two-tier options | `AssessmentOption.hint`, rendered as a second line; **all 10 Enneagram foundation items glossed**, 50 options | median gloss 41 chars against a 21-char label |
+| Naming the tension | `AssessmentResult.tension`, from an `inward`/`outward` lens on each item | property test over all 72 core pairs; **24 detectable** |
+| Health levels | Healthy / average / strained per core, in `app/lib/enneagram-depth.ts` | asserted non-empty for all nine |
+| Stress and growth arrows | Derived from the two cycles rather than typed twice | the six-cycle and three-cycle asserted; growth proved to be the inverse of stress |
+| Attribution for the growth path | one line saying the arrows are standard Enneagram structure, not this tool's interpretation | — |
+| **Declined:** the live narrowing | not built, deliberately | belongs to internal mode; it tells a candidate what to answer next |
+
+And the thing that mattered most was not on the borrow list at all: **reading their tool sent us to
+measure ours, and 4 of 18 types could not be returned.** 14/18 → 18/18, now a gate in `npm test`.
+
+### Three things that went differently than expected
+
+**The tool did not fail this case, and an earlier version of this document said it did.** Corrected
+above. It reached 5w4 in nine questions; the note was written from the first five screenshots and
+read "เหลือ 5 กับ 7 เป็นตัวเต็ง" — a mid-point — as an endpoint.
+
+**Tension detection had a false positive, and the tests caught it before the page did.** At the
+first threshold (margin ≥ 2, the "not ambiguous" boundary) a perfectly consistent core-4 respondent
+was told their inside and outside disagreed. The cause is our coverage, not their answers: the
+outward lens has six items and core 4 has a primary option on one of them, so the other five
+answers are donations and the donations settle somewhere. Telling someone two clear things about
+them disagree is a strong claim, so it now takes the scorer's own strong threshold — each lens must
+be "clear" by the same margin-4, evidence-3 rule `enneagramConfidence` uses. That cut detectable
+pairs from 47 to 24, which is the honest number.
+
+**Nine-option items broke the no-scroll question step, and the fix was one the UX review had already
+named.** The two new items are 1303px against an 844px viewport, which left "ถัดไป" 370px below the
+fold. The action row is sticky on mobile again — inert on the twenty-two questions that still fit,
+and the primary action is now visible on **all 24**, measured.
+
+### Left open, and now more pressing than before
+
+The result page is **4797px on a phone** — about 5.7 screens. It was 3 when §3 of the UX review
+called it too long with nothing to signal the rest exists, and the depth and tension sections added
+~2200px of genuinely useful content on top. §3's two fixes — make the top screen a complete
+60-second read, and let the next section intrude above the fold — are now the highest-value work
+left on this page, and they want a designer rather than another measurement.
+
+Also still thin: the **outward lens's coverage**. 24 of 72 pairs detectable is a real limit, and the
+cores it fails on are the ones with the fewest outward primary options. Worth revisiting with the
+January calibration data rather than by guessing now.

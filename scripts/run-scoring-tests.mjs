@@ -15,6 +15,7 @@ const sourceFiles = [
   "app/lib/result-insights.ts",
   "app/lib/assessment-fixtures.ts",
   "app/lib/profile-contract.ts",
+  "app/lib/enneagram-depth.ts",
 ].map((file) => path.join(projectRoot, file));
 
 try {
@@ -44,6 +45,7 @@ try {
   const data = require(path.join(temporaryDirectory, "assessment-data.js"));
   const fixtures = require(path.join(temporaryDirectory, "assessment-fixtures.js"));
   const profileContract = require(path.join(temporaryDirectory, "profile-contract.js"));
+  const depth = require(path.join(temporaryDirectory, "enneagram-depth.js"));
 
   assert.deepEqual(profileContract.PROFILE_FIELDS, ["nameAndNickname", "team", "gender"], "three-field profile contract");
   assert.deepEqual(Object.keys(profileContract.INITIAL_PROFILE), profileContract.PROFILE_FIELDS, "profile contains no unapproved fields");
@@ -261,7 +263,178 @@ try {
       `${id}: every option carries a gloss`);
   }
 
-  console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, sequential adaptive selection, the 24-question contract, and keyed direction balance.`);
+  // --- lens tension ------------------------------------------------------------------------
+  // The claim being tested is that tension means "two clear signals disagreeing" rather than
+  // "weak signal", because the result page words it that way to the respondent.
+  const foundationEnneagram = allQuestions.filter((question) => question.id.startsWith("f-e-"));
+  for (const question of foundationEnneagram) {
+    assert.ok(question.lens === "inward" || question.lens === "outward",
+      `${question.id}: carries a lens, so it can take part in tension detection`);
+  }
+  assert.equal(foundationEnneagram.filter((question) => question.lens === "inward").length, 4, "four inward items");
+  assert.equal(foundationEnneagram.filter((question) => question.lens === "outward").length, 6, "six outward items");
+  for (const question of allQuestions) {
+    if (question.id.startsWith("f-e-")) continue;
+    assert.equal(question.lens, undefined,
+      `${question.id}: only the Enneagram foundation items carry a lens -- the adaptive challenges `
+      + "are selected by the leading core, so they could never disagree with it");
+  }
+
+  // Build a session that answers inward as one core and outward as another, and check it is
+  // reported rather than averaged away.
+  // Answer each item as favourably to that lens's target core as the item allows. The first
+  // version of this fell back to option 0 when the target core had no option, and on a
+  // reverse-keyed item option 0 is core 8 -- so it quietly donated 8 points to core 8 and core 8
+  // led the outward lens instead of the core the test was aiming for. The fix is to prefer the
+  // option carrying the target core and, when no option carries it, take the one that gives away
+  // the least, so a donation is a donation rather than a vote for whatever happens to be first.
+  const answerBy = (inwardCore, outwardCore) => {
+    const built = [];
+    for (let position = 0; position < data.MAX_QUESTIONS; position += 1) {
+      const question = scoring.selectNextQuestion(built);
+      if (!question) break;
+      const want = question.lens === "inward" ? inwardCore : question.lens === "outward" ? outwardCore : null;
+      let index = 0;
+      if (want !== null) {
+        let bestScore = -Infinity;
+        question.options.forEach((option, candidate) => {
+          const weights = option.weights.enneagram ?? {};
+          const forTarget = weights[want] ?? 0;
+          const total = Object.values(weights).reduce((sum, value) => sum + (value ?? 0), 0);
+          // Target weight first; among options that carry none of it, the smallest donation.
+          const score = forTarget * 10 - total;
+          if (score > bestScore) { bestScore = score; index = candidate; }
+        });
+      }
+      built.push({ questionId: question.id, optionIndex: index });
+    }
+    return built;
+  };
+  // Tested as a property over every ordered pair of distinct cores rather than on one hand-picked
+  // pair. The first version asserted a tension for inward 5 / outward 3 and failed -- correctly:
+  // core 3 leads the outward lens by only 1 there, below the margin, so no tension is reported and
+  // that is the rule working. Picking a pair that passes instead would have been choosing the test
+  // to fit the code. What must hold for every pair is agreement between the tallies and the
+  // reported tension, in both directions.
+  const lensTally = (answers, lens) => {
+    const tally = {};
+    const naming = {};
+    for (const answer of answers) {
+      const question = allQuestions.find((candidate) => candidate.id === answer.questionId);
+      if (question?.lens !== lens) continue;
+      const option = question.options[answer.optionIndex];
+      for (const [core, value] of Object.entries(option.weights.enneagram ?? {})) {
+        tally[core] = (tally[core] ?? 0) + value;
+        naming[core] = (naming[core] ?? 0) + 1;
+      }
+    }
+    const ranked = Object.entries(tally).map(([core, score]) => ({ core: Number(core), score }))
+      .sort((a, b) => b.score - a.score || a.core - b.core);
+    if (!ranked.length) return null;
+    return { core: ranked[0].core, margin: ranked[0].score - (ranked[1]?.score ?? 0),
+      evidence: naming[ranked[0].core] ?? 0 };
+  };
+
+  let detectable = 0;
+  const undetected = [];
+  for (const inwardCore of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    for (const outwardCore of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+      if (inwardCore === outwardCore) continue;
+      const answers = answerBy(inwardCore, outwardCore);
+      const result = scoring.scoreAssessment(answers);
+      const inward = lensTally(answers, "inward");
+      const outward = lensTally(answers, "outward");
+      // Mirrors the scorer's rule: each lens must be "clear" on its own terms before it is
+      // allowed to disagree with the other.
+      const shouldReport = inward && outward && inward.core !== outward.core
+        && inward.margin >= 4 && outward.margin >= 4
+        && inward.evidence >= 3 && outward.evidence >= 3;
+      if (shouldReport) {
+        detectable += 1;
+        assert.ok(result.tension,
+          `inward ${inwardCore} / outward ${outwardCore}: both lenses lead by >= 2 and disagree, so a tension is reported`);
+        assert.equal(result.tension.inwardCore, inward.core, `inward ${inwardCore} / outward ${outwardCore}: names the inward leader`);
+        assert.equal(result.tension.outwardCore, outward.core, `inward ${inwardCore} / outward ${outwardCore}: names the outward leader`);
+        assert.ok(result.tension.inwardMargin >= 4 && result.tension.outwardMargin >= 4,
+          `inward ${inwardCore} / outward ${outwardCore}: both sides lead by at least 4, which is what makes `
+          + "this a disagreement between two signals rather than an absence of signal");
+      } else {
+        undetected.push(`${inwardCore}/${outwardCore}`);
+        assert.equal(result.tension, null,
+          `inward ${inwardCore} / outward ${outwardCore}: no tension reported unless both lenses lead clearly and disagree`);
+      }
+    }
+  }
+  assert.ok(detectable >= 12,
+    `at least 12 of the 72 core pairs are detectable as a tension (got ${detectable}); below that the `
+    + "outward lens is too thinly covered for the feature to be worth showing");
+
+  // The ordinary case: one core throughout, on all nine, reports nothing.
+  for (const core of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    assert.equal(scoring.scoreAssessment(answerBy(core, core)).tension, null,
+      `answering as core ${core} on both lenses reports no tension`);
+  }
+  // A straight-lined session carries no signal, so it must not be dressed up as two.
+  for (const position of [0, 1, 2, 3]) {
+    const flat = [];
+    for (let slot = 0; slot < data.MAX_QUESTIONS; slot += 1) {
+      const question = scoring.selectNextQuestion(flat);
+      if (!question) break;
+      flat.push({ questionId: question.id, optionIndex: position });
+    }
+    const result = scoring.scoreAssessment(flat);
+    if (result.tension) {
+      assert.ok(result.tension.inwardMargin >= 4 && result.tension.outwardMargin >= 4,
+        `straight-lining option ${position + 1}: any reported tension still needs two clear sides`);
+    }
+  }
+  console.log(`  lens tension: ${detectable}/72 core pairs detectable`
+    + `${undetected.length ? ` · not detectable: ${undetected.slice(0, 8).join(" ")}${undetected.length > 8 ? " …" : ""}` : ""}`);
+
+  // --- the depth layer ---------------------------------------------------------------------
+  // The two arrows are derived from two cycles rather than typed out as two tables, so what is
+  // worth asserting is that the derivation still produces the Enneagram's actual structure. If
+  // someone edits the cycles, these fail rather than the result page quietly telling a type 5 they
+  // move toward 6.
+  const allCores = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const stressTargets = allCores.map((core) => depth.stressArrow(core));
+  const growthTargets = allCores.map((core) => depth.growthArrow(core));
+  assert.deepEqual([...stressTargets].sort((a, b) => a - b), allCores,
+    "the stress arrow is a permutation of the nine cores: every core is somebody's stress point");
+  assert.deepEqual([...growthTargets].sort((a, b) => a - b), allCores,
+    "the growth arrow is a permutation of the nine cores");
+  for (const core of allCores) {
+    assert.notEqual(depth.stressArrow(core), core, `core ${core} does not move to itself under stress`);
+    assert.notEqual(depth.growthArrow(core), core, `core ${core} does not move to itself in growth`);
+    assert.equal(depth.growthArrow(depth.stressArrow(core)), core,
+      `core ${core}: growth is exactly the inverse of stress, so the two arrows cannot drift apart`);
+  }
+  // The classic figure: a six-cycle and a three-cycle. Asserted explicitly because it is the one
+  // fact here that comes from the model rather than from this code.
+  assert.deepEqual([1, 4, 2, 8, 5, 7].map((core) => depth.stressArrow(core)), [4, 2, 8, 5, 7, 1],
+    "stress runs 1-4-2-8-5-7 and back to 1");
+  assert.deepEqual([3, 9, 6].map((core) => depth.stressArrow(core)), [9, 6, 3],
+    "stress runs 3-9-6 and back to 3");
+  for (const core of allCores) {
+    const entry = depth.ENNEAGRAM_DEPTH[core];
+    assert.ok(entry, `core ${core} has a depth entry`);
+    for (const field of ["coreFearThai", "coreDesireThai", "defenceThai", "underStrainThai", "towardGrowthThai"]) {
+      assert.ok(typeof entry[field] === "string" && entry[field].length > 10,
+        `core ${core}: ${field} is written`);
+    }
+    for (const level of ["healthyThai", "averageThai", "strainedThai"]) {
+      assert.ok(typeof entry.levels[level] === "string" && entry.levels[level].length > 20,
+        `core ${core}: the ${level} level is written`);
+    }
+    // The result page shows the fear from this module and the assessment asks it in f-e-3. If the
+    // two disagree, a respondent picks one sentence and is shown a different one as their fear.
+    const fearOption = allQuestions.find((question) => question.id === "f-e-3")
+      .options.find((option) => (option.weights.enneagram ?? {})[core] !== undefined);
+    assert.equal(fearOption.text, entry.coreFearThai,
+      `core ${core}: the fear on the result page is the same sentence f-e-3 offered`);
+  }
+
+  console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, sequential adaptive selection, the 24-question contract, keyed direction balance, the depth layer's two arrows, and lens tension.`);
 } finally {
   fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 }

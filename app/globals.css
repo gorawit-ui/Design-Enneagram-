@@ -862,3 +862,100 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
     box-shadow: 0 6px 22px #16362f14;
   }
 }
+
+/* =============================================================================================
+   DEPTH SECTION — core fear and desire, three levels of strain, and the two arrows.
+
+   Placed between the two-lens note and the insight grid because it answers "why" and the grid
+   answers "what to do", and a reader who stops after the first screen should have had the why.
+
+   Type sizes are on the review's scale: 16px body, 15px inside the level list, 13.5px for the two
+   notes, nothing below 13px. The three levels are one column at every width -- they are meant to be
+   read in order, and three columns invites reading only the middle one, which is the one failure
+   this section exists to prevent.
+   ============================================================================================= */
+.depth-section {
+  margin-top: 22px;
+  padding: 26px 24px 24px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 10px 30px #16362f0d;
+}
+.depth-head h2 { margin: 8px 0 8px; font-size: 24px; font-weight: 600; color: var(--matcha); letter-spacing: -.4px; }
+.depth-head > p { margin: 0; font-size: 16px; line-height: 1.75; color: #59645f; max-width: 62ch; }
+
+.depth-pair { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 22px 0 0; }
+.depth-pair > div { padding: 16px 17px; border-radius: 14px; background: #f5f7f2; border: 1px solid #e7ece5; }
+.depth-pair dt { font-size: 13.5px; font-weight: 700; letter-spacing: .2px; color: var(--green); }
+.depth-pair dd { margin: 7px 0 0; font-size: 15px; line-height: 1.65; color: #2f3a35; }
+
+.depth-levels { margin-top: 26px; }
+.depth-levels h3, .depth-arrows h3 { margin: 0 0 6px; font-size: 19px; font-weight: 600; color: var(--matcha); }
+.depth-levels-note { margin: 0 0 14px; font-size: 13.5px; line-height: 1.6; color: #5d6862; max-width: 66ch; }
+.depth-levels ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.depth-level {
+  display: grid; gap: 4px; padding: 15px 16px 15px 19px;
+  border-radius: 13px; background: #fbfcfa; border: 1px solid #e9ede6; border-left: 4px solid #cbd8cd;
+}
+.depth-level b { font-size: 14px; font-weight: 700; color: var(--matcha); }
+.depth-level span { font-size: 15px; line-height: 1.7; color: #454f4a; }
+.depth-level-healthy { border-left-color: #3e6d58; background: #f4f9f5; }
+.depth-level-average { border-left-color: #8ba79b; }
+/* Deliberately not red. A strained month is a state, and the page must not colour it as a fault. */
+.depth-level-strained { border-left-color: #b3a58c; background: #fbf9f4; }
+
+.depth-arrows { margin-top: 26px; }
+.depth-arrow-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.depth-arrow { padding: 16px 17px; border-radius: 14px; border: 1px solid #e7ece5; background: #f7f9f5; }
+.depth-arrow-label { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .3px; color: var(--green); }
+.depth-arrow b { display: block; margin: 6px 0 7px; font-size: 16px; color: var(--matcha); }
+.depth-arrow p { margin: 0; font-size: 15px; line-height: 1.68; color: #454f4a; }
+.depth-arrow-growth { background: #f2f8f3; border-color: #d8e6da; }
+
+.depth-wing-note {
+  margin: 20px 0 0; padding: 13px 15px; border-radius: 12px;
+  background: #eef2ec; font-size: 14px; line-height: 1.65; color: #3a453f;
+}
+.depth-source { margin: 14px 0 0; font-size: 13px; line-height: 1.6; color: #5d6862; }
+
+@media (max-width: 899px) {
+  .depth-section { padding: 22px 18px 20px; border-radius: 18px; }
+  .depth-head h2 { font-size: 21px; }
+  .depth-pair { grid-template-columns: 1fr; gap: 10px; }
+  .depth-arrow-grid { grid-template-columns: 1fr; }
+  .depth-levels h3, .depth-arrows h3 { font-size: 18px; }
+}
+
+/* =============================================================================================
+   TENSION NOTE — shown only when the inward and outward items lead to different cores.
+
+   Given its own card rather than folded into the depth section, because it is a statement about
+   THIS respondent's answers rather than about their type, and because it is the one thing on the
+   page a facilitator will want to find again. Warm sand rather than a warning colour: two readings
+   of a person is interesting, not a problem, and colouring it as a problem would teach people to
+   answer more consistently next time, which is the opposite of what this measures.
+   ============================================================================================= */
+.tension-note {
+  margin-top: 18px;
+  padding: 22px 22px 20px;
+  border: 1px solid #e6dfcd;
+  border-left: 4px solid #b3a58c;
+  border-radius: 18px;
+  background: #fdfbf5;
+}
+.tension-note h3 { margin: 8px 0 14px; font-size: 20px; font-weight: 600; color: var(--matcha); letter-spacing: -.3px; }
+.tension-note ul { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
+.tension-note li {
+  display: grid; gap: 3px; padding: 13px 15px;
+  background: #fff; border: 1px solid #ece5d6; border-radius: 12px;
+}
+.tension-note li b { font-size: 14px; font-weight: 700; color: #6f6247; }
+.tension-note li span { font-size: 16px; color: var(--matcha); font-weight: 600; }
+.tension-note > p { margin: 0; font-size: 15px; line-height: 1.75; color: #454f4a; max-width: 64ch; }
+.tension-note .tension-next { margin-top: 12px; font-size: 14px; color: #5d6862; }
+
+@media (max-width: 899px) {
+  .tension-note { padding: 19px 17px 17px; border-radius: 16px; }
+  .tension-note h3 { font-size: 18px; }
+}

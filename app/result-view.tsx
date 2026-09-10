@@ -6,12 +6,107 @@ import { LIVING_CHARACTER_PILOT_ENABLED } from "./lib/living-character-flag";
 import { LIVING_CHARACTER_SCHEMA_VERSION, resolveLivingCharacterVisual, type LivingCharacterConfidence } from "./lib/living-character-resolver";
 import type { AssessmentResult, Confidence } from "./lib/scoring";
 import { composeResultNarrative } from "./lib/result-insights";
+import { ENNEAGRAM_DEPTH, growthArrow, stressArrow } from "./lib/enneagram-depth";
+import { ENNEAGRAM_PROFILES } from "./lib/character-system";
 
 const confidenceThai: Record<Confidence, string> = { clear: "ชัดเจน", close: "แนวโน้มที่ใกล้เคียง", ambiguous: "ยังไม่ชัดเจน" };
 type Props = { result: AssessmentResult; character: ResolvedCharacterProfile; nickname: string; team: string; consent: boolean; onRestart: () => void };
 
 function InsightCard({ title, items, soft = false }: { title: string; items: readonly string[]; soft?: boolean }) {
   return <article className={`insight-card ${soft ? "insight-card-soft" : ""}`}><h2>{title}</h2><ul>{items.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul></article>;
+}
+
+/**
+ * The depth section: what this type is afraid of and wants, the same person at three levels of
+ * strain, and the two arrows.
+ *
+ * Only rendered for a named core. On an ambiguous result there is no core to be afraid of anything,
+ * and inventing one here would be the one place on this page where a hedge turns into a claim.
+ *
+ * The three levels exist because the page previously described one state and let the reader take
+ * it as who they are. A person reads their "average" paragraph and recognises themselves; the point
+ * of showing "healthy" next to it is that the same type has somewhere to go, and the point of
+ * showing "strained" is that a bad month is a state rather than a verdict.
+ */
+function DepthSection({ core, wing }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9; wing: number | null }) {
+  const depth = ENNEAGRAM_DEPTH[core];
+  const stress = stressArrow(core);
+  const growth = growthArrow(core);
+  const nameOf = (target: number) => ENNEAGRAM_PROFILES[target as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9].titleThai;
+  return <section className="depth-section" aria-labelledby="depth-title">
+    <div className="depth-head">
+      <span className="step-label">โครงสร้างข้างใน</span>
+      <h2 id="depth-title">อะไรอยู่ใต้แรงขับของคุณ</h2>
+      <p>ลักษณ์ไม่ได้บอกว่าคุณทำอะไร แต่บอกว่าคุณจัดชีวิตเพื่อเลี่ยงอะไร และเดินไปหาอะไร</p>
+    </div>
+    <dl className="depth-pair">
+      <div><dt>สิ่งที่กลัวจริง ๆ</dt><dd>{depth.coreFearThai}</dd></div>
+      <div><dt>สิ่งที่ต้องการจริง ๆ</dt><dd>{depth.coreDesireThai}</dd></div>
+      <div><dt>วิธีที่ใช้ปกป้องตัวเอง</dt><dd>{depth.defenceThai}</dd></div>
+    </dl>
+    <div className="depth-levels">
+      <h3>ลักษณ์เดียวกัน สามระดับ</h3>
+      <p className="depth-levels-note">คนคนเดียวอ่านได้ทั้งสามแบบในปีเดียว ขึ้นกับว่าตอนนั้นมีแรงเหลือเท่าไร</p>
+      <ol>
+        <li className="depth-level depth-level-healthy"><b>ตอนมีแรงเหลือ</b><span>{depth.levels.healthyThai}</span></li>
+        <li className="depth-level depth-level-average"><b>ตอนปกติทั่วไป</b><span>{depth.levels.averageThai}</span></li>
+        <li className="depth-level depth-level-strained"><b>ตอนสะสมความเครียดนานเกินไป</b><span>{depth.levels.strainedThai}</span></li>
+      </ol>
+    </div>
+    <div className="depth-arrows">
+      <h3>สองทิศที่ลักษณ์ของคุณขยับไป</h3>
+      <p className="depth-levels-note">
+        {`นี่คือเหตุผลที่บางคำตอบของคุณอาจดูขัดกันเอง — เวลาเครียด ลักษณ์ ${core} จะแสดงออกคล้ายลักษณ์ ${stress} ซึ่งไม่ได้หมายความว่าคุณเป็นลักษณ์ ${stress}`}
+      </p>
+      <div className="depth-arrow-grid">
+        <article className="depth-arrow depth-arrow-stress">
+          <span className="depth-arrow-label">เวลาเครียด → ลักษณ์ {stress}</span>
+          <b>{nameOf(stress)}</b>
+          <p>{depth.underStrainThai}</p>
+        </article>
+        <article className="depth-arrow depth-arrow-growth">
+          <span className="depth-arrow-label">ทางเติบโต → ลักษณ์ {growth}</span>
+          <b>{nameOf(growth)}</b>
+          <p>{depth.towardGrowthThai}</p>
+        </article>
+      </div>
+    </div>
+    {wing !== null && <p className="depth-wing-note">
+      {`Wing ${wing} เพิ่มรายละเอียดให้ลักษณ์ ${core} แต่ไม่เปลี่ยนสิ่งที่กลัวและสิ่งที่ต้องการข้างบน — นั่นคือส่วนที่เป็นแกน`}
+    </p>}
+    <p className="depth-source">
+      โครงสองทิศนี้เป็นโครงมาตรฐานของ Enneagram (stress / growth arrow) ไม่ใช่การตีความเฉพาะของเครื่องมือนี้
+    </p>
+  </section>;
+}
+
+/**
+ * Shown only when the two lenses disagree. Worded to say what the disagreement means rather than
+ * to apologise for it: this is not a weaker result, it is two readings of the same person, and
+ * which is the core and which is the strategy is exactly the thing worth talking about.
+ */
+function TensionNote({ tension }: { tension: NonNullable<AssessmentResult["tension"]> }) {
+  const nameOf = (core: number) => ENNEAGRAM_PROFILES[core as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9].titleThai;
+  return <section className="tension-note" aria-labelledby="tension-title">
+    <span className="step-label">คำตอบชี้ไปสองทาง</span>
+    <h3 id="tension-title">ข้างในกับข้างนอกของคุณไม่ตรงกัน — และนั่นคือข้อมูล</h3>
+    <ul>
+      <li>
+        <b>คำถามเรื่องสิ่งที่คุณกลัว และเสียงที่คุณพูดกับตัวเอง</b>
+        <span>{`ชี้ไปที่ลักษณ์ ${tension.inwardCore} · ${nameOf(tension.inwardCore)}`}</span>
+      </li>
+      <li>
+        <b>คำถามเรื่องวิธีที่คุณทำงาน และคำชื่นชมที่อยากได้</b>
+        <span>{`ชี้ไปที่ลักษณ์ ${tension.outwardCore} · ${nameOf(tension.outwardCore)}`}</span>
+      </li>
+    </ul>
+    <p>
+      {`นี่ไม่ใช่ผลที่ไม่ชัด — ทั้งสองด้านชัดพอทั้งคู่ แต่ชี้ไม่ตรงกัน สิ่งที่มักเกิดขึ้นคือ ลักษณ์ ${tension.outwardCore} เป็นวิธีที่คุณพัฒนาขึ้นมาเพื่อทำงานกับโลกและกับคนรอบตัว ส่วนลักษณ์ ${tension.inwardCore} คือสิ่งที่อยู่ข้างใต้`}
+    </p>
+    <p className="tension-next">
+      ลองสังเกตตัวเองสักสัปดาห์ว่าเวลาไม่มีใครดู คุณอยู่กับแบบไหนมากกว่า — และเรื่องนี้เป็นหัวข้อที่คุยกับหัวหน้าหรือ HR ต่อได้ดี
+    </p>
+  </section>;
 }
 
 function CharacterVisual({ character, ambiguous, sceneKit, mbtiConfidence, enneagramConfidence }: { character: ResolvedCharacterProfile; ambiguous: boolean; sceneKit: CharacterSceneKit; mbtiConfidence: LivingCharacterConfidence; enneagramConfidence: LivingCharacterConfidence }) {
@@ -106,6 +201,15 @@ export default function ResultView({ result, character, nickname, team, consent,
   return <div className="result-wrap result-insights fade-in">
     <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
     <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>
+    {/* Gated on the Enneagram alone, not on the page's combined `ambiguous` flag. That flag is true
+        when EITHER lens is unclear, and this section is entirely about the Enneagram core -- hiding
+        a person's fear, levels and arrows because their MBTI axes came out close would withhold the
+        half of the result that did resolve. A named core is the only precondition. */}
+    {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"
+      && <DepthSection core={result.enneagram.core} wing={result.wingStatus === "valid" ? result.wing : null} />}
+    {/* After the arrows, which explain why two answers CAN point different ways, and before the
+        insight grid, which assumes one core. This says yours actually did. */}
+    {result.tension !== null && <TensionNote tension={result.tension} />}
     <div className="insight-grid"><InsightCard title="สิ่งที่ขับเคลื่อนคุณ" items={insight.motivation} /><InsightCard title="สไตล์การทำงานของคุณ" items={insight.workStyle} /><InsightCard title="เมื่อเจองานกดดัน" items={insight.pressure} soft /><InsightCard title="ทำงานร่วมกับคุณอย่างไรให้ลื่นขึ้น" items={insight.collaboration} /><InsightCard title="สิ่งที่ลองฝึกต่อได้" items={insight.growth} soft /></div>
     {consent && <details className="facilitator-details"><summary>แนวทางคุยต่อสำหรับหัวหน้า / HR</summary><div className="facilitator-content"><section><h3>คำถามสำหรับคุยหนึ่งต่อหนึ่ง</h3><ul>{insight.facilitatorPrompts.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>สิ่งที่หัวหน้าช่วยได้</h3><ul>{insight.managerSupport.map((item) => <li key={item}>{item}</li>)}</ul></section><p className="privacy-reminder">ใช้เพื่อสนับสนุนการพัฒนาและการทำงานร่วมกันเท่านั้น ไม่ใช้ตัดสินผลงาน โอกาส หรือคุณค่าของบุคคล</p></div></details>}
     {process.env.NODE_ENV === "development" && <><CoreFiveDevPreview /><GateCDevPreview /></>}
