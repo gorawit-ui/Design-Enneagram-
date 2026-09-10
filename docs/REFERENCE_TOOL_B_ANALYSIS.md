@@ -11,8 +11,9 @@
 >    two.
 > 2. **Respondents 1 and 3 are the same person** — one continuous conversation, split across
 >    batches when the screenshots were sent. So the set holds **three people, four sessions**, not
->    four people. That person's session is the longest in the set and moves from 6w5 to a separate
->    9w1 run, which is a finding about the tool rather than about them.
+>    four people. A further correction on top of that one is in section 1: their two differing
+>    results come from two different instruments rather than from two runs of this tool, so the
+>    retest claim I drew from it does not stand.
 >
 > Everything in sections 2, 3 and 4 survives both corrections — they are about logic and
 > presentation, neither of which depends on who owns the tool or how many people are in the set.
@@ -36,20 +37,38 @@ findings were drawn from half a set and were wrong.
 | 3 (person A again) | 9w1 · The Dreamer | ISFP-T | DISC "ลม" (I) | 12 | 4 |
 | 4 (person C) | 3w4 · The Professional | ENTJ-A | BOSI I→B · DISC Di **inferred** | 12 | 4 |
 
-**Sessions 1 and 3 are the same person, and they returned different cores — 6w5 and 9w1.** That is
-the most consequential single fact in the whole set, and it is only visible because the Products
-Owner said so; from the screenshots the two sessions read as two people.
+**Sessions 1 and 3 are the same person**, and they returned different cores — 6w5 and 9w1.
 
-It is not evidence the tool is broken. 6 and 9 are both in the reactive/withdrawn neighbourhood, a
-person's answers move with the week they are having, and the second session did not re-ask the
-frameworks. But it does mean **the tool is not test-retest stable for at least one person in a
-three-person sample**, and that is the property any instrument used for hiring has to have. It also
-means the four verdicts are three data points, not four.
+> **Correction.** An earlier version of this section called that a **retest-stability failure of
+> this tool**, and that was wrong. The Products Owner clarified what actually happened: the person
+> knew a type from **a different website** at some earlier point, and then took พี่ทิม's tool, which
+> gave another. The interval is unknown and may be long. So the two results come from **two
+> different instruments**, not from two runs of this one, and nothing in the set says anything about
+> this tool's retest stability. I inferred a strong claim from a filing artefact — the screenshots
+> arrived in two batches and I filed them as two respondents — and then kept the claim after the
+> filing was corrected. The correction should have gone all the way down.
 
-For us this is a warning rather than a criticism. Our own instrument has never been tested for
-retest stability at all — we have no data in which anybody answered twice. `MAX_QUESTIONS = 24`
-with reverse keying and forced choice is designed to be more stable than a free-text conversation,
-but designed-to-be and measured-to-be are different claims, and right now we only have the first.
+What the set does show is **cross-instrument disagreement**, which is a different and much weaker
+finding: two Enneagram instruments, unknown interval, different answers. That is ordinary, and it is
+one of the reasons this project exists as a considered instrument rather than a quiz.
+
+It is worth being careful about the "people change" reading, because it is half right in a way that
+matters for our copy. Behaviour changes, health changes, and which arrow a person is expressing
+changes — a great deal, and visibly. But in the Enneagram model the **core type itself is treated as
+stable**; growth means becoming a healthier version of the same type, not becoming a different one.
+So a person holding two different cores years apart is, within the model, either one measurement
+being wrong or two measurements taken at different health levels. Both are worth saying kindly and
+neither is "you changed type".
+
+That distinction is already built into what we ship: the two arrows exist precisely so a person can
+recognise themselves looking like a different type under strain without concluding they became one,
+and the three health levels say the same thing about the same person at different times. It is also
+why `docs/CALIBRATION_RUN.md` asks for a repeat run — not to catch anyone out, but because our own
+instrument has **never been measured for retest stability**, and 24 forced-choice items with reverse
+keying being *designed* to be more stable than a free-text conversation is not the same claim as
+being *measured* stable.
+
+The set holds four sessions from three people, so three data points rather than four.
 
 Two interface states are in the set — sessions 1-2 tap option cards and print a machine trace per
 batch, sessions 3-4 are free text with no traces, and session 4 produced both prose and a laid-out

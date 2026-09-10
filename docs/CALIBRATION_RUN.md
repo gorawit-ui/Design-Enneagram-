@@ -70,8 +70,15 @@ Collect all six, then:
    — `docs/REFERENCE_TOOL_B_ANALYSIS.md` §1 records that the same person got 6w5 and 9w1 from that
    tool on two runs.
 2. **Ask two of them to take it twice**, a week or more apart. Retest stability is the property an
-   instrument used for hiring must have, and ours has never been measured at all. One repeat pair
-   is worth more than two more first-time sessions.
+   instrument used for hiring must have, and ours has never been measured at all — not because
+   anything suggests it is unstable, but because no data exists in which anybody answered twice. One
+   repeat pair is worth more than two more first-time sessions.
+
+   Say plainly why when you ask, because the request can read as doubting their first answer. It is
+   the instrument being checked, not them. And if the two runs disagree, that is a finding about our
+   items — in the Enneagram model the core type is treated as stable, so a person does not "change
+   type" between two Tuesdays; what changes is health, strain, and which arrow they are expressing,
+   which is exactly what the result page's arrows and three levels are there to say.
 3. **Keep the codes.** When the item bank changes, replaying the same six vectors against the new
    bank says exactly what the change did to real people, which is a far better signal than any
    property test.
