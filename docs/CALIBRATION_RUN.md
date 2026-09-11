@@ -18,6 +18,26 @@ item bank, against a different scoring rule, or against the same person's second
 So the export carries the answers, and the PDF carries the verdict, and they are for different
 readers.
 
+## Before the run: set the roster
+
+Optional, and worth the two minutes. With no roster the form asks each person to type their name
+and team, and six people typing their own names is six chances for the same person to arrive as
+"เบนซ์", "เบนซ์ Gorawit" and "Benz" across one calibration set — which has to be reconciled by hand
+afterwards, by guessing.
+
+Set `NEXT_PUBLIC_ROSTER` at build time and the name field becomes a picker that fills in the team
+for you:
+
+```
+NEXT_PUBLIC_ROSTER='[{"name":"เบนซ์ Gorawit","team":"Operation"},{"name":"...","team":"..."}]' npm run build
+```
+
+The names are NOT committed to this repository. They are personal data, and the repository moves to
+the HR-owned account in mid-October (docs/HR_DATA_AND_CONSENT.md); a build-time variable keeps them
+out of git history without costing anything. Anything malformed — a bad JSON, a missing team, two
+people with the same name — falls back to typing rather than rendering an empty picker somebody
+cannot get past, and `npm test` covers all thirteen of those cases.
+
 ## What each person does
 
 1. Take the assessment as themselves. Not as who they would like to be — the reference tool asks
