@@ -19,9 +19,16 @@ const projectRoot = path.resolve(import.meta.dirname, "..");
 const BASE_URL = process.env.BASE_URL ?? "http://127.0.0.1:3000";
 const OUT_DIR = path.join(projectRoot, "outputs/gate-e");
 
-// Deterministic answers that score Core 2 x INTJ-A with both axes non-ambiguous.
-// 18 foundation questions, then challenges c-at (option 0) and c-core-2 (option 3).
-const ANSWERS = [1, 0, 2, 3, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 3];
+// Deterministic answers that score Core 2 x INTJ-A with both axes non-ambiguous: 18 foundation
+// questions, then the six adaptive ones those answers select (c-at, c-at2, c-ie, c-core-2,
+// c-wing-2, c-sn). Searched for against the current item bank rather than hand-tuned.
+//
+// The previous array had twenty entries, from when the session was twenty questions long. After
+// docs/QUESTION_COUNT_DECISION.md fixed the count at 24 this gate answered twenty and then waited
+// thirty seconds for a result page that was still four questions away, so it had been failing on
+// a timeout rather than on anything it measures. Re-derive with a search over selectNextQuestion
+// if the item bank changes again; ITEM_BANK_VERSION in assessment-data.ts is what moves.
+const ANSWERS = [1, 0, 0, 1, 3, 0, 2, 1, 2, 3, 0, 0, 1, 1, 1, 3, 0, 3, 3, 1, 1, 3, 1, 1];
 
 // The plan's UX PASS names three widths: 360 px, 390 px, and desktop.
 const VIEWPORTS = [

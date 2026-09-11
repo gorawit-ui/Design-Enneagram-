@@ -169,6 +169,63 @@ function TensionNote({ tension }: { tension: NonNullable<AssessmentResult["tensi
 }
 
 /**
+ * The summary card for a result that did not resolve to one core.
+ *
+ * Not a placeholder and not an apology. Two cores scoring within a couple of points of each other
+ * is a real reading, and the useful thing to hand back is what separates them -- so the card puts
+ * both fears and both desires side by side and says which question decides it. That is also the
+ * only thing a person can act on: nobody can pick between "ลักษณ์ 5" and "ลักษณ์ 9" as labels, but
+ * most people know immediately which of two fears they recognise.
+ */
+function AmbiguousSummaryCard({ result, nickname, team, mbtiLabel }: {
+  result: AssessmentResult; nickname: string; team: string; mbtiLabel: string;
+}) {
+  const first = result.enneagram.top.value;
+  const second = result.enneagram.runnerUp.value;
+  const pair = [first, second] as const;
+  const gap = Math.abs(result.enneagram.top.score - result.enneagram.runnerUp.score);
+  return <section className="summary-card summary-card-open" aria-labelledby="summary-title">
+    <header className="summary-head">
+      <div className="summary-badge summary-badge-open" aria-hidden="true">{`${first}/${second}`}</div>
+      <div className="summary-identity">
+        <h1 id="summary-title">ยังอยู่ระหว่างสองลักษณ์</h1>
+        <p className="summary-line">
+          {`คำตอบชี้ไปที่ลักษณ์ ${first} กับลักษณ์ ${second} ห่างกันแค่ ${gap} คะแนน ซึ่งใกล้เกินกว่าจะสรุปเป็นลักษณ์เดียว`}
+        </p>
+        <p className="summary-meta">
+          {`${ENNEAGRAM_PROFILES[first].titleThai} · ${ENNEAGRAM_PROFILES[second].titleThai}`}
+        </p>
+      </div>
+    </header>
+    <p className="summary-owner">{`${nickname} · ทีม ${team} · ${mbtiLabel}`}</p>
+
+    <dl className="summary-structure">
+      {pair.map((candidate) => <div key={`fear-${candidate}`}>
+        <dt>{`ลักษณ์ ${candidate} กลัวอะไร`}</dt><dd>{ENNEAGRAM_DEPTH[candidate].coreFearThai}</dd>
+      </div>)}
+      {pair.map((candidate) => <div key={`want-${candidate}`}>
+        <dt>{`ลักษณ์ ${candidate} ต้องการอะไร`}</dt><dd>{ENNEAGRAM_DEPTH[candidate].coreDesireThai}</dd>
+      </div>)}
+    </dl>
+
+    <div className="summary-traits">
+      {pair.map((candidate) => <section key={candidate}>
+        <h2>{`ถ้าเป็นลักษณ์ ${candidate}`}</h2>
+        <ul>{CORE_TRAITS[candidate].strengths.map((item) => <li key={item}>{item}</li>)}</ul>
+      </section>)}
+    </div>
+
+    <p className="summary-open-hint">
+      วิธีตัดสินด้วยตัวเอง — อ่าน &ldquo;กลัวอะไร&rdquo; ทั้งสองข้าง ข้อที่อ่านแล้วสะดุดหรือไม่อยากยอมรับ มักเป็นแกนจริง
+      ส่วนอีกข้อมักเป็นวิธีที่คุณใช้รับมือกับมัน
+    </p>
+    <p className="summary-caveat">
+      ใช้เพื่อการสะท้อนตนเองและการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว
+    </p>
+  </section>;
+}
+
+/**
  * The one-page summary card. Everything a person needs in one screen, and the page the PDF export
  * prints.
  *
@@ -186,7 +243,13 @@ function SummaryCard({ result, nickname, team, mbtiLabel }: {
   result: AssessmentResult; nickname: string; team: string; mbtiLabel: string;
 }) {
   const core = result.enneagram.core;
-  if (core === null) return null;
+  // An ambiguous result still has to produce a card, and this branch is why. It used to return
+  // null, which hid the card, the radar and every depth section at once -- and because the print
+  // stylesheet is an allow-list that opts exactly those two back in, printing an ambiguous result
+  // produced a blank sheet of paper. Reported from a phone as "the PDF is empty"; reproduced at
+  // 1009 bytes. A person whose answers came out close is precisely the person who needs something
+  // to read, so the card shows the two cores that are close and what separates them.
+  if (core === null) return <AmbiguousSummaryCard result={result} nickname={nickname} team={team} mbtiLabel={mbtiLabel} />;
   const wing = result.wingStatus === "valid" ? result.wing : null;
   const depth = ENNEAGRAM_DEPTH[core];
   const persona = wingPersona(core, wing);
@@ -337,7 +400,7 @@ function ExportRow({ result, answers, nickname, team, genderPresentation }: {
  * in the project.
  */
 function ScoreRadar({ scores, core, wing }: {
-  scores: Record<number, number>; core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9; wing: number | null;
+  scores: Record<number, number>; core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | null; wing: number | null;
 }) {
   const cores = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
   const max = Math.max(...cores.map((c) => scores[c] ?? 0), 1);
@@ -355,7 +418,9 @@ function ScoreRadar({ scores, core, wing }: {
     .join(" ");
   return <figure className="score-radar">
     <svg viewBox={`0 0 ${size} ${size}`} role="img"
-      aria-label={`แผนภาพคะแนนทั้งเก้าลักษณ์ ลักษณ์ที่สูงที่สุดคือ ${core}`}>
+      aria-label={core === null
+        ? "แผนภาพคะแนนทั้งเก้าลักษณ์ ผลครั้งนี้ยังไม่มีลักษณ์ใดนำชัด"
+        : `แผนภาพคะแนนทั้งเก้าลักษณ์ ลักษณ์ที่สูงที่สุดคือ ${core}`}>
       {[0.25, 0.5, 0.75, 1].map((ring) => (
         <polygon key={ring} className="radar-ring"
           points={cores.map((_, index) => pointAt(index, radius * ring))
@@ -512,9 +577,11 @@ export default function ResultView({ result, answers, character, nickname, team,
     {/* A sibling of the card rather than part of it. The card is 772px on a 390x844 phone and that
         one-screen fit is the property it exists for; a 260px radar inside it would spend the fit on
         a chart nobody needs in the first sixty seconds. It still prints -- the PDF has room. */}
-    {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"
-      && <ScoreRadar scores={result.scores.enneagram} core={result.enneagram.core}
-        wing={result.wingStatus === "valid" ? result.wing : null} />}
+    {/* Ungated on purpose, unlike the sections below it. Those make a claim about one core and
+        need one; this is a picture of the nine scores, and a reader whose result came out close is
+        exactly the reader who wants to see how close. */}
+    <ScoreRadar scores={result.scores.enneagram} core={result.enneagram.core}
+      wing={result.wingStatus === "valid" ? result.wing : null} />
     <ExportRow result={result} answers={answers} nickname={nickname} team={team} genderPresentation={genderPresentation} />
     <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
     <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>

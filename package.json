@@ -14,6 +14,7 @@
     "gate:responsive": "node scripts/run-responsive-gate-tests.mjs",
     "gate:sheets": "node scripts/generate-gate-e-sheets.mjs",
     "gate:m2": "node scripts/run-module2-gate-tests.mjs",
+    "gate:print": "node scripts/run-print-gate-tests.mjs",
     "assets:manifest": "node scripts/generate-asset-manifest.mjs",
     "assets:prompts": "node scripts/generate-asset-prompts.mjs",
     "assets:check": "node scripts/check-asset.mjs",
@@ -33,7 +34,8 @@
     "items:probe": "node scripts/probe-ground-truth.mjs",
     "items:adaptive": "node scripts/measure-adaptive-variation.mjs",
     "type:audit": "node scripts/measure-typography.mjs",
-    "type:specimens": "node scripts/render-font-specimens.mjs"
+    "type:specimens": "node scripts/render-font-specimens.mjs",
+    "type:overflow": "node scripts/measure-font-overflow.mjs"
   },
   "dependencies": {
     "next": "16.3.3",

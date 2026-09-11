@@ -1019,6 +1019,18 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
 }
 .summary-caveat { margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: #5d6862; }
 
+/* The unresolved variant. Same card, different claim: "5/9" instead of "5w6", and the two columns
+   below carry one candidate each instead of strengths and challenges, so the second column's dot
+   colour has to stop meaning "challenge". */
+.summary-badge-open { font-size: 17px; letter-spacing: 0; background: linear-gradient(150deg, var(--matcha), #3e6d58); }
+.summary-card-open .summary-traits section:last-child li::before { background: #3e6d58; }
+.summary-card-open .summary-traits h2 { color: var(--green); }
+.summary-open-hint {
+  margin: 15px 0 0; padding: 12px 14px; border-radius: 12px;
+  background: #f2f8f3; border: 1px solid #d8e6da;
+  font-size: 14px; line-height: 1.65; color: #2f3a35;
+}
+
 /* The caveat is on screen already, in the hero's own <small>. It is repeated here only for print,
    where the hero is hidden and the card has to stand on its own as a document. Keeping it visible
    in both places cost 40px of the one screen this card exists to fit inside. */
@@ -1034,6 +1046,8 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   .summary-card { padding: 15px 15px 12px; border-radius: 18px; }
   .summary-head { gap: 12px; }
   .summary-badge { width: 52px; height: 52px; border-radius: 14px; font-size: 17px; }
+  .summary-badge-open { font-size: 14px; }
+  .summary-open-hint { margin-top: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.55; }
   .summary-identity h1 { font-size: 21px; }
   .summary-line { margin-top: 4px; font-size: 14px; line-height: 1.5; }
   .summary-meta { margin-top: 6px; font-size: 12.5px; }
