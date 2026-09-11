@@ -1280,3 +1280,59 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   .hero-growth, .keep-together { white-space: normal; }
   .stage-welcome .hero-copy h1 { text-wrap: balance; }
 }
+
+/* =============================================================================================
+   THE FULL REPORT
+
+   The one-page card is the default export and the allow-list above is what keeps it one page. This
+   block is the second export: the whole result, for sending to someone rather than keeping.
+
+   It is additive on purpose. `html.print-full` opts sections back in one at a time, so the property
+   the allow-list exists for survives — a section added to the result page later prints in NEITHER
+   export until somebody names it here.
+   ============================================================================================= */
+@media print {
+  html.print-full .result-wrap > .result-hero,
+  html.print-full .result-wrap > .result-model-note,
+  html.print-full .result-wrap > .depth-section,
+  html.print-full .result-wrap > .tension-note,
+  html.print-full .result-wrap > .cross-reading,
+  html.print-full .result-wrap > .tension-map,
+  html.print-full .result-wrap > .insight-grid,
+  html.print-full .result-wrap > .facilitator-details { display: block !important; }
+  html.print-full .result-wrap > .insight-grid { display: grid !important; }
+
+  /* Each section starts where it can finish. Without this a card splits across the fold and the
+     reader loses the top of it to the page break. */
+  html.print-full .result-wrap > * { break-inside: avoid; margin-bottom: 6mm !important; }
+  html.print-full .insight-grid > article,
+  html.print-full .tension-map li,
+  html.print-full .depth-section > * { break-inside: avoid; }
+
+  /* The card is the first page of the report rather than the whole document, so it stops claiming
+     the page to itself and the footer it carries belongs only to the one-page export. */
+  html.print-full .summary-card { break-after: auto; }
+  html.print-full .summary-card::after { content: none; }
+  html.print-full .score-radar svg { max-width: 62mm; }
+  html.print-full .score-radar figcaption { display: block; font-size: 8pt; color: #5d6862; }
+
+  /* The hero is a dark block with a character on it. Printed as-is it soaks a page in ink, so it
+     keeps its shape and loses its background. */
+  html.print-full .result-hero {
+    background: none !important; color: #16362f !important;
+    box-shadow: none !important; border: 1px solid #dfe5df !important;
+    min-height: 0 !important; padding: 6mm !important;
+  }
+  html.print-full .result-hero h1,
+  html.print-full .result-hero .type-code { color: #16362f !important; }
+  html.print-full .result-hero p,
+  html.print-full .result-hero small,
+  html.print-full .result-hero .kicker { color: #4c5b53 !important; }
+  html.print-full .result-hero .type-code { border-top-color: #dfe5df !important; }
+
+  /* Opened for printing by the button's own handler; the marker is chrome the page does not need. */
+  html.print-full .facilitator-details summary { list-style: none; font-weight: 700; }
+  html.print-full .facilitator-details summary::marker,
+  html.print-full .facilitator-details summary::-webkit-details-marker { display: none; }
+  html.print-full .details-teaser { display: none; }
+}

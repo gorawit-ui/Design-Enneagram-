@@ -350,6 +350,40 @@ function ExportRow({ result, answers, nickname, team, genderPresentation }: {
     window.setTimeout(() => setCopied("idle"), 2600);
   };
 
+  /**
+   * The full report, as opposed to the one-page card.
+   *
+   * Two buttons because they are for two different moments. The card is what a person keeps and
+   * what fits on one sheet; the full report is what they send to someone -- which is what this was
+   * asked for -- and a summary is the wrong artefact for that: it carries the verdict and drops the
+   * reasoning, and the reasoning is the part a reader needs.
+   *
+   * The print stylesheet stays an allow-list. This adds a class to the root element, opts the rest
+   * of the sections in under that class, and takes it off again afterwards, so nothing is printable
+   * by default and a section added later still has to be named before it appears in either export.
+   *
+   * <details> is the one thing CSS cannot do from here: a closed one renders nothing, so the
+   * facilitator section would print as an empty bar. They are opened before printing and restored
+   * to exactly the state the reader left them in.
+   */
+  const printFull = () => {
+    const root = document.documentElement;
+    const details = [...document.querySelectorAll<HTMLDetailsElement>(".result-wrap details")];
+    const wasOpen = details.map((element) => element.open);
+    const restore = () => {
+      root.classList.remove("print-full");
+      details.forEach((element, index) => { element.open = wasOpen[index]; });
+      window.removeEventListener("afterprint", restore);
+    };
+    root.classList.add("print-full");
+    details.forEach((element) => { element.open = true; });
+    window.addEventListener("afterprint", restore);
+    window.print();
+    // afterprint is not fired by every browser, and a page left in print-full would print the wrong
+    // thing next time. The timeout is the belt to that braces.
+    window.setTimeout(restore, 1000);
+  };
+
   const download = () => {
     const blob = new Blob([session.json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -363,11 +397,14 @@ function ExportRow({ result, answers, nickname, team, genderPresentation }: {
   return <section className="export-row" aria-labelledby="export-title">
     <h2 id="export-title">เก็บผลของคุณไว้</h2>
     <p className="export-note">
-      ไม่มีการส่งข้อมูลออกจากเครื่องคุณ — ทั้งสามปุ่มนี้สร้างไฟล์หรือข้อความให้คุณเลือกเองว่าจะให้ใคร
+      ไม่มีการส่งข้อมูลออกจากเครื่องคุณ — ทุกปุ่มนี้สร้างไฟล์หรือข้อความให้คุณเลือกเองว่าจะให้ใคร
     </p>
     <div className="export-actions">
       <button type="button" className="primary-button" onClick={() => window.print()}>
-        บันทึกเป็น PDF
+        PDF หน้าเดียว
+      </button>
+      <button type="button" className="secondary-button" onClick={printFull}>
+        PDF ฉบับเต็ม
       </button>
       <button type="button" className="secondary-button" onClick={copy}>
         {copied === "done" ? "คัดลอกแล้ว ✓" : copied === "failed" ? "คัดลอกไม่ได้ — ดูโค้ดด้านล่าง" : "คัดลอกโค้ดผลลัพธ์"}

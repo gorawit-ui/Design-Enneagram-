@@ -96,17 +96,31 @@ try {
       }));
 
       await page.emulateMedia({ media: "print" });
-      await page.waitForTimeout(150);
-      const printed = await page.evaluate(() => {
+      const measurePrint = () => {
         const visible = [...document.querySelectorAll(".result-wrap > *")]
           .filter((element) => getComputedStyle(element).display !== "none");
         return {
           sections: visible.map((element) => String(element.className).split(" ")[0]),
           text: visible.map((element) => element.textContent ?? "").join(" ").replace(/\s+/g, " ").trim().length,
         };
-      });
+      };
+      await page.waitForTimeout(150);
+      const printed = await page.evaluate(measurePrint);
       const pdf = await page.pdf({ format: "A4", printBackground: true });
       fs.writeFileSync(path.join(OUT_DIR, `${testCase.key}-${viewport.label}.pdf`), pdf);
+
+      // The second export. The button adds this class and opens the <details> before printing --
+      // a closed <details> renders nothing, so the facilitator section would otherwise print as an
+      // empty bar -- and this reproduces both so the gate tests what the button actually does.
+      await page.evaluate(() => {
+        document.documentElement.classList.add("print-full");
+        for (const element of document.querySelectorAll(".result-wrap details")) element.open = true;
+      });
+      await page.waitForTimeout(150);
+      const printedFull = await page.evaluate(measurePrint);
+      const pdfFull = await page.pdf({ format: "A4", printBackground: true });
+      fs.writeFileSync(path.join(OUT_DIR, `${testCase.key}-${viewport.label}-full.pdf`), pdfFull);
+      await page.evaluate(() => document.documentElement.classList.remove("print-full"));
       await page.emulateMedia({ media: "screen" });
       await context.close();
 
@@ -117,6 +131,18 @@ try {
         ["print carries real text", printed.text > 300],
         ["pdf is not an empty sheet", pdf.length > 20000],
         ["pdf is at most 2 pages", pageCount(pdf) <= 2],
+        // The full export has to be MORE than the summary, or the second button is a lie. It also
+        // has to stay an allow-list: the sections it adds are named, and the export row and the
+        // internal mapping panel stay out of both.
+        ["full report carries more text", printedFull.text > printed.text * 1.5],
+        ["full report keeps the summary card first", printedFull.sections[0] === "summary-card"],
+        ["full report is not an empty sheet", pdfFull.length > 20000],
+        ["full report runs to more than one page", pageCount(pdfFull) >= 2],
+        ["full report stays under eight pages", pageCount(pdfFull) <= 8],
+        ["neither export prints the buttons", !printed.sections.includes("export-row")
+          && !printedFull.sections.includes("export-row")],
+        ["neither export prints the internal mapping panel", !printed.sections.includes("mapping-details")
+          && !printedFull.sections.includes("mapping-details")],
       ];
       for (const [name, passed] of checks) {
         if (!passed) failures.push(`${testCase.key} @ ${viewport.label}: ${name}`);
@@ -124,6 +150,7 @@ try {
       rows.push({
         case: testCase.key, viewport: viewport.label, cardChars: onScreen.card,
         printChars: printed.text, kb: Math.round(pdf.length / 1024), pages: pageCount(pdf),
+        fullChars: printedFull.text, fullKb: Math.round(pdfFull.length / 1024), fullPages: pageCount(pdfFull),
         pass: checks.every(([, passed]) => passed),
       });
     }
@@ -133,10 +160,11 @@ try {
 }
 
 const pad = (value, width) => String(value).padEnd(width);
-console.log(`${pad("case", 17)}${pad("viewport", 10)}${pad("card", 7)}${pad("print", 7)}${pad("pdf", 8)}${pad("pages", 7)}result`);
+console.log(`${pad("case", 17)}${pad("viewport", 10)}${pad("1-page", 18)}${pad("full report", 20)}result`);
 for (const row of rows) {
-  console.log(`${pad(row.case, 17)}${pad(row.viewport, 10)}${pad(row.cardChars, 7)}${pad(row.printChars, 7)}`
-    + `${pad(`${row.kb}KB`, 8)}${pad(row.pages, 7)}${row.pass ? "PASS" : "FAIL"}`);
+  console.log(`${pad(row.case, 17)}${pad(row.viewport, 10)}`
+    + `${pad(`${row.printChars}ch ${row.kb}KB ${row.pages}p`, 18)}`
+    + `${pad(`${row.fullChars}ch ${row.fullKb}KB ${row.fullPages}p`, 20)}${row.pass ? "PASS" : "FAIL"}`);
 }
 console.log(`\nPDFs written to outputs/print/`);
 
