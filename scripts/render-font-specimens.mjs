@@ -11,10 +11,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { assertFacesLoaded, inlinedFontCss, loadChromium } from "./lib/google-fonts.mjs";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const BASE_URL = process.env.BASE_URL ?? "http://127.0.0.1:3000";
 const OUT = path.join(projectRoot, "outputs/typography");
+const CACHE = path.join(OUT, ".font-cache");
 
 // Loopless Thai first (the current family is loopless, so these are like-for-like), then looped,
 // then the serifs. `note` is why the family is on the list at all.
@@ -57,79 +59,9 @@ const MIXED = "INTJ-A × Enneagram 5w6 · ลักษณ์ 5 · Wing 6";
 const LATIN_HEAD = "Personality is a map, not a box";
 const LATIN_BODY = "The result names a direction, not a verdict. Nine cores, five axes, twenty-four items.";
 
-const url = (families) => `https://fonts.googleapis.com/css2?${families
-  .map((family) => `family=${family.replace(/ /g, "+")}:wght@400;500;600;700`).join("&")}&display=block`;
-
-// The browser in this container cannot reach fonts.googleapis.com -- only the proxied Node fetch
-// can. An earlier run of this script linked the stylesheet and rendered fourteen cards that were
-// all the same fallback face, which is worse than no specimen at all, so the faces are fetched
-// here and inlined as data URIs. loadedFaces below is the check that they arrived.
-const CHROME_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-  + "Chrome/126.0.0.0 Safari/537.36";
-const CACHE = path.join(OUT, ".font-cache");
-
-async function inlinedFontCss(families) {
-  fs.mkdirSync(CACHE, { recursive: true });
-  const cssPath = path.join(CACHE, `${families.join("+").replace(/[^a-z0-9+]/gi, "_")}.css`);
-  if (fs.existsSync(cssPath)) return fs.readFileSync(cssPath, "utf8");
-
-  const response = await fetch(url(families), { headers: { "user-agent": CHROME_UA } });
-  if (!response.ok) throw new Error(`Google Fonts returned ${response.status}`);
-  let css = await response.text();
-  const sources = [...new Set(css.match(/https:\/\/fonts\.gstatic\.com\/[^)]+/g) ?? [])];
-  if (sources.length === 0) throw new Error("no font files in the returned stylesheet");
-  for (const source of sources) {
-    const file = path.join(CACHE, source.split("/").pop());
-    if (!fs.existsSync(file)) {
-      const font = await fetch(source, { headers: { "user-agent": CHROME_UA } });
-      if (!font.ok) throw new Error(`${source} returned ${font.status}`);
-      fs.writeFileSync(file, Buffer.from(await font.arrayBuffer()));
-    }
-    const mime = file.endsWith(".woff2") ? "font/woff2" : "font/woff";
-    css = css.split(source).join(`data:${mime};base64,${fs.readFileSync(file).toString("base64")}`);
-  }
-  fs.writeFileSync(cssPath, css);
-  return css;
-}
-
-// A specimen sheet whose faces silently fell back is the failure this script already shipped once.
-// The probe string has to be in the script the families cover: a Latin family has no Thai glyphs
-// and would measure as fallback against Thai text however well it loaded.
-async function assertFacesLoaded(page, families, probeText = "เข้าใจตัวเองให้ชัดขึ้น") {
-  // A face injected after first paint stays "unloaded" until something asks for it, and
-  // document.fonts.ready does not ask -- it resolves against what is already pending. Measuring
-  // there reads the fallback metrics, which is how this check first reported a working swap as
-  // broken. Loading each face explicitly for the sample text is what makes it real.
-  await page.evaluate(async ([names, text]) => {
-    await Promise.all(names.flatMap((family) => [400, 450, 500, 600, 700].map((weight) =>
-      document.fonts.load(`${weight} 40px '${family}'`, text).catch(() => {}))));
-    await document.fonts.ready;
-  }, [families, `${probeText} INTJ-A 5w6`]);
-
-  const report = await page.evaluate(([names, text]) => {
-    const probe = document.createElement("span");
-    probe.style.cssText = "position:absolute;left:-9999px;display:inline-block;white-space:nowrap";
-    probe.textContent = text;
-    document.body.appendChild(probe);
-    // setProperty with "important", because on the swapped page the override this script injects is
-    // itself !important and would otherwise win over the probe's own inline font.
-    const widthOf = (family) => {
-      probe.style.setProperty("font-size", "40px", "important");
-      probe.style.setProperty("font-weight", "400", "important");
-      probe.style.setProperty("font-family", `'${family}', monospace`, "important");
-      return Math.round(probe.getBoundingClientRect().width * 10) / 10;
-    };
-    const fallback = widthOf("__no_such_family__");
-    const widths = names.map((family) => ({ family, width: widthOf(family) }));
-    probe.remove();
-    return { faces: document.fonts.size, fallback, widths };
-  }, [families, probeText]);
-  const identical = report.widths.filter((row) => row.width === report.fallback).map((row) => row.family);
-  if (report.faces === 0 || identical.length > 0) {
-    throw new Error(`fonts did not load (${report.faces} faces); measured as fallback: ${identical.join(", ")}`);
-  }
-  return report;
-}
+// Fetching and loading the faces is shared with the other typography scripts; see
+// scripts/lib/google-fonts.mjs for why neither can be done the obvious way here.
+const inlined = (families) => inlinedFontCss(families, CACHE);
 
 function sheet(title, subtitle, items, blocks) {
   return `<!doctype html><html lang="th"><head><meta charset="utf-8">
@@ -174,13 +106,6 @@ const LATIN_BLOCKS = `
     <span style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5d6862">Employee · ready</span>
   </div>`;
 
-async function loadChromium() {
-  for (const specifier of ["playwright", "playwright-core", "/opt/node22/lib/node_modules/playwright/index.mjs"]) {
-    try { return (await import(specifier)).chromium; } catch { /* next */ }
-  }
-  throw new Error("Playwright is not resolvable.");
-}
-
 const chromium = await loadChromium();
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
@@ -192,7 +117,7 @@ try {
     const context = await browser.newContext({ viewport: { width, height: 1200 }, deviceScaleFactor: 2 });
     const page = await context.newPage();
     const families = (name === "thai-candidates" ? THAI : LATIN).map((item) => item.family);
-    await page.setContent(html.replace("__FONT_CSS__", await inlinedFontCss(families)), { waitUntil: "networkidle" });
+    await page.setContent(html.replace("__FONT_CSS__", await inlined(families)), { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(400);
     const loaded = await assertFacesLoaded(page, families,
@@ -219,7 +144,7 @@ try {
     const page = await context.newPage();
     await page.goto(BASE_URL, { waitUntil: "networkidle" });
     if (family) {
-      await page.addStyleTag({ content: await inlinedFontCss([family]) });
+      await page.addStyleTag({ content: await inlined([family]) });
       // Body weight goes up with the family swap: the complaint is thinness, and 400 in a new
       // family is still 400. This is the proposed change, not just a family substitution.
       await page.addStyleTag({ content: `body, body * { font-family: '${family}', sans-serif !important; }

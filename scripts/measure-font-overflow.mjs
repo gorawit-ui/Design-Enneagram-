@@ -9,14 +9,12 @@
 //   npm run build && npm run start -- --port 3000 &
 //   npm run type:overflow
 
-import fs from "node:fs";
 import path from "node:path";
+import { inlinedFontCss, loadChromium } from "./lib/google-fonts.mjs";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const BASE_URL = process.env.BASE_URL ?? "http://127.0.0.1:3000";
 const CACHE = path.join(projectRoot, "outputs/typography/.font-cache");
-const CHROME_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-  + "Chrome/126.0.0.0 Safari/537.36";
 
 const FAMILIES = [
   "Noto Sans Thai", "Sarabun", "Anuphan", "IBM Plex Sans Thai", "Krub", "Bai Jamjuree",
@@ -30,31 +28,6 @@ const WEIGHT = Number(process.env.BODY_WEIGHT ?? 450);
 // 768 and 1280 can still overlap the illustration here, which is how the first look at these
 // screenshots read as "Sarabun overflows" when the measurement at three widths said it did not.
 const VIEWPORTS = [{ w: 390, h: 844 }, { w: 768, h: 1024 }, { w: 900, h: 900 }, { w: 1280, h: 800 }];
-
-async function inlinedFontCss(family) {
-  fs.mkdirSync(CACHE, { recursive: true });
-  const cssPath = path.join(CACHE, `${family.replace(/[^a-z0-9]/gi, "_")}.css`);
-  if (fs.existsSync(cssPath)) return fs.readFileSync(cssPath, "utf8");
-  const href = `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}`
-    + ":wght@400;500;600;700&display=block";
-  let css = await (await fetch(href, { headers: { "user-agent": CHROME_UA } })).text();
-  for (const source of [...new Set(css.match(/https:\/\/fonts\.gstatic\.com\/[^)]+/g) ?? [])]) {
-    const file = path.join(CACHE, source.split("/").pop());
-    if (!fs.existsSync(file)) {
-      fs.writeFileSync(file, Buffer.from(await (await fetch(source, { headers: { "user-agent": CHROME_UA } })).arrayBuffer()));
-    }
-    css = css.split(source).join(`data:font/woff2;base64,${fs.readFileSync(file).toString("base64")}`);
-  }
-  fs.writeFileSync(cssPath, css);
-  return css;
-}
-
-async function loadChromium() {
-  for (const specifier of ["playwright", "playwright-core", "/opt/node22/lib/node_modules/playwright/index.mjs"]) {
-    try { return (await import(specifier)).chromium; } catch { /* next */ }
-  }
-  throw new Error("Playwright is not resolvable.");
-}
 
 // Two different failures, and they are not the same thing. A nowrap headline wider than its own
 // column overlaps whatever sits beside it -- on the welcome screen, the illustration. Anything
@@ -85,7 +58,7 @@ const browser = await chromium.launch();
 const results = [];
 try {
   for (const family of FAMILIES) {
-    const css = family === "Noto Sans Thai" ? null : await inlinedFontCss(family);
+    const css = family === "Noto Sans Thai" ? null : await inlinedFontCss([family], CACHE);
     for (const viewport of VIEWPORTS) {
       const context = await browser.newContext({ viewport: { width: viewport.w, height: viewport.h }, deviceScaleFactor: 1 });
       const page = await context.newPage();
