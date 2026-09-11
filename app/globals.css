@@ -261,7 +261,7 @@ body{font-size:16px;line-height:1.65;color:#36433c}
 .answers button{width:100%;min-width:0;min-height:64px;overflow:hidden;align-items:flex-start;justify-content:flex-start;padding:15px 16px;background:#fbfcf9;box-shadow:none;text-align:left}
 .answers button:hover{background:#f4f8f4;box-shadow:none}
 .answers button.selected{border-color:var(--matcha);background:#edf4ef;box-shadow:inset 4px 0 var(--matcha)}
-.answers button>.answer-key{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;min-width:28px;border-radius:50%;background:#edf1eb;color:var(--green);font:600 14px var(--font-display)}
+.answers button>.answer-key{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;min-width:28px;border-radius:50%;background:#edf1eb;color:var(--green);font:600 15px var(--font-display)}
 .answers button.selected>.answer-key{background:var(--matcha);color:#fff}
 .answers button>.answer-label{display:block;flex:1 1 auto;width:auto;min-width:0;max-width:100%;padding:1px 0 0;color:#344139;font:inherit;line-height:1.55;text-align:left;white-space:normal;overflow-wrap:anywhere;word-break:normal}
 .answers button>i{position:static;flex:0 0 22px;width:22px;height:22px;min-width:22px;margin:3px 0 0 auto;background:#dfece3;opacity:0}
@@ -980,7 +980,7 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   flex: none; width: 66px; height: 66px; border-radius: 18px;
   display: grid; place-items: center;
   background: var(--matcha); color: #fff;
-  font: 600 21px/1 var(--font-display); letter-spacing: -.5px;
+  font: 600 26px/1 var(--font-display); letter-spacing: -.5px;
 }
 .summary-identity { min-width: 0; }
 .summary-identity h1 { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.25; letter-spacing: -.6px; color: var(--matcha); }
@@ -1045,7 +1045,7 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
      one more line in any of the four blocks puts it back over. */
   .summary-card { padding: 15px 15px 12px; border-radius: 18px; }
   .summary-head { gap: 12px; }
-  .summary-badge { width: 52px; height: 52px; border-radius: 14px; font-size: 17px; }
+  .summary-badge { width: 52px; height: 52px; border-radius: 14px; font-size: 21px; }
   .summary-badge-open { font-size: 14px; }
   .summary-open-hint { margin-top: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.55; }
   .summary-identity h1 { font-size: 21px; }
@@ -1160,9 +1160,12 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
 .radar-ring { fill: none; stroke: #e5eae4; stroke-width: 1; }
 .radar-spoke { stroke: #eef1ec; stroke-width: 1; }
 .radar-shape { fill: #3e6d5833; stroke: var(--green); stroke-width: 2; stroke-linejoin: round; }
-.radar-label { font-size: 12px; font-weight: 600; fill: #8b968f; }
-.radar-label-core { font-size: 15px; font-weight: 700; fill: var(--matcha); }
-.radar-label-wing { font-size: 13px; font-weight: 700; fill: var(--green); }
+/* 13px rather than 12: the nine numbers around this chart were the smallest type on the page,
+   below even the fine print, on the one element whose whole job is to be read at a glance.
+   Independent of the pending font decision — the size was wrong in any family. */
+.radar-label { font-size: 13px; font-weight: 600; fill: #8b968f; }
+.radar-label-core { font-size: 16px; font-weight: 700; fill: var(--matcha); }
+.radar-label-wing { font-size: 14px; font-weight: 700; fill: var(--green); }
 .score-radar figcaption {
   max-width: 42ch; text-align: center;
   font-size: 12.5px; line-height: 1.55; color: #5d6862;
