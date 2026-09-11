@@ -9,7 +9,7 @@ import { buildSessionExport } from "./lib/session-export";
 import { CORE_VOICES, POLE_VOICES, WING_VOICES, crossReading } from "./lib/cross-reading";
 import { composeResultNarrative } from "./lib/result-insights";
 import {
-  CORE_TRAITS, ENNEAGRAM_DEPTH, PASSIONS, centreOf, growthArrow, stressArrow, wingPersona,
+  CORE_TRAITS, ENNEAGRAM_DEPTH, PASSIONS, USER_MANUAL, centreOf, growthArrow, stressArrow, wingPersona,
 } from "./lib/enneagram-depth";
 import { ENNEAGRAM_PROFILES } from "./lib/character-system";
 
@@ -309,6 +309,73 @@ function SummaryCard({ result, nickname, team, mbtiLabel }: {
     <p className="summary-caveat">
       ใช้เพื่อการสะท้อนตนเองและการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว
     </p>
+  </section>;
+}
+
+
+/**
+ * The Personal User Manual — three sentences to hand to the people you work with.
+ *
+ * docs/ONSITE_ACTIVITY_50_MIN.md runs this on paper at minutes 39-47, and docs/UX_REVIEW_2026-09-10.md
+ * calls it the highest-value thing missing from the app. The result page already knows enough to
+ * start all three sentences, so asking a participant to write them from nothing is asking them to
+ * redo work the assessment just did.
+ *
+ * Pre-filled and editable, in that order. A blank line after a ten-minute assessment is a worse
+ * prompt than a wrong one: a sentence you disagree with tells you immediately what you do think,
+ * and the field exists so that disagreement has somewhere to go. Whatever is typed is what prints.
+ *
+ * The text stays in this component and in the printed report. It is deliberately NOT in the
+ * session code or the JSON: those go to whoever is checking the scoring, and a sentence about how
+ * to work with you is not theirs to read.
+ */
+function UserManual({ core, nickname }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9; nickname: string }) {
+  const defaults = USER_MANUAL[core];
+  const lines = [
+    { key: "works", label: "ฉันทำงานได้ดีเมื่อ", value: defaults.worksBestThai },
+    { key: "pressure", label: "เมื่อฉันกดดัน ช่วยฉันโดย", value: defaults.underPressureThai },
+    { key: "assume", label: "อย่าคาดเดาว่า", value: defaults.doNotAssumeThai },
+  ] as const;
+  const [text, setText] = useState<Record<string, string>>(
+    Object.fromEntries(lines.map((line) => [line.key, line.value])));
+  const [copied, setCopied] = useState(false);
+
+  const asPlainText = () => `คู่มือการทำงานกับ${nickname ? ` ${nickname}` : "ฉัน"}\n\n`
+    + lines.map((line) => `${line.label} ${text[line.key]}`).join("\n\n");
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(asPlainText());
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2400);
+    } catch {
+      // An in-app webview or an insecure origin can refuse the write outright. The text is on
+      // screen and selectable, so the fallback is to say so rather than to fail silently.
+      setCopied(false);
+    }
+  };
+
+  return <section className="user-manual" aria-labelledby="user-manual-title">
+    <h2 id="user-manual-title">คู่มือการทำงานกับฉัน</h2>
+    <p className="user-manual-note">
+      สามประโยคสำหรับส่งให้คนที่ทำงานด้วย — เติมไว้ให้แล้วจากผลของคุณ แก้ได้ทุกบรรทัด
+      ประโยคที่คุณไม่เห็นด้วยมีประโยชน์ที่สุด เพราะมันบอกว่าคุณคิดอย่างไรจริง ๆ
+    </p>
+    <dl className="user-manual-lines">
+      {lines.map((line) => <div key={line.key}>
+        <dt><label htmlFor={`manual-${line.key}`}>{line.label}</label></dt>
+        <dd>
+          <textarea id={`manual-${line.key}`} value={text[line.key]} rows={2}
+            onChange={(event) => setText((current) => ({ ...current, [line.key]: event.target.value }))} />
+          {/* What prints. A textarea prints its box and clips anything past the visible rows, so
+              the printed report reads this mirror instead. */}
+          <p className="manual-print">{text[line.key]}</p>
+        </dd>
+      </div>)}
+    </dl>
+    <button type="button" className="secondary-button" onClick={copy}>
+      {copied ? "คัดลอกแล้ว ✓" : "คัดลอกทั้งสามบรรทัด"}
+    </button>
   </section>;
 }
 
@@ -622,6 +689,10 @@ export default function ResultView({ result, answers, character, nickname, team,
     <ExportRow result={result} answers={answers} nickname={nickname} team={team} genderPresentation={genderPresentation} />
     <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
     <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>
+    {/* After the hero, because the manual speaks in the voice of a named type and the hero is
+        where that type is named. Gated on the core for the same reason. */}
+    {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"
+      && <UserManual core={result.enneagram.core} nickname={nickname} />}
     {/* Gated on the Enneagram alone, not on the page's combined `ambiguous` flag. That flag is true
         when EITHER lens is unclear, and this section is entirely about the Enneagram core -- hiding
         a person's fear, levels and arrows because their MBTI axes came out close would withhold the

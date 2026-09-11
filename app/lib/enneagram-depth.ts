@@ -382,3 +382,68 @@ export const CORE_TRAITS: Record<EnneagramCore, { strengths: readonly string[]; 
     ],
   },
 };
+
+/**
+ * The Personal User Manual — three sentences a person can hand to the people they work with.
+ *
+ * From docs/ONSITE_ACTIVITY_50_MIN.md minutes 39-47, where participants write them on paper:
+ * ฉันทำงานได้ดีเมื่อ… / เมื่อกดดันช่วยฉันโดย… / อย่าคาดเดาว่า…
+ *
+ * Pre-filled rather than blank, because a blank line after a ten-minute assessment is a worse
+ * prompt than a wrong one: a sentence you disagree with tells you what you do think, and the field
+ * is editable precisely so that disagreement has somewhere to go.
+ *
+ * The third line is the one this file exists for. The first two restate strengths and support in
+ * the first person, which the result page already covers in other words; "อย่าคาดเดาว่า" is the
+ * only place the product says what a type is routinely MISREAD as. That is the sentence colleagues
+ * actually need, and nobody writes it about themselves unprompted.
+ */
+export const USER_MANUAL: Record<EnneagramCore, {
+  worksBestThai: string; underPressureThai: string; doNotAssumeThai: string;
+}> = {
+  1: {
+    worksBestThai: "รู้ว่าอะไรคือ “เรียบร้อย” ตั้งแต่ต้น และมีเวลาพอที่จะทำให้ถึงตรงนั้นจริง ๆ",
+    underPressureThai: "บอกให้ชัดว่าอะไรพอแล้ว และอะไรที่ยังไม่ต้องแก้ — ไม่ต้องปลอบ แต่ช่วยตัดของออก",
+    doNotAssumeThai: "การที่ฉันทักว่ายังไม่เรียบร้อย แปลว่าฉันไม่พอใจคุณ — ส่วนใหญ่ฉันเข้มกับงานมากกว่ากับคน และเข้มกับตัวเองก่อนใคร",
+  },
+  2: {
+    worksBestThai: "งานของฉันมีคนที่ได้ประโยชน์ชัด ๆ และฉันรู้ว่าใครกำลังต้องการอะไร",
+    underPressureThai: "ถามฉันตรง ๆ ว่าฉันต้องการอะไร เพราะฉันมักไม่เอ่ยขอเอง",
+    doNotAssumeThai: "ฉันช่วยได้เสมอเพราะฉันไม่เคยปฏิเสธ — การที่ฉันไม่ปฏิเสธไม่ได้แปลว่าฉันว่าง",
+  },
+  3: {
+    worksBestThai: "เป้าหมายชัด วัดผลได้ และฉันรู้ว่าความสำเร็จหน้าตาเป็นอย่างไร",
+    underPressureThai: "ช่วยจัดลำดับว่าอะไรสำคัญที่สุดตอนนี้ แทนที่จะเพิ่มเป้าให้อีก",
+    doNotAssumeThai: "ฉันมั่นใจเท่าที่เห็นข้างนอก — ฉันเก่งเรื่องดูเหมือนไหวมากกว่าที่ฉันไหวจริง",
+  },
+  4: {
+    worksBestThai: "งานที่ทำมีความหมายกับฉัน และฉันได้ใส่มุมของตัวเองลงไปได้จริง",
+    underPressureThai: "อยู่กับฉันโดยไม่ต้องรีบทำให้ฉันรู้สึกดีขึ้น การถูกรับฟังช่วยได้มากกว่าการถูกแก้",
+    doNotAssumeThai: "ฉันดราม่าเกินเหตุ — สิ่งที่คุณเห็นคือฉันรู้สึกกับมันจริง ไม่ใช่ฉันขยายให้ใหญ่",
+  },
+  5: {
+    worksBestThai: "มีเวลาตั้งหลักก่อนตอบ และได้อ่านเรื่องจนเข้าใจก่อนถูกถาม",
+    underPressureThai: "ส่งคำถามล่วงหน้าและให้เวลาฉันคิด แทนที่จะเรียกประชุมด่วนเพื่อคิดพร้อมกัน",
+    doNotAssumeThai: "การที่ฉันเงียบแปลว่าฉันไม่สนใจหรือไม่เห็นด้วย — ส่วนใหญ่ฉันกำลังประมวลอยู่",
+  },
+  6: {
+    worksBestThai: "รู้ว่าใครรับผิดชอบอะไร และมีแผนสำรองเมื่อเรื่องไม่เป็นไปตามนั้น",
+    underPressureThai: "ยืนยันกับฉันว่าอะไรยังมั่นคงอยู่บ้าง และตอบคำถามฉันตรง ๆ แม้คำตอบจะไม่สวย",
+    doNotAssumeThai: "การที่ฉันถามว่า “ถ้าพลาดล่ะ” แปลว่าฉันไม่เอาด้วย — ฉันถามเพราะฉันกำลังหาทางทำให้มันรอด",
+  },
+  7: {
+    worksBestThai: "มีทางเลือกมากกว่าหนึ่งทาง และฉันไม่ถูกล็อกไว้กับวิธีเดียวตั้งแต่ต้น",
+    underPressureThai: "ช่วยฉันอยู่กับเรื่องเดียวจนจบ แทนที่จะเปิดเรื่องใหม่ให้ฉันหนีไปหา",
+    doNotAssumeThai: "ฉันไม่จริงจังเพราะฉันดูสนุก — ความเร็วของฉันคือวิธีคิด ไม่ใช่การเลี่ยงงาน",
+  },
+  8: {
+    worksBestThai: "พูดกันตรง ๆ ได้ และฉันมีอำนาจตัดสินใจในสิ่งที่ฉันรับผิดชอบ",
+    underPressureThai: "บอกฉันตรง ๆ ว่าเกิดอะไรขึ้น การกันข้อมูลไว้เพื่อไม่ให้ฉันโมโหทำให้แย่กว่าเดิม",
+    doNotAssumeThai: "เสียงดังของฉันแปลว่าฉันโกรธคุณ — ส่วนใหญ่มันแปลว่าฉันเอาด้วยเต็มที่",
+  },
+  9: {
+    worksBestThai: "บรรยากาศไม่ตึง และฉันรู้ว่างานของฉันต่อกับของคนอื่นตรงไหน",
+    underPressureThai: "ถามความเห็นฉันเป็นคนแรก ๆ ก่อนที่ห้องจะมีข้อสรุปไปแล้ว",
+    doNotAssumeThai: "การที่ฉันไม่ค้านแปลว่าฉันเห็นด้วย — บางครั้งฉันแค่ยังไม่ได้พูด",
+  },
+};
