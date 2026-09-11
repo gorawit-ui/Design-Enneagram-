@@ -1336,3 +1336,50 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   html.print-full .facilitator-details summary::-webkit-details-marker { display: none; }
   html.print-full .details-teaser { display: none; }
 }
+
+/* =============================================================================================
+   LARGE PRINT
+
+   Required by docs/ONSITE_ACTIVITY_50_MIN.md, and the answer to reading a phone in sunlight.
+
+   `zoom` on the shell rather than a type-scale variable, because every size in this stylesheet is
+   in px: there is no root font-size to turn up. Zoom takes the spacing and the hit targets with
+   the type, which is what large print means — bigger text in a cramped layout is not accessible.
+
+   The factor is 1.10 on phones and 1.25 from 768px up, and both numbers are measured rather than
+   chosen. Media queries do not follow zoom: at 1.25 on a 390px phone the content is laid out in
+   312 CSS pixels while every breakpoint still reports 390, so rules written for 390 apply to a
+   column that is no longer that wide — measured, the welcome grid overflows by 46px and the page
+   gains a horizontal scrollbar. 1.10 is the largest factor clean at 360 and 390. Raising it means
+   making the welcome grid work below 340px first; `npm run gate:largeprint` fails the day either
+   number stops being true.
+   ============================================================================================= */
+html.large-print .app-shell { zoom: 1.1; }
+@media (min-width: 768px) {
+  html.large-print .app-shell { zoom: 1.25; }
+}
+/* Print is its own scale — the PDF is set in points against a paper size, and zooming it would
+   push the one-page card onto two. */
+@media print {
+  html.large-print .app-shell { zoom: 1; }
+}
+
+.header-tools { display: flex; align-items: center; gap: 14px; }
+.text-size-toggle {
+  display: flex; align-items: baseline; gap: 2px;
+  padding: 6px 11px; min-height: 36px;
+  border: 1px solid #cbd5cd; border-radius: 100px; background: transparent;
+  color: var(--matcha); line-height: 1; transition: .2s;
+}
+.text-size-toggle span[aria-hidden] { font-size: 13px; }
+.text-size-toggle b { font-size: 18px; font-weight: 700; }
+.text-size-toggle:hover { background: #f1f4ef; border-color: var(--sage); }
+.text-size-toggle[aria-pressed="true"] { background: var(--matcha); border-color: var(--matcha); color: #fff; }
+@media print { .text-size-toggle { display: none; } }
+
+/* Available to a screen reader, invisible to everyone else. The toggle's two ก glyphs are a
+   picture of what the button does and say nothing out loud. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

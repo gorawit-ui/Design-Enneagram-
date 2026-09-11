@@ -15,6 +15,7 @@
     "gate:sheets": "node scripts/generate-gate-e-sheets.mjs",
     "gate:m2": "node scripts/run-module2-gate-tests.mjs",
     "gate:print": "node scripts/run-print-gate-tests.mjs",
+    "gate:largeprint": "node scripts/run-large-print-gate-tests.mjs",
     "assets:manifest": "node scripts/generate-asset-manifest.mjs",
     "assets:prompts": "node scripts/generate-asset-prompts.mjs",
     "assets:check": "node scripts/check-asset.mjs",
