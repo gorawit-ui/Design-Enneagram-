@@ -9,6 +9,7 @@ import { INITIAL_PROFILE, type Profile } from "./lib/profile-contract";
 import { getRoster } from "./lib/roster";
 import { getLargePrint, getLargePrintOnServer, setLargePrint, subscribeLargePrint } from "./lib/large-print";
 import { SITE_URL, SITE_URL_DISPLAY } from "./lib/site";
+import { eraseLocalData } from "./lib/erase";
 import ResultView from "./result-view";
 
 /** Answer-key letters, in badge order. Nine long because two items carry one option per core. */
@@ -51,6 +52,41 @@ function ShareLink() {
           }
         }}>{copied ? "คัดลอกแล้ว ✓" : "คัดลอกลิงก์"}</button>
       </div>
+    </div>
+  </details>;
+}
+
+
+/**
+ * The playbook's "delete/export route" (ONSITE_ACTIVITY_50_MIN.md, minutes 47-50), in the footer
+ * so it is reachable from every screen rather than only after finishing.
+ *
+ * It says what is held before it offers to remove it, because the honest answer is interesting:
+ * nothing reaches a server, the answers live in this page's memory and are gone when it closes,
+ * and what survives a reload is a display preference and a megabyte of cached app. Naming those
+ * two is the difference between a promise and a slogan — and the day the January calibration write
+ * exists, this is the control that has to already be here.
+ */
+function DataControl() {
+  const [state, setState] = useState<"idle" | "done" | "failed">("idle");
+  const [detail, setDetail] = useState("");
+  return <details className="data-control">
+    <summary>ข้อมูลของคุณ และการลบ</summary>
+    <div className="data-control-body">
+      <ul>
+        <li><b>ไม่มีการส่งข้อมูลออกจากเครื่องนี้</b> — แบบทดสอบนี้ไม่มีเซิร์ฟเวอร์เก็บคำตอบ</li>
+        <li><b>คำตอบอยู่ในหน้านี้เท่านั้น</b> — ปิดแท็บแล้วหายไปทันที ไม่ต้องลบ</li>
+        <li><b>สิ่งที่ค้างอยู่ในเบราว์เซอร์</b> — การตั้งค่าขนาดตัวอักษร และไฟล์ของเว็บที่เก็บไว้ให้ใช้ได้ตอนเน็ตหลุด</li>
+        <li><b>สิ่งที่คุณส่งออกเอง</b> — ไฟล์ PDF โค้ดผลลัพธ์ และไฟล์ .json อยู่ในมือคุณ ไม่ใช่ของเรา</li>
+      </ul>
+      <button type="button" className="secondary-button" onClick={async () => {
+        const report = await eraseLocalData();
+        setState(report.failures.length > 0 ? "failed" : "done");
+        setDetail(report.failures.length > 0
+          ? `ลบไม่ได้บางส่วน: ${report.failures.join(", ")} — ลองล้างข้อมูลเว็บไซต์จากการตั้งค่าเบราว์เซอร์`
+          : `ลบแล้ว: การตั้งค่า ${report.storageKeys} รายการ · ไฟล์ที่เก็บไว้ ${report.caches} ชุด · ตัวช่วยออฟไลน์ ${report.workers} ตัว`);
+      }}>ลบข้อมูลที่ค้างในเบราว์เซอร์นี้</button>
+      {state !== "idle" && <p className={state === "failed" ? "data-control-error" : "data-control-done"} role="status">{detail}</p>}
     </div>
   </details>;
 }
@@ -136,6 +172,6 @@ export default function Home() {
       {step === "profile" && <div className="form-layout fade-in"><aside className="side-intro"><span className="step-label">ขั้นตอนที่ 1</span><h1>ก่อนเริ่ม<br />ขอรู้จักคุณสักนิด</h1><p>ข้อมูลนี้อยู่ในหน้านี้เท่านั้น และใช้เพื่อแสดงผลให้ถูกคน</p></aside><form className="profile-card" onSubmit={submitProfile}><div className="card-heading"><span>ข้อมูลผู้เข้าร่วม</span><small><i>*</i> จำเป็น</small></div>{roster ? <label>ชื่อและชื่อเล่น <i>*</i><select value={profile.nameAndNickname} onChange={(e) => { const picked = roster.find((member) => member.name === e.target.value); update("nameAndNickname", e.target.value); if (picked) update("team", picked.team); }} autoFocus><option value="">เลือกชื่อของคุณ</option>{roster.map((member) => <option key={member.name} value={member.name}>{member.name}</option>)}</select></label> : <label>ชื่อและชื่อเล่น <i>*</i><input value={profile.nameAndNickname} onChange={(e) => update("nameAndNickname", e.target.value)} autoFocus /></label>}<fieldset><legend>เลือกภาพตัวละครที่ใกล้เคียงกับคุณ</legend><div className="segmented">{["ผู้หญิง", "ผู้ชาย", "ไม่ระบุ"].map((value) => <button className={profile.gender === value ? "active" : ""} type="button" key={value} onClick={() => update("gender", value)}>{value}</button>)}</div></fieldset><label>ทีม <i>*</i><input value={profile.team} onChange={(e) => update("team", e.target.value)} placeholder="เช่น People & Culture" /></label><label className="consent"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /><span>ยินยอมให้ใช้ข้อมูลเพื่อแสดงผลกิจกรรม <small>ไม่มีการส่งข้อมูลออกหรือบันทึกลงฐานข้อมูล</small></span></label>{error && <p className="error" role="alert">{error}</p>}<button className="primary-button full">เริ่มตอบคำถาม →</button><button className="text-button" type="button" onClick={() => setStep("welcome")}>← กลับหน้าก่อนหน้า</button></form></div>}
       {step === "questions" && question && <div className="question-wrap fade-in"><div className="progress-meta"><span>ข้อ {index + 1} จาก {MAX_QUESTIONS}</span><span>เหลือประมาณ {Math.max(1, Math.ceil((MAX_QUESTIONS-index-1)*24/60))} นาที</span></div><div className="progress-track" role="progressbar" aria-label="ความคืบหน้า" aria-valuemin={1} aria-valuemax={MAX_QUESTIONS} aria-valuenow={index + 1}><span style={{width:`${(index+1)/MAX_QUESTIONS*100}%`}} /></div><article className="question-card"><span className="step-label">{question.context}</span><h1>{question.prompt}</h1><p>เลือกข้อที่ตรงกับคุณมากกว่าในเวลาส่วนใหญ่</p><div className="answers">{question.options.map((option, optionIndex) => <button type="button" key={optionIndex} aria-pressed={selected === optionIndex} className={selected === optionIndex ? "selected" : ""} onClick={() => choose(optionIndex)}><span className="answer-key" aria-hidden="true">{String.fromCharCode(65+optionIndex)}</span><span className="answer-label">{option.text}{option.hint && <em>{option.hint}</em>}</span><i aria-hidden="true">✓</i></button>)}</div>{error && <p className="error centered">{error}</p>}<p className="key-hint">กด {question.options.map((_, i) => OPTION_KEYS[i].toUpperCase()).join(" ")} เพื่อเลือก · Enter เพื่อไปข้อถัดไป</p></article><div className="question-actions"><button className="secondary-button" onClick={() => index === 0 ? setStep("profile") : setIndex(index-1)}>← ย้อนกลับ</button><button className="primary-button" disabled={selected === null} onClick={next}>{index === MAX_QUESTIONS-1 ? "ดูผลลัพธ์" : "ถัดไป"} →</button></div></div>}
       {step === "result" && <ResultView result={result} answers={answers} character={character} nickname={profile.nameAndNickname} team={profile.team} genderPresentation={profile.gender} consent={consent} onRestart={restart} />}
-    </section><footer><span>PERSONALITY IS A MAP, NOT A BOX.</span><span>Made for TDFB team growth</span></footer>
+    </section><footer><span>PERSONALITY IS A MAP, NOT A BOX.</span><DataControl /><span>Made for TDFB team growth</span></footer>
   </main>;
 }

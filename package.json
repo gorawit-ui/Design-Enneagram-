@@ -17,6 +17,7 @@
     "gate:print": "node scripts/run-print-gate-tests.mjs",
     "gate:largeprint": "node scripts/run-large-print-gate-tests.mjs",
     "gate:offline": "node scripts/run-offline-gate-tests.mjs",
+    "gate:erase": "node scripts/run-erase-gate-tests.mjs",
     "assets:manifest": "node scripts/generate-asset-manifest.mjs",
     "qr": "node scripts/generate-qr.mjs",
     "sw": "node scripts/generate-service-worker.mjs",

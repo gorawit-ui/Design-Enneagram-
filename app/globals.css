@@ -1454,3 +1454,32 @@ html.large-print .app-shell { zoom: 1.1; }
 .share-link-note { margin: 4px 0 10px; font-size: 13px; color: #5d6862; }
 .share-link .secondary-button { min-height: 40px; padding: 9px 16px; font-size: 13.5px; }
 @media print { .share-link { display: none; } }
+
+/* =============================================================================================
+   DATA CONTROL — what is held, and the button that removes it.
+   ============================================================================================= */
+.data-control { position: relative; font: inherit; letter-spacing: normal; text-transform: none; }
+.data-control summary {
+  cursor: pointer; list-style: none;
+  font: 500 13px/1 var(--font-thai), sans-serif; color: var(--green);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.data-control summary::-webkit-details-marker { display: none; }
+.data-control-body {
+  position: absolute; right: 0; bottom: calc(100% + 10px); z-index: 20;
+  width: min(420px, calc(100vw - 48px));
+  padding: 18px 20px; text-align: left;
+  border: 1px solid var(--line); border-radius: 16px; background: #fff;
+  box-shadow: 0 18px 50px #16362f1f;
+}
+.data-control-body ul { margin: 0 0 14px; padding-left: 18px; display: grid; gap: 8px; }
+.data-control-body li { font-size: 13.5px; line-height: 1.6; color: #4c5b53; }
+.data-control-body li b { color: var(--matcha); font-weight: 700; }
+.data-control-body .secondary-button { width: 100%; min-height: 42px; font-size: 13.5px; }
+.data-control-done, .data-control-error { margin: 10px 0 0; font-size: 13px; line-height: 1.55; }
+.data-control-done { color: var(--green); }
+.data-control-error { color: #9a4b39; }
+@media (max-width: 640px) {
+  .data-control-body { right: auto; left: 50%; transform: translateX(-50%); }
+}
+@media print { .data-control { display: none; } }

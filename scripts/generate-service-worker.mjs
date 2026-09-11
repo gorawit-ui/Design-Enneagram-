@@ -55,14 +55,17 @@ const CACHE = \`tdfb-pq-\${VERSION}\`;
 const PRECACHE = ${JSON.stringify(precache, null, 2)};
 
 self.addEventListener("install", (event) => {
-  // Individually rather than cache.addAll: addAll rejects the whole install if any one request
-  // fails, and one 404 in a list this long would leave the session with no offline support at all
-  // rather than with one missing file.
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    await Promise.all(PRECACHE.map((url) => cache.add(url).catch(() => {})));
-    await self.skipWaiting();
-  })());
+  // Activation does NOT wait for the precache, and that is the fix for a worker that sat in
+  // "installing" forever: gating activation on 22 parallel cache.add calls meant any one of them
+  // stalling left the app with no worker at all. Offline support does not need the precache to
+  // have finished — the fetch handler below caches everything a session touches as it touches it,
+  // so the precache is a head start, not a precondition.
+  event.waitUntil(self.skipWaiting());
+  caches.open(CACHE).then(async (cache) => {
+    // Sequential and individually caught: addAll would reject the whole batch on one 404, and a
+    // build's asset list always has a straggler.
+    for (const url of PRECACHE) await cache.add(url).catch(() => {});
+  }).catch(() => {});
 });
 
 self.addEventListener("activate", (event) => {

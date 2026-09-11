@@ -73,7 +73,17 @@ async function completeSession(page) {
   await page.waitForSelector(".result-wrap", { timeout: 20000 });
 }
 
+// A hard ceiling on the whole run, and a mark at every step. This gate drives a browser through
+// two sessions and kills a server underneath it; when one of those hangs there is nothing to read,
+// and the first hang here cost ten minutes and printed nothing before it was noticed.
+const watchdog = setTimeout(() => {
+  console.error("offline gate: timed out after 4 minutes");
+  process.exit(1);
+}, 4 * 60 * 1000);
+const step = (message) => console.error(`  · ${message}`);
+
 const chromium = await loadChromium();
+step("starting a server on its own port");
 await startServer();
 const browser = await chromium.launch();
 const failures = [];
@@ -87,8 +97,12 @@ try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
     await page.goto(BASE_URL, { waitUntil: "networkidle" });
-    const registered = await page.evaluate(async () =>
-      Boolean((await navigator.serviceWorker.ready.catch(() => null))?.active));
+    step(`loading context "${label}"`);
+    const registered = await page.evaluate(async () => {
+      const ready = navigator.serviceWorker.ready.then((registration) => Boolean(registration.active));
+      const giveUp = new Promise((resolve) => setTimeout(() => resolve(false), 15000));
+      return Promise.race([ready, giveUp]).catch(() => false);
+    });
     // The worker precaches on install; cutting the origin before it finishes would test the race,
     // not the feature.
     await page.waitForTimeout(2000);
@@ -96,6 +110,7 @@ try {
     if (!registered) failures.push(`${label}: the service worker never became active`);
   }
 
+  step("killing the server");
   stopServer();
   const down = await serverIsDown();
   // Without this the whole gate is theatre: the previous version emulated offline, the emulation
@@ -157,8 +172,9 @@ try {
     }
   }
 } finally {
-  await browser.close();
+  await browser.close().catch(() => {});
   stopServer();
+  clearTimeout(watchdog);
 }
 
 for (const row of report) console.log(JSON.stringify(row));
