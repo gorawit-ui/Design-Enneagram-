@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/generate-service-worker.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "eslint && node scripts/run-scoring-tests.mjs && node scripts/probe-type-reachability.mjs && node scripts/run-character-resolver-tests.mjs && node scripts/run-living-character-pilot-tests.mjs && node scripts/run-asset-gate-tests.mjs && node scripts/run-unbake-tests.mjs && node scripts/run-roster-tests.mjs && node scripts/run-share-link-tests.mjs",

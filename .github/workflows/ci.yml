@@ -61,11 +61,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      # The worker precaches the build's own hashed filenames, so it has to be generated from the
-      # build that is about to be served, not from whatever was committed.
-      - name: Generate the service worker
-        run: npm run sw
-
       # The server and the gates that need it live in ONE step on purpose. A background process
       # started in one step is not guaranteed to survive into the next on a runner, and the failure
       # mode is the worst kind: every gate reports "connection refused" and the diagnosis looks like

@@ -47,3 +47,8 @@ next-env.d.ts
 # `npm run type:specimens` refetches on demand, and nodes.json is a 200KB dump of one run.
 /outputs/typography/.font-cache/
 /outputs/typography/nodes.json
+
+# Generated from the build it will serve, by `npm run build`. Committing it guarantees drift: the
+# worker precaches the build's own hashed filenames, so a checked-in copy is stale the moment
+# anyone rebuilds, and the diff is pure churn on every commit.
+/public/sw.js
