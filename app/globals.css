@@ -1257,3 +1257,26 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   display: block; margin-top: 3px;
   font-size: 13px; font-weight: 400; line-height: 1.5; color: #5d6862;
 }
+
+/* =============================================================================================
+   WELCOME HEADLINE — the band between the phone layout and a wide desktop.
+
+   The headline is three spans, each `white-space: nowrap`, so the line breaks are chosen rather
+   than discovered. That works at 390px (one column, small type) and at 1280px (two columns, wide
+   enough for the longest line). It does not work in between: at 900px the two-column layout is
+   already on, which halves the text column, while the size clamp is still pinned to its 48px
+   minimum. Measured with `npm run type:overflow`: the headline is 43px wider than its own column
+   at 900px in the CURRENT font -- so this is a pre-existing overflow, not something a font swap
+   introduces. A wider family only makes it worse (Sarabun +56px, IBM Plex Sans Thai Looped +108px).
+
+   The fix is to stop insisting on chosen line breaks exactly where there is no room for them. In
+   this band the spans may wrap, `text-wrap: balance` keeps the resulting lines even, and the size
+   follows the viewport instead of sitting on a floor it cannot honour.
+   ============================================================================================= */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .stage-welcome .hero-copy h1 { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.2; letter-spacing: -1px; }
+  .stage-welcome .hero-copy h1 > span,
+  .stage-welcome .welcome-title-line,
+  .hero-growth, .keep-together { white-space: normal; }
+  .stage-welcome .hero-copy h1 { text-wrap: balance; }
+}
