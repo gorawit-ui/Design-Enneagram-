@@ -107,10 +107,20 @@ try {
     const enneagramSlots = adaptive.filter((q) => /^c-(core|wing)-/.test(q.id)).length;
     assert.ok(mbtiSlots <= 2, `${name}: MBTI takes at most two of the four open slots (took ${mbtiSlots})`);
     assert.ok(enneagramSlots >= 2, `${name}: the Enneagram keeps at least two of the four open slots (kept ${enneagramSlots})`);
-    // Core challenges are capped at two so the wing keeps a slot. Uncapped, the rival rule kept
-    // firing while the core stayed unclear -- which it usually does -- and a typical respondent got
-    // three core challenges and no wing question, leaving wingStatus ambiguous for want of asking.
-    assert.ok(adaptive.filter((q) => q.challengeFor?.core).length <= 2, `${name}: at most two core challenges`);
+    // Core challenges are capped at two BEFORE the reserved final slot, so the wing keeps a slot.
+    // Uncapped, the rival rule kept firing while the core stayed unclear -- which it usually does --
+    // and a typical respondent got three core challenges and no wing question, leaving wingStatus
+    // ambiguous for want of asking.
+    //
+    // The final slot may add a third: it is the reserved tie-break, and when the core is settled
+    // but the wing is not, the way to separate the two neighbours is to put weight on one of them.
+    // It reaches for a neighbour's core challenge only after the wing question itself has been
+    // asked, so the wing is never starved -- which is why the assertion below still says exactly
+    // one wing challenge, and why an earlier version of the tie-break that reached for the
+    // neighbour first was caught here rather than in production.
+    assert.ok(adaptive.slice(0, -1).filter((q) => q.challengeFor?.core).length <= 2,
+      `${name}: at most two core challenges before the reserved slot`);
+    assert.ok(adaptive.filter((q) => q.challengeFor?.core).length <= 3, `${name}: at most three core challenges`);
     assert.equal(adaptive.filter((q) => q.challengeFor?.wingCore).length, 1, `${name}: exactly one wing challenge`);
   }
 
@@ -176,7 +186,9 @@ try {
       const core = adaptive.filter((id) => /^c-core-/.test(id)).length;
       const wing = adaptive.filter((id) => /^c-wing-/.test(id)).length;
       assert.ok(mbti >= 1 && mbti <= 2, `MBTI takes one or two open slots, took ${mbti}`);
-      assert.ok(core <= 2, `at most two core challenges, got ${core}`);
+      const beforeReserved = adaptive.slice(0, -1).filter((id) => /^c-core-/.test(id)).length;
+      assert.ok(beforeReserved <= 2, `at most two core challenges before the reserved slot, got ${beforeReserved}`);
+      assert.ok(core <= 3, `at most three core challenges in total, got ${core}`);
       assert.equal(wing, 1, `exactly one wing challenge, got ${wing}`);
       assert.equal(mbti + core + wing, 4, "the four open slots are all spent on something targeted");
     }

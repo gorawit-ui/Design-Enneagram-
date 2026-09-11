@@ -151,6 +151,67 @@ const adjacent = (core: EnneagramCore) =>
   [(core === 1 ? 9 : core-1) as EnneagramCore, (core === 9 ? 1 : core+1) as EnneagramCore];
 
 /**
+ * The question that best separates whichever candidates are still tied, or null if nothing is.
+ *
+ * A `c-core-N` item adds weight to N alone, so asking the runner-up's item is a genuine fork: an
+ * answer that endorses it can take the lead, one that does not leaves the leader further ahead.
+ * Either outcome ends the session with a wider margin than it had.
+ *
+ * The runner-up is asked even when it is adjacent to the leader, which is the one place this
+ * departs from rule 3 below. That rule avoids neighbours because the wing question already weights
+ * both of them, so a neighbour can take the lead on evidence counted twice. Here the wing question
+ * has already been asked and the alternative is a result with no core at all, which is worse than
+ * a core decided partly on a neighbour's second push. The cost is real and is measured rather than
+ * assumed: `npm run items:tiebreak` reports the ambiguity rates, and `npm run items:reachability`
+ * proves every core and wing pair is still reachable.
+ */
+function tieBreakQuestion(
+  result: AssessmentResult,
+  unasked: (id: string) => AssessmentQuestion | null,
+): AssessmentQuestion | null {
+  // The core branch that used to be here is deliberately absent, and this is the record of why.
+  //
+  // It fired when no core was named and asked the runner-up's core challenge. Measured, it was a
+  // real gain: core ambiguity across 3000 simulated sessions fell 47.6% -> 42.7% and complete
+  // results rose 35.5% -> 38.8%. It also broke a property the project had already committed to --
+  // that straight-lining must not produce a confident core. A respondent who picks option 2 for
+  // all 24 questions finished with "ลักษณ์ 2, close", because the tie-break item was answered by
+  // position rather than by meaning and its DONATION (the weight an option gives to a core other
+  // than the one it asks about) pushed a leader over the line.
+  //
+  // An evidence threshold was the obvious rescue and does not work: measured at the moment the
+  // reserved slot is chosen, straight-liners carry 3-5 items of evidence for each candidate, which
+  // is exactly the range varied sessions carry (2-5). Nothing separates them, so any threshold
+  // that saved the property would have been fitted to the test rather than derived from the data.
+  //
+  // Naming a core off one arbitrary donation is worse than naming no core: an HR tool that hands a
+  // confident type to someone who clicked the same button 24 times is wrong in a way that matters
+  // more than the ambiguity rate. So the core branch stays out until there is an item that
+  // discriminates without donating -- see docs/HR_ITEMS_OWED.md for the wording work that would
+  // make one possible.
+
+  // 2. Core settled, wing not. The wing is read off the two cores adjacent to the leader, so the
+  //    way to separate them is to put weight on one of them and see whether it is taken.
+  if (result.enneagram.core !== null && result.wingStatus === "ambiguous") {
+    // The wing question first, when it has not been asked. It is the direct instrument, and
+    // reaching for a neighbour's core challenge ahead of it starved the wing question out of a
+    // session entirely -- the free slots went to an MBTI axis and two cores, and this rule took
+    // the last one. Caught by the simulated-session budget test, not by the fixtures.
+    const wing = unasked(`c-wing-${result.enneagram.core}`);
+    if (wing) return wing;
+    const neighbours = adjacent(result.enneagram.core)
+      .map((value) => ({ value, score: result.scores.enneagram[value] }))
+      .sort((a, b) => b.score - a.score || a.value - b.value);
+    for (const neighbour of neighbours) {
+      const question = unasked(`c-core-${neighbour.value}`);
+      if (question) return question;
+    }
+  }
+
+  return null;
+}
+
+/**
  * The question at position `answers.length`, or null once the session is complete.
  *
  * Pure and total: the same answers always produce the same question, and it never returns one that
@@ -170,6 +231,22 @@ export function selectNextQuestion(answers: readonly AnswerRecord[]): Assessment
   if (atSlot) return atSlot;
 
   const result = scoreAssessment(answers);
+
+  // The last slot is reserved for whatever is still undecided.
+  //
+  // The count is fixed at 24 (docs/QUESTION_COUNT_DECISION.md), so the final question is a budget
+  // that gets spent whether or not anything still needs deciding -- and measured on the version
+  // before this rule (`npm run items:tiebreak`), 15.3% of sessions spent it on an MBTI axis while
+  // 47.6% finished with no core named at all. A respondent who leaves without a ลักษณ์ got nothing;
+  // one whose J/P margin is 3 instead of 4 got a letter either way.
+  //
+  // So: if the core is not clear, or the core is clear but the wing is not, the last question goes
+  // to breaking that tie. Everything else keeps its existing order.
+  if (answers.length === MAX_QUESTIONS - 1) {
+    const tieBreak = tieBreakQuestion(result, unasked);
+    if (tieBreak) return tieBreak;
+  }
+
   const narrowestAxis = (Object.entries(result.dimensions) as [keyof typeof pairs, AssessmentResult["dimensions"]["IE"]][])
     .filter(([name]) => name !== "AT")
     .filter(([name]) => !asked.has(`c-${name.toLowerCase()}`))
