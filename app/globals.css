@@ -3,7 +3,7 @@
 .character{width:210px;height:270px;position:relative;filter:drop-shadow(0 20px 24px #28463822)}.character-body{position:absolute;left:38px;top:58px;width:140px;height:169px;border-radius:52% 48% 45% 45%;background:linear-gradient(145deg,#98bca4,#537c67 72%);box-shadow:inset 18px 8px 24px #ffffff3b,inset -12px -8px 18px #284b3b2e;z-index:2}.character-shadow{position:absolute;width:150px;height:28px;bottom:8px;left:35px;background:#294a3620;border-radius:50%;filter:blur(5px)}.eye{position:absolute;top:72px;width:9px;height:13px;background:#17362f;border-radius:50%}.eye.left{left:43px}.eye.right{right:43px}.smile{position:absolute;left:64px;top:93px;width:16px;height:8px;border-bottom:2px solid #17362f;border-radius:50%}.blush{position:absolute;top:88px;width:17px;height:7px;background:#dba69a66;border-radius:50%}.blush.left{left:22px}.blush.right{right:22px}.leaf{position:absolute;background:linear-gradient(135deg,#789d80,#3e6d58);z-index:1;transform-origin:bottom center}.leaf-one{width:64px;height:104px;border-radius:100% 0 100% 0;left:64px;top:2px;transform:rotate(-18deg)}.leaf-two{width:57px;height:92px;border-radius:0 100% 0 100%;left:105px;top:7px;transform:rotate(19deg)}.character-arm{position:absolute;width:27px;height:82px;background:#668d75;top:131px;border-radius:20px;z-index:1}.character-arm.left{left:25px;transform:rotate(23deg)}.character-arm.right{right:15px;transform:rotate(-31deg)}
 .form-layout{display:grid;grid-template-columns:.75fr 1.25fr;gap:70px;align-items:center;max-width:980px;margin:auto;width:100%}.side-intro h1{font-size:43px;letter-spacing:-1.4px;margin:14px 0}.side-intro p{font-size:13px;line-height:1.8;color:#748079;max-width:300px}.side-intro .character{transform:scale(.48);transform-origin:left top;height:140px;margin-top:10px}.profile-card,.question-card{background:#fff;border:1px solid #e7e8e1;box-shadow:0 25px 70px #233d3010;padding:34px;border-radius:16px}.card-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;font-size:19px;font-weight:700;color:var(--matcha)}.card-heading small{font-size:10px;font-weight:400;color:#5d6862}i{font-style:normal;color:#a26757}.field-row{display:grid;grid-template-columns:1fr 1.25fr;gap:14px}label,legend{display:block;font-size:12px;font-weight:650;color:#435048;margin-bottom:17px}label>input:not([type]),input[type=text]{width:100%;margin-top:7px;border:1px solid #d9dfd9;border-radius:5px;padding:12px 13px;background:#fcfcf9;outline:none;color:var(--charcoal)}input:focus{border-color:var(--green);box-shadow:0 0 0 3px #8ba79b20}input::placeholder{color:#5d6862;font-size:11px}fieldset{padding:0;border:0;margin:0 0 17px}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}.segmented button{padding:10px;border:1px solid #dbe1dc;background:#fafbf8;color:#66726b;border-radius:5px;font-size:11px}.segmented button.active{background:#e8f0ea;border-color:var(--green);color:var(--matcha);font-weight:700}.consent{display:flex;gap:11px;align-items:flex-start;background:#f5f7f2;border-radius:7px;padding:13px;margin-top:4px}.consent input{accent-color:var(--matcha);width:16px;height:16px}.consent span{font-size:11px;line-height:1.4}.consent small{display:block;font-weight:400;color:#5d6862;margin-top:3px}.full{width:100%}.text-button{display:block;margin:12px auto 0;border:0;background:none;color:#5d6862;font-size:11px}.error{color:#a44c3c;background:#fff1ed;padding:8px 11px;border-radius:5px;font-size:11px;margin:0 0 10px}.centered{text-align:center;margin:14px 0 0}
 .question-wrap{width:100%;max-width:780px;margin:auto}.progress-meta{display:flex;justify-content:space-between;font-size:11px;color:#728078;margin-bottom:9px}.progress-track{height:3px;background:#dfe6df;border-radius:3px;margin-bottom:28px}.progress-track span{display:block;height:100%;background:var(--green);transition:width .3s}.question-card{text-align:center;padding:42px 54px}.question-card h1{font-size:25px;line-height:1.55;color:var(--matcha);max-width:620px;margin:13px auto 5px}.question-card>p{font-size:11px;color:#8c958f}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:28px;text-align:left}.answers button{position:relative;display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #e0e4df;border-radius:7px;background:#fbfcf9;color:#465149;font-size:12px;line-height:1.45}.answers button>span{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#edf1eb;color:var(--green);font:600 11px var(--font-display);flex:none}.answers button>i{margin-left:auto;opacity:0;color:var(--green)}.answers button:hover{border-color:var(--sage)}.answers button.selected{background:#edf4ef;border-color:var(--green);box-shadow:inset 3px 0 var(--green)}.answers button.selected i{opacity:1}.question-actions{display:flex;justify-content:space-between;margin-top:18px}.question-actions .primary-button{min-width:140px}
-.result-wrap{width:100%;max-width:940px;margin:auto}.result-hero{background:var(--matcha);color:white;border-radius:18px;padding:35px 46px;display:flex;align-items:center;justify-content:space-between;min-height:270px;overflow:hidden;position:relative}.result-hero>div:first-child{z-index:2}.result-hero p{font-size:11px;color:#b4c6bd;margin:8px 0}.result-hero h1{color:white;font-size:46px;line-height:1.05;margin:13px 0}.result-hero h1 em{color:#b7cdbb}.type-code{font:500 17px var(--font-display);letter-spacing:2px;border-top:1px solid #ffffff25;padding-top:13px;width:max-content}.type-code span{color:#91ac9d;margin:0 5px}.result-hero small{display:block;color:#9eb2a8;font-size:9px;margin-top:8px}.result-hero .character{transform:scale(.72);height:240px;margin:-20px 20px -25px 0}.result-hero .character-body{background:linear-gradient(145deg,#d4c296,#9c875e)}.result-hero .leaf{background:linear-gradient(135deg,#aec3a7,#748e6e)}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.result-grid article{border:1px solid #e2e5de;background:white;border-radius:11px;padding:22px}.result-grid h2{font-size:14px;color:var(--matcha);margin:11px 0}.result-grid p,.result-grid li{font-size:10.5px;line-height:1.75;color:#657169}.result-grid ul{padding-left:17px;margin:0}.result-icon{font-family:var(--font-display);color:var(--green);font-size:19px}.growth-card{background:#edf3ed!important}.restart{display:block;margin:20px auto 0;min-height:42px;padding:9px 20px;font-size:11px}footer{width:100%;max-width:1120px;margin:auto;border-top:1px solid #e3e7e1;padding:16px 0;display:flex;justify-content:space-between;color:#5d6862;font:500 8px var(--font-display);letter-spacing:1.5px}.fade-in{animation:rise .45s ease both}.fade-in-delayed{animation:rise .6s .1s ease both}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.result-wrap{width:100%;max-width:940px;margin:auto}.result-hero{background:var(--matcha);color:white;border-radius:18px;padding:35px 46px;display:flex;align-items:center;justify-content:space-between;min-height:270px;overflow:hidden;position:relative}.result-hero>div:first-child{z-index:2}.result-hero p{font-size:11px;color:#b4c6bd;margin:8px 0}.result-hero h1{color:white;font-size:46px;line-height:1.05;margin:13px 0}.result-hero h1 em{color:#b7cdbb}.type-code{font:500 17px var(--font-display);letter-spacing:2px;border-top:1px solid #ffffff25;padding-top:13px;width:max-content}.type-code span{color:#91ac9d;margin:0 5px}.result-hero small{display:block;color:#9eb2a8;font-size:9px;margin-top:8px}.result-hero .character{transform:scale(.72);height:240px;margin:-20px 20px -25px 0}.result-hero .character-body{background:linear-gradient(145deg,#d4c296,#9c875e)}.result-hero .leaf{background:linear-gradient(135deg,#aec3a7,#748e6e)}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.result-grid article{border:1px solid #e2e5de;background:white;border-radius:11px;padding:22px}.result-grid h2{font-size:14px;color:var(--matcha);margin:11px 0}.result-grid p,.result-grid li{font-size:10.5px;line-height:1.75;color:#657169}.result-grid ul{padding-left:17px;margin:0}.result-icon{font-family:var(--font-display);color:var(--green);font-size:19px}.growth-card{background:#edf3ed!important}.restart{display:block;margin:20px auto 0;min-height:42px;padding:9px 20px;font-size:11px}footer{position:relative;width:100%;max-width:1120px;margin:auto;border-top:1px solid #e3e7e1;padding:16px 0;display:flex;justify-content:space-between;color:#5d6862;font:500 8px var(--font-display);letter-spacing:1.5px}.fade-in{animation:rise .45s ease both}.fade-in-delayed{animation:rise .6s .1s ease both}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(max-width:760px){.app-shell{padding:0 18px}.site-header{min-height:72px}.secure-note{display:none}.stage{padding:24px 0 38px}.welcome-grid{display:flex;flex-direction:column-reverse;gap:8px}.hero-art{height:245px;width:100%}.hero-art .character{transform:scale(.7);margin-top:28px}.art-note{right:4%;top:12%;font-size:9px}.hero-copy{text-align:center}.hero-copy h1{font-size:41px;line-height:1.16;letter-spacing:-1.5px;margin:10px 0 14px}.hero-text{font-size:15px;line-height:1.7;margin:auto}.time-badge{margin:18px auto 14px}.primary-button{width:100%}.fine-print{text-align:center}.form-layout{display:block}.side-intro{text-align:center}.side-intro h1{font-size:31px}.side-intro p{margin:0 auto 18px}.side-intro .character{display:none}.profile-card{padding:23px 18px}.field-row{grid-template-columns:1fr}.question-card{padding:27px 17px}.question-card h1{font-size:20px}.answers{grid-template-columns:1fr;margin-top:20px}.question-actions{gap:10px}.question-actions button{width:50%;min-width:0}.result-hero{padding:28px 23px;min-height:260px}.result-hero h1{font-size:35px}.result-hero .character{position:absolute;right:-63px;opacity:.48;transform:scale(.65)}.result-grid{grid-template-columns:1fr}.result-grid article{padding:18px}.stage-result{padding-top:8px}footer span:last-child{display:none}.progress-meta span:last-child{font-size:9px}}@media(max-width:380px){.hero-art{height:210px}.hero-copy h1{font-size:35px}.segmented button{padding:9px 2px}.profile-card{padding:20px 14px}.question-card h1{font-size:18px}.answers button{padding:12px}.result-hero{padding:24px 18px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* Product polish */
@@ -1465,9 +1465,13 @@ html.large-print .app-shell { zoom: 1.1; }
   text-decoration: underline; text-underline-offset: 3px;
 }
 .data-control summary::-webkit-details-marker { display: none; }
+/* Positioned against the footer, not the viewport. `calc(100vw - 48px)` was the first attempt and
+   large print broke it: under `zoom`, vw units still resolve against the unzoomed viewport, so the
+   popover was 106px wider than the screen at 360px. Anchoring to the footer keeps it inside
+   whatever the shell is actually laid out at, zoomed or not. */
 .data-control-body {
-  position: absolute; right: 0; bottom: calc(100% + 10px); z-index: 20;
-  width: min(420px, calc(100vw - 48px));
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 10px); z-index: 20;
+  width: auto; max-width: 420px; margin-inline: auto;
   padding: 18px 20px; text-align: left;
   border: 1px solid var(--line); border-radius: 16px; background: #fff;
   box-shadow: 0 18px 50px #16362f1f;
@@ -1479,7 +1483,48 @@ html.large-print .app-shell { zoom: 1.1; }
 .data-control-done, .data-control-error { margin: 10px 0 0; font-size: 13px; line-height: 1.55; }
 .data-control-done { color: var(--green); }
 .data-control-error { color: #9a4b39; }
-@media (max-width: 640px) {
-  .data-control-body { right: auto; left: 50%; transform: translateX(-50%); }
-}
+
 @media print { .data-control { display: none; } }
+
+/* =============================================================================================
+   COLLAPSED ELABORATION — the depth section and the cross-reading as <details>.
+
+   docs/UX_REVIEW_2026-09-10.md §3 wanted a result a person can read in sixty seconds; measured,
+   the page had grown to 8.4 phone screens. These two blocks are 2210px of it and both restate, at
+   length, what the summary card prints at the top — so they keep their content and stop demanding
+   that everyone scroll through it.
+
+   They reuse the affordances the review asked for on the other two collapsibles: a chevron, a
+   cursor, a hover state, and a teaser line saying what is inside.
+   ============================================================================================= */
+details.depth-section > summary,
+details.cross-reading > summary {
+  cursor: pointer; list-style: none; display: block;
+  padding: 2px 34px 2px 0; position: relative;
+}
+details.depth-section > summary::-webkit-details-marker,
+details.cross-reading > summary::-webkit-details-marker { display: none; }
+details.depth-section > summary::after,
+details.cross-reading > summary::after {
+  content: "⌄"; position: absolute; right: 4px; top: 50%;
+  transform: translateY(-60%); font-size: 20px; line-height: 1; color: var(--green);
+  transition: transform .2s;
+}
+details.depth-section[open] > summary::after,
+details.cross-reading[open] > summary::after { transform: translateY(-30%) rotate(180deg); }
+details.depth-section > summary:hover h2,
+details.cross-reading > summary:hover h2 { color: var(--green); }
+details.depth-section > summary h2,
+details.cross-reading > summary h2 { margin: 6px 0 0; }
+details.depth-section > summary .details-teaser,
+details.cross-reading > summary .details-teaser { margin-top: 6px; }
+/* The intro line belongs to the body now, not to the closed state. */
+details.depth-section > .depth-head { margin-top: 14px; }
+
+/* Printed reports open everything, so the chevron is chrome the paper does not need. */
+@media print {
+  details.depth-section > summary::after,
+  details.cross-reading > summary::after { display: none; }
+  details.depth-section > summary .details-teaser,
+  details.cross-reading > summary .details-teaser { display: none; }
+}

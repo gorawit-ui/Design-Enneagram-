@@ -20,15 +20,18 @@ const BASE_URL = process.env.BASE_URL ?? "http://127.0.0.1:3000";
 const OUT_DIR = path.join(projectRoot, "outputs/gate-e");
 
 // Deterministic answers that score Core 2 x INTJ-A with both axes non-ambiguous: 18 foundation
-// questions, then the six adaptive ones those answers select (c-at, c-at2, c-ie, c-core-2,
-// c-wing-2, c-sn). Searched for against the current item bank rather than hand-tuned.
+// questions, then the six adaptive ones those answers select. Searched for against the current
+// item bank rather than hand-tuned.
 //
-// The previous array had twenty entries, from when the session was twenty questions long. After
-// docs/QUESTION_COUNT_DECISION.md fixed the count at 24 this gate answered twenty and then waited
-// thirty seconds for a result page that was still four questions away, so it had been failing on
-// a timeout rather than on anything it measures. Re-derive with a search over selectNextQuestion
-// if the item bank changes again; ITEM_BANK_VERSION in assessment-data.ts is what moves.
-const ANSWERS = [1, 0, 0, 1, 3, 0, 2, 1, 2, 3, 0, 0, 1, 1, 1, 3, 0, 3, 3, 1, 1, 3, 1, 1];
+// THIS ARRAY GOES STALE whenever selection or the item bank changes, and it has twice: once when
+// the session went from 20 questions to 24, and once when the reserved tie-break slot changed
+// which question comes last. Both times the gate failed by timing out on a selector 30 seconds
+// later, which says nothing about the cause — so reachedExpectedType() below checks the score
+// first and fails with an instruction instead.
+//
+// To re-derive: walk selectNextQuestion over random option indexes until scoreAssessment returns
+// mbti INTJ-A, core 2, and a non-ambiguous Enneagram confidence.
+const ANSWERS = [3, 0, 0, 2, 3, 0, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 3, 1, 2, 0, 2, 0, 2, 0];
 
 // The plan's UX PASS names three widths: 360 px, 390 px, and desktop.
 const VIEWPORTS = [
@@ -78,6 +81,14 @@ async function reachResult(page, presentationThai) {
     await page.click(".question-actions .primary-button");
   }
   await page.waitForSelector(".result-wrap");
+  // Before waiting thirty seconds for an image that will never appear: if these answers no longer
+  // score the type this gate is about, the character is a fallback and there is nothing to measure.
+  const typeShown = await page.evaluate(() =>
+    document.querySelector(".type-code")?.textContent?.replace(/\s+/g, " ").trim() ?? "");
+  if (!/INTJ-A/.test(typeShown)) {
+    throw new Error(`ANSWERS no longer score Core 2 x INTJ-A — the page shows "${typeShown}". `
+      + "Re-derive the array (see the comment above it) after any change to selection or the item bank.");
+  }
   // The PNG must be decoded and every animation at rest, or the measured boxes are mid-flight.
   await page.waitForFunction(() => {
     const img = document.querySelector(".result-character-image");

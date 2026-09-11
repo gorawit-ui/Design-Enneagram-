@@ -39,6 +39,7 @@
     "items:probe": "node scripts/probe-ground-truth.mjs",
     "items:adaptive": "node scripts/measure-adaptive-variation.mjs",
     "items:tiebreak": "node scripts/measure-tiebreak.mjs",
+    "result:length": "node scripts/measure-result-length.mjs",
     "type:audit": "node scripts/measure-typography.mjs",
     "type:specimens": "node scripts/render-font-specimens.mjs",
     "type:overflow": "node scripts/measure-font-overflow.mjs",

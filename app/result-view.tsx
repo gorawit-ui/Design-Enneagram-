@@ -40,10 +40,18 @@ function DepthSection({ core, wing }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   const stress = stressArrow(core);
   const growth = growthArrow(core);
   const nameOf = (target: number) => ENNEAGRAM_PROFILES[target as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9].titleThai;
-  return <section className="depth-section" aria-labelledby="depth-title">
-    <div className="depth-head">
+  // Collapsed by default, and this is the one section where that costs nothing: the card at the
+  // top already prints the fear, the desire and both arrows. Measured, this block is 1667px — two
+  // full phone screens of a page that was 8.4 — and every headline in it is above the fold in
+  // shorter form. docs/UX_REVIEW_2026-09-10.md §3 asked for a page a person can read in sixty
+  // seconds; the answer is not to delete the depth, it is to stop making everyone scroll past it.
+  return <details className="depth-section" open={false}>
+    <summary>
       <span className="step-label">โครงสร้างข้างใน</span>
       <h2 id="depth-title">อะไรอยู่ใต้แรงขับของคุณ</h2>
+      <span className="details-teaser">ระดับสุขภาพ 3 ระดับ · เวลาเครียดไปทางไหน · ทางเติบโตไปทางไหน</span>
+    </summary>
+    <div className="depth-head">
       <p>ลักษณ์ไม่ได้บอกว่าคุณทำอะไร แต่บอกว่าคุณจัดชีวิตเพื่อเลี่ยงอะไร และเดินไปหาอะไร</p>
     </div>
     <dl className="depth-pair">
@@ -84,7 +92,7 @@ function DepthSection({ core, wing }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
     <p className="depth-source">
       โครงสองทิศนี้เป็นโครงมาตรฐานของ Enneagram (stress / growth arrow) ไม่ใช่การตีความเฉพาะของเครื่องมือนี้
     </p>
-  </section>;
+  </details>;
 }
 
 /**
@@ -559,9 +567,14 @@ function CrossReadingSection({ core, mbtiType }: {
 }) {
   const reading = crossReading(core, mbtiType as never);
   if (!reading) return null;
-  return <section className="cross-reading" aria-labelledby="cross-title">
-    <span className="step-label">สองมุมมองมาเจอกัน</span>
-    <h2 id="cross-title">{`MBTI ${mbtiType} กับ ลักษณ์ ${core} ตรงไหนเสริมกัน ตรงไหนดึงกัน`}</h2>
+  // Collapsed for the same reason as the depth section, and with less to lose: this is a stated
+  // correspondence between two frameworks, not a finding, and it says so inside. 543px.
+  return <details className="cross-reading">
+    <summary>
+      <span className="step-label">สองมุมมองมาเจอกัน</span>
+      <h2 id="cross-title">{`MBTI ${mbtiType} กับ ลักษณ์ ${core} ตรงไหนเสริมกัน ตรงไหนดึงกัน`}</h2>
+      <span className="details-teaser">{`${reading.amplifies.length} ข้อที่เสริมกัน · ${reading.pulls.length} ข้อที่ดึงกัน`}</span>
+    </summary>
     <div className="cross-grid">
       <article className="cross-column cross-amplify">
         <h3>เสริมกัน</h3>
@@ -580,7 +593,7 @@ function CrossReadingSection({ core, mbtiType }: {
       ส่วนนี้เป็น <b>ข้อสังเกต ไม่ใช่ผลการวัด</b> — คะแนนลักษณ์ของคุณคำนวณจากคำตอบเสร็จก่อนแล้ว
       ส่วนนี้ไม่ได้เข้าไปเปลี่ยนผล ถ้าอ่านแล้วไม่ตรงกับตัวเอง ให้เชื่อตัวเองก่อน
     </p>
-  </section>;
+  </details>;
 }
 
 function CharacterVisual({ character, ambiguous, sceneKit, mbtiConfidence, enneagramConfidence }: { character: ResolvedCharacterProfile; ambiguous: boolean; sceneKit: CharacterSceneKit; mbtiConfidence: LivingCharacterConfidence; enneagramConfidence: LivingCharacterConfidence }) {
