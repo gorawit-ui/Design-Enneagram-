@@ -17,7 +17,21 @@
 export const LARGE_PRINT_CLASS = "large-print";
 const STORAGE_KEY = "tdfb-large-print";
 
-export function readLargePrint(): boolean {
+/**
+ * A tiny external store rather than component state, so React can read it with
+ * useSyncExternalStore.
+ *
+ * The first version read localStorage in an effect and called setState with the result, which
+ * lint rejected and was right to: that is a cascading render, and the value is not React state in
+ * the first place — it lives in the browser and outlives the component. The server snapshot is
+ * always false because the server has no localStorage, and React re-renders once on the client if
+ * the stored value disagrees, which is the supported way to avoid a hydration mismatch.
+ */
+let enabled = false;
+let started = false;
+const listeners = new Set<() => void>();
+
+function read(): boolean {
   try {
     return window.localStorage.getItem(STORAGE_KEY) === "on";
   } catch {
@@ -27,11 +41,36 @@ export function readLargePrint(): boolean {
   }
 }
 
-export function writeLargePrint(enabled: boolean): void {
+function apply(): void {
   document.documentElement.classList.toggle(LARGE_PRINT_CLASS, enabled);
+}
+
+export function subscribeLargePrint(listener: () => void): () => void {
+  if (!started) {
+    started = true;
+    enabled = read();
+    apply();
+  }
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
+}
+
+export function getLargePrint(): boolean {
+  return enabled;
+}
+
+/** Always false: there is no localStorage on the server, and guessing would mismatch the markup. */
+export function getLargePrintOnServer(): boolean {
+  return false;
+}
+
+export function setLargePrint(next: boolean): void {
+  enabled = next;
+  apply();
   try {
-    window.localStorage.setItem(STORAGE_KEY, enabled ? "on" : "off");
+    window.localStorage.setItem(STORAGE_KEY, next ? "on" : "off");
   } catch {
     // Remembering it is a convenience, not the feature.
   }
+  for (const listener of listeners) listener();
 }

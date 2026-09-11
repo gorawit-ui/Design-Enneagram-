@@ -1432,3 +1432,25 @@ html.large-print .app-shell { zoom: 1.1; }
   html.print-full .user-manual-note { display: none; }
   html.print-full .user-manual-lines dt { font-size: 10pt; }
 }
+
+/* =============================================================================================
+   SHARE LINK AND QR — for the person running the session, not the person taking it.
+   ============================================================================================= */
+.share-link { margin-top: 16px; }
+.share-link summary {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  width: max-content; padding: 8px 0;
+  font-size: 14px; font-weight: 600; color: var(--green);
+}
+.share-link summary::after { content: "▾"; font-size: 11px; transition: transform .2s; }
+.share-link[open] summary::after { transform: rotate(180deg); }
+.share-link-body {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin-top: 6px; padding: 14px 16px;
+  border: 1px solid var(--line); border-radius: 16px; background: #fff;
+}
+.share-link-body img { border-radius: 8px; flex: none; }
+.share-link-url { margin: 0; font-size: 16px; font-weight: 600; color: var(--matcha); word-break: break-all; }
+.share-link-note { margin: 4px 0 10px; font-size: 13px; color: #5d6862; }
+.share-link .secondary-button { min-height: 40px; padding: 9px 16px; font-size: 13.5px; }
+@media print { .share-link { display: none; } }

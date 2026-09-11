@@ -86,12 +86,10 @@ function collect() {
   return rows;
 }
 
-const HIDE_INK = "type-audit-hide-ink";
 async function screenshotWithoutInk(page) {
   await page.addStyleTag({
     content: `*,*::before,*::after{color:transparent!important;text-shadow:none!important;`
       + `-webkit-text-stroke-color:transparent!important;caret-color:transparent!important}`,
-    // A tag we can find again to take the paired shot.
   });
   const buffer = await page.screenshot({ fullPage: true });
   return buffer;
