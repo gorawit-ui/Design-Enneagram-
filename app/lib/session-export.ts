@@ -15,9 +15,22 @@ import type { AnswerRecord, AssessmentResult } from "./scoring";
  * picked. Twenty-four digits, plus the bank fingerprint that says which items they index into, plus
  * the derived result so a replay that disagrees is visible rather than silent.
  *
+ * NO NAME AND NO TEAM ARE IN HERE, and that is a deliberate reversal. The first version carried
+ * both, on the reasoning that a calibration set has to know whose session is whose. The Products
+ * Owner's actual requirement is narrower: take the result data forward, not the people. So the
+ * export carries a session id derived from the answers instead — enough to tell two sessions apart,
+ * count them, and spot a duplicate, and not enough to say who took either one.
+ *
+ * The person's name still appears where it belongs: on their own screen and in their own PDF. What
+ * leaves as DATA does not carry it. Gender presentation is out for the same reason — it changes
+ * which picture is drawn and nothing about the score, so it is a personal detail with no analytical
+ * value, which is the worst ratio a field can have.
+ *
+ * The profile is not a parameter of these functions at all any more. That is the point: a field
+ * that cannot be passed in cannot be added back by accident.
+ *
  * Nothing here is sent anywhere. The app has no backend; the person copies the code and decides who
- * to give it to, which is also why the name and team are in it -- they typed those, they can see
- * them in the code, and a calibration set needs to know whose session is whose.
+ * to give it to.
  */
 
 export const SESSION_CODE_PREFIX = "TDFB1";
@@ -33,13 +46,33 @@ function confidenceLetter(confidence: string): string {
 }
 
 /**
+ * A label for a session that is not a label for a person.
+ *
+ * Derived from the answers rather than randomised, so it is stable across re-renders and a second
+ * copy of the same code is recognisably the same session rather than a new respondent. Two people
+ * who answered all 24 items identically would share an id, which is not a flaw: for a calibration
+ * set they ARE the same data point, and that is worth seeing.
+ *
+ * It is one-way in the only sense that matters here — the answers produce the id, the id does not
+ * produce a name, because no name was ever in the input.
+ */
+function sessionId(digits: string): string {
+  let hash = 0x811c9dc5;
+  const source = `${ITEM_BANK_VERSION}:${digits}`;
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36).padStart(6, "0").slice(-6);
+}
+
+/**
  * The one-line code. Fields are `key=value` separated by `|` so a field can be added later without
  * breaking a reader, and the answers are a digit string because every option index is 0-8.
  */
 export function encodeSessionCode(
   answers: readonly AnswerRecord[],
   result: AssessmentResult,
-  profile: { nickname: string; team: string },
 ): string {
   const digits = answers.map((answer) => String(answer.optionIndex)).join("");
   const type = result.enneagram.core === null
@@ -54,8 +87,7 @@ export function encodeSessionCode(
     `m=${result.mbti.type ?? "x"}`,
     `c=${confidenceLetter(result.enneagram.confidence)}${confidenceLetter(result.mbti.confidence)}`,
     `t=${result.tension ? `${result.tension.inwardCore}/${result.tension.outwardCore}` : "-"}`,
-    `w=${profile.nickname}`,
-    `g=${profile.team}`,
+    `s=${sessionId(digits)}`,
   ];
   return fields.join("|");
 }
@@ -68,19 +100,15 @@ export function encodeSessionCode(
 export function buildSessionExport(
   answers: readonly AnswerRecord[],
   result: AssessmentResult,
-  profile: { nickname: string; team: string; genderPresentation?: string },
 ): SessionExport {
-  const code = encodeSessionCode(answers, result, profile);
+  const code = encodeSessionCode(answers, result);
+  const id = sessionId(answers.map((answer) => String(answer.optionIndex)).join(""));
   const payload = {
     format: SESSION_CODE_PREFIX,
     itemBankVersion: ITEM_BANK_VERSION,
     exportedAt: new Date().toISOString(),
     expectedQuestions: MAX_QUESTIONS,
-    profile: {
-      nickname: profile.nickname,
-      team: profile.team,
-      ...(profile.genderPresentation ? { genderPresentation: profile.genderPresentation } : {}),
-    },
+    sessionId: id,
     answers: answers.map((answer) => ({ questionId: answer.questionId, optionIndex: answer.optionIndex })),
     result: {
       mbti: { type: result.mbti.type, candidate: result.mbti.candidate, confidence: result.mbti.confidence },
@@ -93,10 +121,11 @@ export function buildSessionExport(
     },
     code,
   };
-  const safeName = (profile.nickname || "session").replace(/[^\p{L}\p{N}_-]+/gu, "-").slice(0, 40);
   return {
     code,
     json: JSON.stringify(payload, null, 2),
-    filename: `tdfb-personality-${safeName}-${ITEM_BANK_VERSION}.json`,
+    // The filename is part of the export: one named after a person re-attaches the name the
+    // contents just dropped, the moment the file is forwarded.
+    filename: `tdfb-personality-${id}-${ITEM_BANK_VERSION}.json`,
   };
 }

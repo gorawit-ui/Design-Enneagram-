@@ -58,7 +58,7 @@ and they can see them there before they send it — press **ดูโค้ด�
 ## What a code looks like
 
 ```
-TDFB1|b=fem9h2|n=24|a=300330300343343030300020|e=5|m=INTJ-A|c=CC|t=-|w=เบนซ์ Gorawit|g=Operation
+TDFB1|b=3lziv4|n=24|a=300330300343343030300020|e=5w6|m=INTJ-A|c=CC|t=-|s=k2p9xq
 ```
 
 | Field | Meaning |
@@ -70,7 +70,15 @@ TDFB1|b=fem9h2|n=24|a=300330300343343030300020|e=5|m=INTJ-A|c=CC|t=-|w=เบน
 | `m` | MBTI type, or `x` when ambiguous |
 | `c` | confidence: Enneagram then MBTI, `C`lear / `N`ear / `A`mbiguous |
 | `t` | inward/outward tension, or `-` |
-| `w`, `g` | nickname and team |
+| `s` | session id, derived from the answers |
+
+**There is no name in it, and that is deliberate.** An earlier version carried `w=` and `g=` —
+nickname and team — because a calibration set seemed to need to know whose session was whose. The
+requirement is narrower than that: take the result data forward, not the people. `s` is derived from
+the answers, so two codes can be told apart, counted and de-duplicated without saying who took
+either one. The person's name still appears on their own screen and in their own PDF; what leaves as
+data does not carry it. `npm test` asserts that the code, the JSON and even the filename are clean,
+because a field like that comes back by accident, not on purpose.
 
 **`a` is the whole session.** `selectNextQuestion` is a pure function of the answers so far, so those
 digits replay which questions were asked, in what order, and what was chosen. `npm run test:scoring`

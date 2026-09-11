@@ -16,7 +16,7 @@ import { ENNEAGRAM_PROFILES } from "./lib/character-system";
 const confidenceThai: Record<Confidence, string> = { clear: "ชัดเจน", close: "แนวโน้มที่ใกล้เคียง", ambiguous: "ยังไม่ชัดเจน" };
 type Props = {
   result: AssessmentResult; answers: readonly AnswerRecord[]; character: ResolvedCharacterProfile;
-  nickname: string; team: string; genderPresentation: string; consent: boolean; onRestart: () => void;
+  nickname: string; team: string; consent: boolean; onRestart: () => void;
 };
 
 function InsightCard({ title, items, soft = false }: { title: string; items: readonly string[]; soft?: boolean }) {
@@ -400,16 +400,19 @@ function UserManual({ core, nickname }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 
  * this on phones, where handling a downloaded file is far more work than pasting a line of text.
  *
  * Nothing is uploaded. The app has no backend; the person copies and decides who to give it to,
- * and the code shows them exactly what it contains -- including their own name, which is in there
- * because a calibration set has to know whose session is whose.
+ * and the "ดูโค้ดก่อน" button shows them exactly what it contains before they do.
+ *
+ * It does NOT receive the name, the team or the presentation, and the missing props are the
+ * feature. The export used to carry all three; the requirement is to take the result data forward
+ * and not the people, and a component that is never handed a name cannot put one in a file. The
+ * name still reaches the PDF, which is printed from the card above rather than from here.
  */
-function ExportRow({ result, answers, nickname, team, genderPresentation }: {
+function ExportRow({ result, answers }: {
   result: AssessmentResult; answers: readonly AnswerRecord[];
-  nickname: string; team: string; genderPresentation: string;
 }) {
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
   const [revealed, setRevealed] = useState(false);
-  const session = buildSessionExport(answers, result, { nickname, team, genderPresentation });
+  const session = buildSessionExport(answers, result);
 
   const copy = async () => {
     try {
@@ -491,6 +494,8 @@ function ExportRow({ result, answers, nickname, team, genderPresentation }: {
     <p className="export-hint">
       โค้ดผลลัพธ์เป็นข้อความบรรทัดเดียว เก็บคำตอบทั้ง {answers.length} ข้อไว้ครบ
       สำหรับส่งให้ทีมที่ตรวจความแม่นของแบบทดสอบ — วางในแชทได้เลย
+      {" "}
+      <b>ไม่มีชื่อและทีมอยู่ในโค้ด</b> มีแค่คำตอบกับผลลัพธ์ ชื่อของคุณอยู่ใน PDF เท่านั้น
       {" "}
       <button type="button" className="text-button" onClick={() => setRevealed((current) => !current)}>
         {revealed ? "ซ่อนโค้ด" : "ดูโค้ดก่อน"}
@@ -678,7 +683,7 @@ function GateCDevPreview() {
   </aside>;
 }
 
-export default function ResultView({ result, answers, character, nickname, team, genderPresentation, consent, onRestart }: Props) {
+export default function ResultView({ result, answers, character, nickname, team, consent, onRestart }: Props) {
   const insight = composeResultNarrative(result);
   const ambiguous = result.mbti.status === "ambiguous" || result.enneagram.status === "ambiguous";
   const wingAccent = character.wingStatus === "valid" ? character.wing === character.coreProfile.leftWing.type ? "left" : "right" : null;
@@ -699,7 +704,7 @@ export default function ResultView({ result, answers, character, nickname, team,
         exactly the reader who wants to see how close. */}
     <ScoreRadar scores={result.scores.enneagram} core={result.enneagram.core}
       wing={result.wingStatus === "valid" ? result.wing : null} />
-    <ExportRow result={result} answers={answers} nickname={nickname} team={team} genderPresentation={genderPresentation} />
+    <ExportRow result={result} answers={answers} />
     <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
     <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>
     {/* After the hero, because the manual speaks in the voice of a named type and the hero is

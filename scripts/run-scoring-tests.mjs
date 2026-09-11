@@ -422,8 +422,7 @@ try {
   };
   for (const [name, original] of Object.entries(fixtures.ASSESSMENT_FIXTURES)) {
     if (!original.length) continue;
-    const code = sessionExport.encodeSessionCode(original, scoring.scoreAssessment(original),
-      { nickname: "ทดสอบ", team: "QA" });
+    const code = sessionExport.encodeSessionCode(original, scoring.scoreAssessment(original));
     const digits = /\|a=(\d*)\|/.exec(code)?.[1] ?? "";
     assert.equal(digits.length, original.length,
       `${name}: the code carries one digit per answer`);
@@ -439,6 +438,45 @@ try {
     assert.equal(after.wing, before.wing, `${name}: and the same wing`);
     assert.equal(after.mbti.type, before.mbti.type, `${name}: and the same MBTI type`);
   }
+  // What leaves as data carries no person. The Products Owner's requirement is to take the result
+  // data forward and not the people, and the export used to carry the name and the team in both
+  // the code and the JSON. This is the guard that stops either coming back: the functions no longer
+  // take a profile at all, so a reviewer would have to add a parameter to break it, and these
+  // assertions make that visible rather than silent.
+  {
+    const answers = fixtures.ASSESSMENT_FIXTURES.intjA5w6;
+    const result = scoring.scoreAssessment(answers);
+    const bundle = sessionExport.buildSessionExport(answers, result);
+    const payload = JSON.parse(bundle.json);
+
+    assert.equal(sessionExport.encodeSessionCode.length, 2,
+      "encodeSessionCode takes answers and a result — a third parameter is how a name gets back in");
+    assert.equal(sessionExport.buildSessionExport.length, 2,
+      "buildSessionExport takes answers and a result, and nothing about the person");
+
+    for (const field of ["w=", "g="]) {
+      assert.ok(!bundle.code.includes(field), `the code no longer carries the ${field} field`);
+    }
+    assert.ok(/\|s=[a-z0-9]{6}(\||$)/.test(bundle.code), "the code carries a six-character session id");
+    assert.equal(payload.profile, undefined, "the JSON carries no profile block");
+    assert.equal(payload.sessionId, /\|s=([a-z0-9]{6})/.exec(bundle.code)[1],
+      "the JSON and the code name the same session");
+    assert.ok(!/nickname|team|genderPresentation/.test(bundle.json),
+      "no profile field survives anywhere in the JSON");
+    assert.ok(!/[\u0E00-\u0E7F]/.test(bundle.filename),
+      "the filename carries no Thai text, which in practice means no name");
+    assert.ok(bundle.filename.includes(payload.sessionId),
+      "the file is named after the session, not the person");
+
+    // Stable, because a code copied twice must be recognisably one session rather than two.
+    assert.equal(sessionExport.encodeSessionCode(answers, result), bundle.code,
+      "the same session encodes to the same code every time");
+    // And different sessions get different ids, or counting them is meaningless.
+    const other = fixtures.ASSESSMENT_FIXTURES.enfpT7w8;
+    assert.notEqual(JSON.parse(sessionExport.buildSessionExport(other, scoring.scoreAssessment(other)).json).sessionId,
+      payload.sessionId, "two different sessions get two different ids");
+  }
+
   // Every option index has to be a single digit, or the digit string is ambiguous. Nine options is
   // the widest item in the bank today; a tenth would silently break every exported code.
   for (const question of allQuestions) {
