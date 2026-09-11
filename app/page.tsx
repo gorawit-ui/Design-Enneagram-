@@ -62,6 +62,15 @@ export default function Home() {
   // the server snapshot is false, and React re-renders once on the client if the stored value
   // disagrees, instead of a hydration mismatch or a setState inside an effect.
   const largePrint = useSyncExternalStore(subscribeLargePrint, getLargePrint, getLargePrintOnServer);
+
+  // The offline contingency the playbook requires. Registered after mount and never awaited: if it
+  // fails there is nothing to tell the participant, because everything still works — they just
+  // lose the ability to survive the venue's wifi dropping. Production only, so a dev server never
+  // serves yesterday's chunks out of a cache.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
   const [profile, setProfile] = useState(INITIAL_PROFILE);
   const [consent, setConsent] = useState(false);
   const [candidateNotice, setCandidateNotice] = useState(false);
