@@ -4,10 +4,11 @@ name: CI
 # build, and the Asset Gate E technical criterion (which also fails when a gate document cites
 # evidence files that are missing from the repository).
 #
-# The Gate E responsive criterion is NOT run here: it needs a built app, a running server and a
-# browser. Run it on demand before changing a gate verdict:
-#   npm run build && npm run start -- --port 3000 &
-#   BASE_URL=http://127.0.0.1:3000 npm run gate:responsive
+# The gates that need a browser run in the second job below. They used to be "run them on demand",
+# and that is exactly how gate:responsive stayed broken across two changes: its answer array went
+# stale when the session grew from 20 questions to 24, and again when the reserved tie-break slot
+# changed which question comes last. Both times it failed by timing out, and both times nobody saw
+# it for weeks because nothing ran it. A gate nobody runs is not a gate.
 
 on:
   push:
@@ -37,3 +38,77 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # Everything that needs a real browser: the two PDF exports, large print at both scale factors,
+  # the delete route, offline survival, and the Gate E responsive criterion.
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # --with-deps pulls the system libraries a headless Chromium needs on a bare runner.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      # The worker precaches the build's own hashed filenames, so it has to be generated from the
+      # build that is about to be served, not from whatever was committed.
+      - name: Generate the service worker
+        run: npm run sw
+
+      # The server and the gates that need it live in ONE step on purpose. A background process
+      # started in one step is not guaranteed to survive into the next on a runner, and the failure
+      # mode is the worst kind: every gate reports "connection refused" and the diagnosis looks like
+      # a broken app rather than a broken workflow.
+      - name: Gates that need a served app
+        run: |
+          set -euo pipefail
+          npm run start -- --port 3000 &
+          server=$!
+          trap 'kill -9 $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -sf -o /dev/null http://127.0.0.1:3000/; then break; fi
+            if [ "$attempt" -eq 40 ]; then echo "the app did not come up on 3000"; exit 1; fi
+            sleep 1
+          done
+          export BASE_URL=http://127.0.0.1:3000
+          echo "::group::PDF exports (one-page and full report)"
+          npm run gate:print
+          echo "::endgroup::"
+          echo "::group::Large print at both scale factors"
+          npm run gate:largeprint
+          echo "::endgroup::"
+          echo "::group::The delete route actually deletes"
+          npm run gate:erase
+          echo "::endgroup::"
+          echo "::group::Gate E responsive criterion"
+          npm run gate:responsive
+          echo "::endgroup::"
+
+      # Separate, and without BASE_URL: this one starts a server on its own port and kills it,
+      # because emulating offline does not work against loopback — it has to stop the real origin.
+      - name: Gate — survives losing the network
+        run: npm run gate:offline
+
+      # The gates write what they judged. On a failure that evidence is the difference between
+      # "the PDF gate failed" and knowing which page came out blank.
+      - name: Upload what the gates produced
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-evidence
+          path: |
+            outputs/print
+            outputs/gate-e
+          if-no-files-found: warn
+          retention-days: 14
