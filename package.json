@@ -37,6 +37,7 @@
     "items:coverage": "node scripts/measure-item-coverage.mjs",
     "items:reach": "node scripts/measure-core-reachability.mjs",
     "items:confusion": "node scripts/measure-core-confusion.mjs",
+    "items:discrimination": "node scripts/measure-discrimination.mjs",
     "items:reachability": "node scripts/probe-type-reachability.mjs",
     "items:probe": "node scripts/probe-ground-truth.mjs",
     "items:adaptive": "node scripts/measure-adaptive-variation.mjs",
