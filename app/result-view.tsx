@@ -387,6 +387,30 @@ function UserManual({ core, nickname }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 
   </section>;
 }
 
+
+/**
+ * The session code, printed into the full report.
+ *
+ * Invisible on screen — the export row above already offers the code with a copy button, and a
+ * second copy would just be clutter. It exists because of what happened the first time somebody
+ * sent a result back: a screenshot arrived, then a PDF, and neither carried the answers, so the
+ * one question worth asking — which item did they answer differently from their own type? — could
+ * not be asked at all. A PDF is what people actually send. It should be sufficient.
+ *
+ * It is safe to print precisely because the code no longer carries a name: 24 option indexes, the
+ * derived result, the item-bank fingerprint and a session id. On a page that already has the
+ * person's name at the top, nothing here adds to what the reader can see.
+ */
+function SessionCodeForPrint({ answers, result }: {
+  answers: readonly AnswerRecord[]; result: AssessmentResult;
+}) {
+  const { code } = buildSessionExport(answers, result);
+  return <section className="session-code-print" aria-hidden="true">
+    <span>โค้ดผลลัพธ์ — สำหรับทีมที่ตรวจความแม่นของแบบทดสอบ</span>
+    <code>{code}</code>
+  </section>;
+}
+
 /**
  * Getting a finished session out of the browser.
  *
@@ -729,5 +753,6 @@ export default function ResultView({ result, answers, character, nickname, team,
     {consent && <details className="facilitator-details"><summary>แนวทางคุยต่อสำหรับหัวหน้า / HR<span className="details-teaser">{`${insight.facilitatorPrompts.length} คำถามสำหรับคุยหนึ่งต่อหนึ่ง · ${insight.managerSupport.length} สิ่งที่หัวหน้าช่วยได้`}</span></summary><div className="facilitator-content"><section><h3>คำถามสำหรับคุยหนึ่งต่อหนึ่ง</h3><ul>{insight.facilitatorPrompts.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>สิ่งที่หัวหน้าช่วยได้</h3><ul>{insight.managerSupport.map((item) => <li key={item}>{item}</li>)}</ul></section><p className="privacy-reminder">ใช้เพื่อสนับสนุนการพัฒนาและการทำงานร่วมกันเท่านั้น ไม่ใช้ตัดสินผลงาน โอกาส หรือคุณค่าของบุคคล</p></div></details>}
     {process.env.NODE_ENV === "development" && <><CoreFiveDevPreview /><GateCDevPreview /></>}
     <details className="mapping-details"><summary>รายละเอียดการจับคู่ตัวละครสำหรับทีมงาน</summary><div className="design-recipe"><div><span className="step-label">MAPPING REVIEW</span><h2>Character design recipe</h2></div><dl><div><dt>Core</dt><dd>{ambiguous ? "Neutral fallback" : character.characterDesignRecipe.core}</dd></div><div><dt>Wing</dt><dd>{result.wingStatus === "valid" ? result.wing : "Ambiguous"}</dd></div><div><dt>MBTI visual energy</dt><dd>{ambiguous ? "Neutral" : character.characterDesignRecipe.mbtiVisualEnergy}</dd></div><div><dt>Presentation</dt><dd>{character.characterDesignRecipe.presentation}</dd></div></dl></div></details><button className="secondary-button restart" onClick={onRestart}>↻ ทำแบบประเมินอีกครั้ง</button>
+    <SessionCodeForPrint answers={answers} result={result} />
   </div>;
 }

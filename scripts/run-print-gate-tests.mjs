@@ -99,9 +99,14 @@ try {
       const measurePrint = () => {
         const visible = [...document.querySelectorAll(".result-wrap > *")]
           .filter((element) => getComputedStyle(element).display !== "none");
+        const body = visible.map((element) => element.textContent ?? "").join(" ").replace(/\s+/g, " ").trim();
         return {
           sections: visible.map((element) => String(element.className).split(" ")[0]),
-          text: visible.map((element) => element.textContent ?? "").join(" ").replace(/\s+/g, " ").trim().length,
+          text: body.length,
+          // The raw text as well, so a check can look for something inside it rather than only
+          // measure how much of it there is.
+          codes: body.match(/TDFB1\|[^\s]+/g) ?? [],
+          raw: body,
         };
       };
       await page.waitForTimeout(150);
@@ -143,6 +148,12 @@ try {
           && !printedFull.sections.includes("export-row")],
         ["neither export prints the internal mapping panel", !printed.sections.includes("mapping-details")
           && !printedFull.sections.includes("mapping-details")],
+        // The full report has to carry the session code. A PDF is what people actually send back,
+        // and the first two that came back — a screenshot, then a PDF — both carried the verdict
+        // and lost the answers, which are the only part that can show the scoring to be wrong.
+        ["full report carries the session code", (printedFull.codes ?? []).length === 1
+          && /TDFB1\|b=[a-z0-9]+\|n=\d+\|a=\d+/.test(printedFull.codes[0])],
+        ["the one-page card does not", !(printed.codes ?? []).length],
       ];
       for (const [name, passed] of checks) {
         if (!passed) failures.push(`${testCase.key} @ ${viewport.label}: ${name}`);

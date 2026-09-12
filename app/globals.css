@@ -1531,3 +1531,29 @@ details.depth-section > .depth-head { margin-top: 14px; }
   details.depth-section > summary .details-teaser,
   details.cross-reading > summary .details-teaser { display: none; }
 }
+
+/* =============================================================================================
+   SESSION CODE IN THE FULL REPORT
+
+   Invisible on screen: the export row already offers the code with a copy button. It is printed
+   into the full report because a PDF is what people actually send back, and the first two results
+   that came back — a screenshot, then a PDF — both carried the verdict and lost the answers, which
+   are the only part that can show the scoring to be wrong.
+   ============================================================================================= */
+.session-code-print { display: none; }
+
+@media print {
+  html.print-full .result-wrap > .session-code-print {
+    display: block !important;
+    margin-top: 6mm; padding-top: 3mm; border-top: 1px solid #dfe5df;
+    break-inside: avoid;
+  }
+  html.print-full .session-code-print span {
+    display: block; margin-bottom: 1.5mm; font-size: 8pt; color: #5d6862;
+  }
+  html.print-full .session-code-print code {
+    display: block; word-break: break-all;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: 8pt; line-height: 1.5; color: #2f3a35;
+  }
+}
