@@ -468,6 +468,22 @@ try {
     assert.ok(bundle.filename.includes(payload.sessionId),
       "the file is named after the session, not the person");
 
+    // Time per question rides in the code, because it is about the ITEMS rather than the person:
+    // an item everyone dwells on twice as long as its neighbours is the one to rewrite, and that
+    // cannot be recovered after the fact. Omitted entirely when a session has none, so a reader
+    // written against the old format is unaffected.
+    assert.ok(!bundle.code.includes("|d="), "a session with no timings carries no d= field");
+    const timed = sessionExport.buildSessionExport(answers, result, answers.map((_, i) => i + 3));
+    const field = /\|d=([\d,]+)/.exec(timed.code);
+    assert.ok(field, "a session with timings carries them");
+    assert.equal(field[1].split(",").length, answers.length, "one duration per answer");
+    assert.equal(field[1].split(",")[0], "3", "the first question's seconds come first");
+    const timedPayload = JSON.parse(timed.json);
+    assert.equal(timedPayload.answers[0].seconds, 3, "the JSON carries seconds per answer");
+    assert.equal(timedPayload.answers.at(-1).seconds, answers.length + 2, "…in order");
+    assert.ok(!/nickname|team|genderPresentation/.test(timed.json),
+      "adding timings did not smuggle a profile back in");
+
     // Stable, because a code copied twice must be recognisably one session rather than two.
     assert.equal(sessionExport.encodeSessionCode(answers, result), bundle.code,
       "the same session encodes to the same code every time");

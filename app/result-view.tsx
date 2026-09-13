@@ -16,7 +16,7 @@ import { ENNEAGRAM_PROFILES } from "./lib/character-system";
 const confidenceThai: Record<Confidence, string> = { clear: "ชัดเจน", close: "แนวโน้มที่ใกล้เคียง", ambiguous: "ยังไม่ชัดเจน" };
 type Props = {
   result: AssessmentResult; answers: readonly AnswerRecord[]; character: ResolvedCharacterProfile;
-  nickname: string; team: string; consent: boolean; onRestart: () => void;
+  nickname: string; team: string; consent: boolean; durations?: readonly number[]; onRestart: () => void;
 };
 
 function InsightCard({ title, items, soft = false }: { title: string; items: readonly string[]; soft?: boolean }) {
@@ -401,10 +401,10 @@ function UserManual({ core, nickname }: { core: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 
  * derived result, the item-bank fingerprint and a session id. On a page that already has the
  * person's name at the top, nothing here adds to what the reader can see.
  */
-function SessionCodeForPrint({ answers, result }: {
-  answers: readonly AnswerRecord[]; result: AssessmentResult;
+function SessionCodeForPrint({ answers, result, durations }: {
+  answers: readonly AnswerRecord[]; result: AssessmentResult; durations: readonly number[];
 }) {
-  const { code } = buildSessionExport(answers, result);
+  const { code } = buildSessionExport(answers, result, durations);
   return <section className="session-code-print" aria-hidden="true">
     <span>โค้ดผลลัพธ์ — สำหรับทีมที่ตรวจความแม่นของแบบทดสอบ</span>
     <code>{code}</code>
@@ -431,12 +431,12 @@ function SessionCodeForPrint({ answers, result }: {
  * and not the people, and a component that is never handed a name cannot put one in a file. The
  * name still reaches the PDF, which is printed from the card above rather than from here.
  */
-function ExportRow({ result, answers }: {
-  result: AssessmentResult; answers: readonly AnswerRecord[];
+function ExportRow({ result, answers, durations }: {
+  result: AssessmentResult; answers: readonly AnswerRecord[]; durations: readonly number[];
 }) {
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
   const [revealed, setRevealed] = useState(false);
-  const session = buildSessionExport(answers, result);
+  const session = buildSessionExport(answers, result, durations);
 
   const copy = async () => {
     try {
@@ -707,7 +707,7 @@ function GateCDevPreview() {
   </aside>;
 }
 
-export default function ResultView({ result, answers, character, nickname, team, consent, onRestart }: Props) {
+export default function ResultView({ result, answers, character, nickname, team, consent, durations = [], onRestart }: Props) {
   const insight = composeResultNarrative(result);
   const ambiguous = result.mbti.status === "ambiguous" || result.enneagram.status === "ambiguous";
   const wingAccent = character.wingStatus === "valid" ? character.wing === character.coreProfile.leftWing.type ? "left" : "right" : null;
@@ -728,7 +728,7 @@ export default function ResultView({ result, answers, character, nickname, team,
         exactly the reader who wants to see how close. */}
     <ScoreRadar scores={result.scores.enneagram} core={result.enneagram.core}
       wing={result.wingStatus === "valid" ? result.wing : null} />
-    <ExportRow result={result} answers={answers} />
+    <ExportRow result={result} answers={answers} durations={durations} />
     <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
     <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>
     {/* After the hero, because the manual speaks in the voice of a named type and the hero is
@@ -753,6 +753,6 @@ export default function ResultView({ result, answers, character, nickname, team,
     {consent && <details className="facilitator-details"><summary>แนวทางคุยต่อสำหรับหัวหน้า / HR<span className="details-teaser">{`${insight.facilitatorPrompts.length} คำถามสำหรับคุยหนึ่งต่อหนึ่ง · ${insight.managerSupport.length} สิ่งที่หัวหน้าช่วยได้`}</span></summary><div className="facilitator-content"><section><h3>คำถามสำหรับคุยหนึ่งต่อหนึ่ง</h3><ul>{insight.facilitatorPrompts.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>สิ่งที่หัวหน้าช่วยได้</h3><ul>{insight.managerSupport.map((item) => <li key={item}>{item}</li>)}</ul></section><p className="privacy-reminder">ใช้เพื่อสนับสนุนการพัฒนาและการทำงานร่วมกันเท่านั้น ไม่ใช้ตัดสินผลงาน โอกาส หรือคุณค่าของบุคคล</p></div></details>}
     {process.env.NODE_ENV === "development" && <><CoreFiveDevPreview /><GateCDevPreview /></>}
     <details className="mapping-details"><summary>รายละเอียดการจับคู่ตัวละครสำหรับทีมงาน</summary><div className="design-recipe"><div><span className="step-label">MAPPING REVIEW</span><h2>Character design recipe</h2></div><dl><div><dt>Core</dt><dd>{ambiguous ? "Neutral fallback" : character.characterDesignRecipe.core}</dd></div><div><dt>Wing</dt><dd>{result.wingStatus === "valid" ? result.wing : "Ambiguous"}</dd></div><div><dt>MBTI visual energy</dt><dd>{ambiguous ? "Neutral" : character.characterDesignRecipe.mbtiVisualEnergy}</dd></div><div><dt>Presentation</dt><dd>{character.characterDesignRecipe.presentation}</dd></div></dl></div></details><button className="secondary-button restart" onClick={onRestart}>↻ ทำแบบประเมินอีกครั้ง</button>
-    <SessionCodeForPrint answers={answers} result={result} />
+    <SessionCodeForPrint answers={answers} result={result} durations={durations} />
   </div>;
 }

@@ -29,6 +29,9 @@ import type { AnswerRecord, AssessmentResult } from "./scoring";
  * The profile is not a parameter of these functions at all any more. That is the point: a field
  * that cannot be passed in cannot be added back by accident.
  *
+ * Time per question rides along for the same reason the answers do: it is about the ITEMS, not the
+ * person. Whole seconds, capped, and an item that everyone dwells on is the one to rewrite.
+ *
  * Nothing here is sent anywhere. The app has no backend; the person copies the code and decides who
  * to give it to.
  */
@@ -73,6 +76,7 @@ function sessionId(digits: string): string {
 export function encodeSessionCode(
   answers: readonly AnswerRecord[],
   result: AssessmentResult,
+  durations: readonly number[] = [],
 ): string {
   const digits = answers.map((answer) => String(answer.optionIndex)).join("");
   const type = result.enneagram.core === null
@@ -88,6 +92,10 @@ export function encodeSessionCode(
     `c=${confidenceLetter(result.enneagram.confidence)}${confidenceLetter(result.mbti.confidence)}`,
     `t=${result.tension ? `${result.tension.inwardCore}/${result.tension.outwardCore}` : "-"}`,
     `s=${sessionId(digits)}`,
+    // Seconds per question, in order. An item everyone reads twice as long as its neighbours is
+    // either badly worded or genuinely hard, and telling those apart needs the numbers first.
+    // Omitted rather than sent empty when a session has none, so an older reader is unaffected.
+    ...(durations.length > 0 ? [`d=${durations.map((value) => Math.round(value) || 0).join(",")}`] : []),
   ];
   return fields.join("|");
 }
@@ -100,8 +108,9 @@ export function encodeSessionCode(
 export function buildSessionExport(
   answers: readonly AnswerRecord[],
   result: AssessmentResult,
+  durations: readonly number[] = [],
 ): SessionExport {
-  const code = encodeSessionCode(answers, result);
+  const code = encodeSessionCode(answers, result, durations);
   const id = sessionId(answers.map((answer) => String(answer.optionIndex)).join(""));
   const payload = {
     format: SESSION_CODE_PREFIX,
@@ -109,7 +118,11 @@ export function buildSessionExport(
     exportedAt: new Date().toISOString(),
     expectedQuestions: MAX_QUESTIONS,
     sessionId: id,
-    answers: answers.map((answer) => ({ questionId: answer.questionId, optionIndex: answer.optionIndex })),
+    answers: answers.map((answer, position) => ({
+      questionId: answer.questionId,
+      optionIndex: answer.optionIndex,
+      ...(durations[position] === undefined ? {} : { seconds: Math.round(durations[position]) }),
+    })),
     result: {
       mbti: { type: result.mbti.type, candidate: result.mbti.candidate, confidence: result.mbti.confidence },
       enneagram: { core: result.enneagram.core, confidence: result.enneagram.confidence },
