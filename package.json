@@ -46,7 +46,8 @@
     "type:audit": "node scripts/measure-typography.mjs",
     "type:specimens": "node scripts/render-font-specimens.mjs",
     "type:overflow": "node scripts/measure-font-overflow.mjs",
-    "type:numerals": "node scripts/measure-numerals.mjs"
+    "type:numerals": "node scripts/measure-numerals.mjs",
+    "replay": "node scripts/replay-session.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
