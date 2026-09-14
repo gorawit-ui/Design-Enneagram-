@@ -121,8 +121,22 @@ try {
     assert.ok(adaptive.slice(0, -1).filter((q) => q.challengeFor?.core).length <= 2,
       `${name}: at most two core challenges before the reserved slot`);
     assert.ok(adaptive.filter((q) => q.challengeFor?.core).length <= 3, `${name}: at most three core challenges`);
-    assert.equal(adaptive.filter((q) => q.challengeFor?.wingCore).length, 1, `${name}: exactly one wing challenge`);
+    // At most one wing challenge, and ZERO is correct rather than starved. The wing slot is only
+    // spent while the wing is still unresolved: a wing is valid at a margin of 2, the item's middle
+    // rungs are worth 2 to the neighbour they lean toward, so asking into a settled wing cannot
+    // raise it and can flatten it to a tie. A session that settled its wing from the foundation
+    // block has nothing for the item to do. The assertion below keeps the item from becoming dead
+    // code in the case that still needs it.
+    assert.ok(adaptive.filter((q) => q.challengeFor?.wingCore).length <= 1, `${name}: at most one wing challenge`);
   }
+
+  // ...and a session that reaches the adaptive block with the wing still open is still asked.
+  assert.equal(
+    scoring.sessionQuestions(fixtures.ASSESSMENT_FIXTURES.ambiguousWing)
+      .filter((question) => question.challengeFor?.wingCore).length,
+    1,
+    "a session whose wing is unresolved is still asked the wing question",
+  );
 
   // Selection is a function of the answers before each question, not a block chosen once. The old
   // batch version was computed at question 18 and stored, so a respondent who went back and changed
@@ -181,16 +195,25 @@ try {
       assert.equal(answers.length, data.MAX_QUESTIONS, "every simulated session reaches full length");
       assert.equal(new Set(answers.map((a) => a.questionId)).size, answers.length, "no question is asked twice");
       const adaptive = answers.slice(data.FOUNDATION_QUESTIONS.length).map((a) => a.questionId);
+      const result = scoring.scoreAssessment(answers);
       assert.deepEqual(adaptive.slice(0, 2), ["c-at", "c-at2"], "A/T pair holds the first two adaptive slots");
       const mbti = adaptive.filter((id) => /^c-(ie|sn|tf|jp)$/.test(id)).length;
       const core = adaptive.filter((id) => /^c-core-/.test(id)).length;
       const wing = adaptive.filter((id) => /^c-wing-/.test(id)).length;
-      assert.ok(mbti >= 1 && mbti <= 2, `MBTI takes one or two open slots, took ${mbti}`);
+      assert.ok(mbti >= 1, `MBTI takes at least one open slot, took ${mbti}`);
       const beforeReserved = adaptive.slice(0, -1).filter((id) => /^c-core-/.test(id)).length;
       assert.ok(beforeReserved <= 2, `at most two core challenges before the reserved slot, got ${beforeReserved}`);
       assert.ok(core <= 3, `at most three core challenges in total, got ${core}`);
-      assert.equal(wing, 1, `exactly one wing challenge, got ${wing}`);
+      assert.ok(wing <= 1, `at most one wing challenge, got ${wing}`);
       assert.equal(mbti + core + wing, 4, "the four open slots are all spent on something targeted");
+      // The Enneagram's two-slot floor is about STARVATION, not about a quota, so it is conditional
+      // on the Enneagram still having something to ask. Once the core is named and the wing is
+      // valid, its remaining questions can only confirm what is already decided -- and the wing item
+      // in particular can flatten a 2-point lead to a tie -- so handing the slot to an MBTI axis
+      // that is still unresolved is the better spend, not a regression of the starvation fix.
+      const settled = result.enneagram.core !== null && result.wingStatus === "valid";
+      assert.ok(core + wing >= 2 || settled,
+        `the Enneagram keeps two of the four open slots unless its side is settled (kept ${core + wing})`);
     }
   }
 

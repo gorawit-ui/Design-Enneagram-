@@ -301,10 +301,28 @@ export function selectNextQuestion(answers: readonly AnswerRecord[]): Assessment
     if (preferred) return byId(`c-core-${preferred.value}`)!;
   }
 
-  // 4. The wing, for whichever core is leading *now*. scoreAssessment reads the wing off the two
-  //    cores adjacent to the leader, and this question is what puts weight on them.
-  const wing = unasked(`c-wing-${result.enneagram.top.value}`);
-  if (wing) return wing;
+  // 4. The wing, for whichever core is leading *now*, and ONLY while the wing is still unresolved.
+  //    scoreAssessment reads the wing off the two cores adjacent to the leader, and this question
+  //    is what puts weight on them.
+  //
+  //    The guard is not caution, it is arithmetic. A wing is `valid` at `|left - right| >= 2`, and
+  //    the wing item's middle rungs are worth 2 to the neighbour they lean toward -- so against a
+  //    lead of exactly 2, which is the commonest valid lead there is, one answer erases it exactly.
+  //    Asking a settled wing cannot raise the margin enough to matter and can drop it to a tie, so
+  //    the slot only ever loses. Session wvg9a3 is the case: wing 2 was valid at 4-2 from question
+  //    19 onward, the last slot asked c-wing-1 anyway, a middle rung made it 4-4, and a respondent
+  //    who knows she is 1w2 was handed a core with no wing.
+  //
+  //    Measured with `npm run items:wingslot` -- 7200 sessions carrying a true core and a true
+  //    wing, the same seeded answers through both versions. The item was being asked into an
+  //    already-valid wing 62% of the time and broke it in 24% of those. Naming rate 80.7% -> 95.5%,
+  //    named-and-correct 72.1% -> 79.8%, and the rescue rate for wings that genuinely needed the
+  //    question is unchanged (33.2% -> 33.5%) because those sessions still reach it. Holds at 55%
+  //    and 90% consistency too: +8.0 and +6.1 points correct.
+  if (result.wingStatus !== "valid") {
+    const wing = unasked(`c-wing-${result.enneagram.top.value}`);
+    if (wing) return wing;
+  }
 
   // 5. Only now may MBTI take a second slot, and only for an axis that is still unsettled.
   if (narrowestAxis && narrowestAxis[1].margin < 4) return byId(`c-${narrowestAxis[0].toLowerCase()}`)!;
