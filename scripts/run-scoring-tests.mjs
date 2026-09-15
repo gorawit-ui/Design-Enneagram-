@@ -105,8 +105,14 @@ try {
     // evidence at all, which is the opposite of why the count moved to 24.
     const mbtiSlots = adaptive.filter((q) => /^c-(ie|sn|tf|jp)$/.test(q.id)).length;
     const enneagramSlots = adaptive.filter((q) => /^c-(core|wing)-/.test(q.id)).length;
-    assert.ok(mbtiSlots <= 2, `${name}: MBTI takes at most two of the four open slots (took ${mbtiSlots})`);
-    assert.ok(enneagramSlots >= 2, `${name}: the Enneagram keeps at least two of the four open slots (kept ${enneagramSlots})`);
+    // Same invariant as the simulated-session block below, for the same reason: the Enneagram's
+    // floor exists to stop MBTI starving it, not to hold a quota open after the core is named and
+    // the wing is valid. Once its side is settled, an unresolved MBTI axis is the better spend.
+    const settled = scoring.scoreAssessment(answers).enneagram.core !== null
+      && scoring.scoreAssessment(answers).wingStatus === "valid";
+    assert.ok(mbtiSlots >= 1, `${name}: MBTI takes at least one of the four open slots (took ${mbtiSlots})`);
+    assert.ok(enneagramSlots >= 2 || settled,
+      `${name}: the Enneagram keeps two of the four open slots unless its side is settled (kept ${enneagramSlots})`);
     // Core challenges are capped at two BEFORE the reserved final slot, so the wing keeps a slot.
     // Uncapped, the rival rule kept firing while the core stayed unclear -- which it usually does --
     // and a typical respondent got three core challenges and no wing question, leaving wingStatus
@@ -145,8 +151,13 @@ try {
   // question asked about a core that was not theirs and the core they landed on got no adaptive
   // evidence at all.
   {
+    //
+    // The change being made has to be one that actually moves the leading core, or the assertion
+    // passes for the wrong reason. Hardcoding which answers to flip made this test go stale twice
+    // as the item set changed -- the flip stopped moving the leader and the test started asserting
+    // that two identical blocks were different. So it SEARCHES for a foundation answer that moves
+    // the leader, and fails if the item set no longer contains one.
     const beforeChange = data.FOUNDATION_QUESTIONS.map((question, index) => ({ questionId: question.id, optionIndex: [0, 1, 2, 3][index % 4] }));
-    const afterChange = beforeChange.map((answer, index) => (index >= 8 && index <= 10 ? { ...answer, optionIndex: 3 } : answer));
     const adaptiveFor = (prefix) => {
       const answers = [...prefix];
       while (answers.length < data.MAX_QUESTIONS) {
@@ -156,6 +167,16 @@ try {
       }
       return answers.slice(data.FOUNDATION_QUESTIONS.length).map((a) => a.questionId);
     };
+    const baselineLeader = scoring.scoreAssessment(beforeChange).enneagram.top.value;
+    let afterChange = null;
+    for (let position = 0; position < beforeChange.length && !afterChange; position += 1) {
+      const options = data.FOUNDATION_QUESTIONS[position].options.length;
+      for (let choice = 0; choice < options; choice += 1) {
+        const variant = beforeChange.map((answer, index) => (index === position ? { ...answer, optionIndex: choice } : answer));
+        if (scoring.scoreAssessment(variant).enneagram.top.value !== baselineLeader) { afterChange = variant; break; }
+      }
+    }
+    assert.ok(afterChange, "no single foundation answer moves the leading core — the test cannot test anything");
     assert.notDeepEqual(adaptiveFor(beforeChange), adaptiveFor(afterChange), "changing a foundation answer must re-derive the adaptive block");
     // And the wing question belongs to the core leading AT THE MOMENT IT IS CHOSEN -- which is the
     // whole point of choosing one question at a time. Checking it against the leader after the
@@ -174,7 +195,12 @@ try {
         }
         answers.push({ questionId: question.id, optionIndex: 1 });
       }
-      assert.ok(sawWing, "a wing question is always asked");
+      // Not "always asked" any more: the slot is only spent while the wing is still open, because
+      // the item's middle rungs are worth 2 and a valid wing can lead by exactly 2 -- asking there
+      // can only flatten it. Skipping is therefore correct when the wing came out valid, and
+      // starvation when it did not, which is what this distinguishes.
+      assert.ok(sawWing || scoring.scoreAssessment(answers).wingStatus === "valid",
+        "a wing question is asked whenever the wing is still unresolved");
     }
   }
 
@@ -280,12 +306,24 @@ try {
   // item asking about fear or inner voice whose options cover only some of the nine forces the
   // rest of the respondents to answer about somebody else, and a donated answer lands wherever the
   // other options happen to point. See scripts/probe-type-reachability.mjs.
-  const NINE_OPTION_ITEMS = ["f-e-3", "f-e-6"];
+  //
+  // f-e-2 is a third exception at six, and for the same reason one step down. It and f-e-4 asked
+  // the same question twice and offered the SAME four cores both times, so a 1, 2, 3, 4 or 9 had
+  // nothing to pick in either -- twice, out of ten Enneagram items. Session 9yyds9 is what that
+  // cost: a respondent who knows she is 9w1 took the type 7 option in both and finished as core 7.
+  // f-e-2 now carries the five cores f-e-4 cannot serve, plus type 7 so that 7 and 9 are offered
+  // side by side rather than one at a time -- they are the pair this question confuses, since both
+  // answer uncertainty with "keep something open".
+  const WIDE_ITEMS = { "f-e-3": 9, "f-e-6": 9, "f-e-2": 6 };
   for (const question of allQuestions) {
-    const expected = NINE_OPTION_ITEMS.includes(question.id) ? 9 : 4;
+    const expected = WIDE_ITEMS[question.id] ?? 4;
     assert.equal(question.options.length, expected,
       `${question.id}: ${expected} scored choices`);
   }
+  // The two nine-option items must cover every core with a single-core option each; that is what
+  // makes them the items nobody has to donate an answer in.
+  const NINE_OPTION_ITEMS = Object.entries(WIDE_ITEMS).filter(([, n]) => n === 9).map(([id]) => id);
+  assert.deepEqual(NINE_OPTION_ITEMS.sort(), ["f-e-3", "f-e-6"], "the two per-core items are f-e-3 and f-e-6");
   for (const id of NINE_OPTION_ITEMS) {
     const question = allQuestions.find((q) => q.id === id);
     assert.ok(question, `${id} exists`);
@@ -298,6 +336,25 @@ try {
       `${id}: one option per core, so nobody has to donate their answer`);
     assert.ok(question.options.every((option) => typeof option.hint === "string" && option.hint.length > 0),
       `${id}: every option carries a gloss`);
+  }
+  {
+    const feTwo = allQuestions.find((q) => q.id === "f-e-2");
+    const cores = feTwo.options.map((option) => {
+      const carried = Object.keys(option.weights.enneagram ?? {});
+      assert.equal(carried.length, 1, "f-e-2: each option carries exactly one core");
+      return Number(carried[0]);
+    });
+    assert.equal(new Set(cores).size, cores.length, "f-e-2: no core appears twice");
+    const feFour = allQuestions.find((q) => q.id === "f-e-4");
+    const served = new Set(feFour.options.flatMap((option) =>
+      Object.entries(option.weights.enneagram ?? {})
+        .sort((a, b) => b[1] - a[1]).slice(0, 1).map(([core]) => Number(core))));
+    // Every core f-e-4 cannot serve must have a home in f-e-2, or the pair leaves someone homeless
+    // twice running -- the defect that sent session 9yyds9's core 9 to core 7.
+    for (let core = 1; core <= 9; core += 1) {
+      assert.ok(served.has(core) || cores.includes(core),
+        `core ${core} has no option in either f-e-2 or f-e-4`);
+    }
   }
 
   // --- lens tension ------------------------------------------------------------------------
