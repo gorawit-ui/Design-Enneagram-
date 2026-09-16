@@ -79,10 +79,10 @@ export function isReverseKeyed(id: string): boolean {
 const mbtiQuestion = (id: string, context: string, prompt: string, left: MbtiPole, right: MbtiPole, choices: readonly [string, string, string, string]): AssessmentQuestion => ({
   id, kind: "foundation", context, prompt,
   options: [
-    { text: choices[0], weights: { mbti: { [left]: 2 } } },
+    { text: choices[0], weights: { mbti: { [left]: 3 } } },
     { text: choices[1], weights: { mbti: { [left]: 1 } } },
     { text: choices[2], weights: { mbti: { [right]: 1 } } },
-    { text: choices[3], weights: { mbti: { [right]: 2 } } },
+    { text: choices[3], weights: { mbti: { [right]: 3 } } },
   ],
 });
 
@@ -234,7 +234,7 @@ const dimensionChallenge = (dimension: "IE" | "SN" | "TF" | "JP" | "AT" | "AT2",
 const AUTHORED_DIMENSION_CHALLENGES: readonly AssessmentQuestion[] = [
   dimensionChallenge("IE", "เมื่อต้องแก้ปัญหางานภายในหนึ่งชั่วโมง คุณมักเริ่มจากอะไร?", "I", "E", ["ปิดห้องคิดเอง จนกว่าจะเห็นทาง", "คิดเองก่อนเกือบหมด แล้วค่อยเอาไปถาม", "ถามคนอื่นก่อน แล้วค่อยเอากลับมาคิดเอง", "เรียกคนมาคุย แล้วทางออกจะโผล่มาเอง"]),
   dimensionChallenge("SN", "เมื่อข้อมูลยังไม่พอ คุณมักเชื่อสิ่งใดก่อน?", "S", "N", ["เชื่อสิ่งที่เคยเจอมากับตัว", "เชื่อของที่ตรวจได้เป็นหลัก แล้วค่อยต่อจุด", "เชื่อสิ่งที่มันเข้าเค้ากันเป็นหลัก แล้วค่อยหาหลักฐาน", "เชื่อว่ามันต่อกันได้ ถึงจะยังพิสูจน์ไม่ได้"]),
-  dimensionChallenge("TF", "เมื่อต้องตัดสินใจเรื่องงานที่กระทบหลายฝ่าย คุณมักยึดอะไรเป็นหลัก?", "T", "F", ["ยึดเกณฑ์ไว้ ไม่งั้นครั้งหน้าก็เถียงกันอีก", "ยึดเกณฑ์เป็นหลัก แล้วดูว่าใครรับไม่ไหวบ้าง", "ดูว่าใครรับไม่ไหวก่อน แล้วค่อยหาเกณฑ์มารองรับ", "ถ้าคนรับไม่ได้ ตัดสินใจไปก็ไม่มีประโยชน์"]),
+  dimensionChallenge("TF", "เมื่อกฎกับสถานการณ์จริงขัดกัน คุณเลือกทางไหน?", "T", "F", ["ยึดเกณฑ์ไว้ ไม่งั้นครั้งหน้าก็เถียงกันอีก", "ยึดเกณฑ์เป็นหลัก แล้วดูว่าใครรับไม่ไหวบ้าง", "ดูว่าใครรับไม่ไหวก่อน แล้วค่อยหาเกณฑ์มารองรับ", "ถ้าคนรับไม่ได้ ตัดสินใจไปก็ไม่มีประโยชน์"]),
   dimensionChallenge("JP", "เมื่อเริ่มงานที่มีเวลาจำกัด คุณลงมือแบบไหน?", "J", "P", ["ต้องรู้ทุกขั้นก่อน ถึงจะเริ่มได้", "วางขั้นตอนไว้ แต่เผื่อที่ให้ขยับ", "เริ่มแบบที่ยังเปลี่ยนได้ แล้วค่อยจัดระเบียบ", "เริ่มเลย เดี๋ยวค่อยว่ากันหน้างาน"]),
   dimensionChallenge("AT", "หลังได้รับข้อเสนอแนะเรื่องงาน คำนั้นอยู่กับคุณนานแค่ไหน?", "A", "Turbulent", ["รับไว้แล้วรู้สึกเหมือนเดิม", "สะดุดนิดหน่อย แล้วก็หายไป", "ค้างอยู่ในหัวถึงวันรุ่งขึ้น", "คิดวนอยู่กับคำนั้นอีกหลายวัน"]),
   // A second A/T item, and not an optional one. Once the A/T pair left the foundation block, A/T had
@@ -311,7 +311,16 @@ export const ITEM_BANK_VERSION: string = (() => {
       question.options.length,
       isReverseKeyed(question.id) ? "r" : "f",
       question.prompt,
-      ...question.options.map((option) => `${option.text}/${option.hint ?? ""}`),
+      // ...and so are the WEIGHTS, for one level down of the same reason. A weight change moves
+      // every result it touches and, until this line, moved nothing the hash could see -- so the
+      // spread change below (MBTI ends 2 -> 3) would have produced differently scored sessions
+      // carrying an identical b=. Serialised in a fixed key order so the string does not depend on
+      // how an object literal happened to be written.
+      ...question.options.map((option) => {
+        const weights = { ...option.weights.mbti, ...option.weights.enneagram };
+        return `${option.text}/${option.hint ?? ""}/${Object.keys(weights).sort()
+          .map((key) => `${key}=${weights[key as keyof typeof weights]}`).join(",")}`;
+      }),
     ].join(":"))
     .join("|");
   let hash = 0x811c9dc5;

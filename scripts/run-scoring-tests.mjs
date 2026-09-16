@@ -97,7 +97,7 @@ try {
     // Slots 1-2 are the A/T pair, unconditionally. A/T has no foundation coverage since the count
     // moved to 24, and an axis with fewer than two answers scores as ambiguous, so without both of
     // these reserved every respondent would be handed a null MBTI type.
-    assert.deepEqual([adaptive[0].id, adaptive[1].id], ["c-at", "c-at2"], `${name}: A/T slots reserved`);
+    assert.deepEqual([adaptive[0].id, adaptive[3].id], ["c-at", "c-at2"], `${name}: A/T slots reserved, and split apart`);
     assert.ok(adaptive.slice(2).every((q) => q.challengeFor), `${name}: every adaptive question targets something`);
     // The Enneagram floor. A greedy "always ask about the narrowest gap" rule spent all four
     // remaining slots on MBTI axes for any respondent whose four axes landed close together, which
@@ -110,7 +110,12 @@ try {
     // the wing is valid. Once its side is settled, an unresolved MBTI axis is the better spend.
     const settled = scoring.scoreAssessment(answers).enneagram.core !== null
       && scoring.scoreAssessment(answers).wingStatus === "valid";
-    assert.ok(mbtiSlots >= 1, `${name}: MBTI takes at least one of the four open slots (took ${mbtiSlots})`);
+    // MBTI's floor is conditional for the same reason the Enneagram's is: it exists to stop the
+    // other side starving it, not to hold a quota open. Once every axis has cleared on the
+    // foundation block alone -- which the evenly spaced 3/1/1/3 rungs now let happen -- there is
+    // nothing for the slot to resolve, and the Enneagram is the better spend.
+    assert.ok(mbtiSlots >= 1 || scoring.scoreAssessment(answers).mbti.type !== null,
+      `${name}: MBTI takes an open slot unless every axis is already settled (took ${mbtiSlots})`);
     assert.ok(enneagramSlots >= 2 || settled,
       `${name}: the Enneagram keeps two of the four open slots unless its side is settled (kept ${enneagramSlots})`);
     // Core challenges are capped at two BEFORE the reserved final slot, so the wing keeps a slot.
@@ -222,11 +227,12 @@ try {
       assert.equal(new Set(answers.map((a) => a.questionId)).size, answers.length, "no question is asked twice");
       const adaptive = answers.slice(data.FOUNDATION_QUESTIONS.length).map((a) => a.questionId);
       const result = scoring.scoreAssessment(answers);
-      assert.deepEqual(adaptive.slice(0, 2), ["c-at", "c-at2"], "A/T pair holds the first two adaptive slots");
+      assert.deepEqual([adaptive[0], adaptive[3]], ["c-at", "c-at2"], "A/T pair holds adaptive slots 1 and 4, not two in a row");
       const mbti = adaptive.filter((id) => /^c-(ie|sn|tf|jp)$/.test(id)).length;
       const core = adaptive.filter((id) => /^c-core-/.test(id)).length;
       const wing = adaptive.filter((id) => /^c-wing-/.test(id)).length;
-      assert.ok(mbti >= 1, `MBTI takes at least one open slot, took ${mbti}`);
+      assert.ok(mbti >= 1 || result.mbti.type !== null,
+        `MBTI takes an open slot unless every axis is already settled, took ${mbti}`);
       const beforeReserved = adaptive.slice(0, -1).filter((id) => /^c-core-/.test(id)).length;
       assert.ok(beforeReserved <= 2, `at most two core challenges before the reserved slot, got ${beforeReserved}`);
       assert.ok(core <= 3, `at most three core challenges in total, got ${core}`);
@@ -240,6 +246,38 @@ try {
       const settled = result.enneagram.core !== null && result.wingStatus === "valid";
       assert.ok(core + wing >= 2 || settled,
         `the Enneagram keeps two of the four open slots unless its side is settled (kept ${core + wing})`);
+    }
+  }
+
+  // No two items may measure the same thing AND phrase it alike. A respondent reported the test
+  // repeating itself; nothing was literally repeated, but f-e-2 and f-e-4 were the same question
+  // with the same four cores, f-tf-1 and c-tf ended in the same six words, and the two A/T items
+  // sat back to back. "Different id" is not the same guarantee as "reads as a different question",
+  // so this asserts the second one directly.
+  {
+    const everyItem = [...data.FOUNDATION_QUESTIONS, ...data.DIMENSION_CHALLENGES,
+      ...data.CORE_CHALLENGES, ...data.WING_CHALLENGES];
+    const targetOf = (question) => {
+      const marks = new Set();
+      for (const option of question.options) {
+        for (const core of Object.keys(option.weights.enneagram ?? {})) marks.add(`e${core}`);
+        for (const pole of Object.keys(option.weights.mbti ?? {})) marks.add(pole);
+      }
+      return [...marks].sort().join(",");
+    };
+    const wordsOf = (question) => new Set(
+      question.prompt.replace(/[?"“”]/g, "").split(/\s+/).filter((word) => word.length > 2),
+    );
+    for (let i = 0; i < everyItem.length; i += 1) {
+      for (let j = i + 1; j < everyItem.length; j += 1) {
+        const [a, b] = [everyItem[i], everyItem[j]];
+        if (targetOf(a) !== targetOf(b)) continue;
+        const [wa, wb] = [wordsOf(a), wordsOf(b)];
+        const shared = [...wa].filter((word) => wb.has(word)).length;
+        const overlap = shared / Math.min(wa.size, wb.size);
+        assert.ok(overlap < 0.3,
+          `${a.id} and ${b.id} measure the same thing and share ${Math.round(overlap * 100)}% of their prompt wording — they read as one question asked twice`);
+      }
     }
   }
 

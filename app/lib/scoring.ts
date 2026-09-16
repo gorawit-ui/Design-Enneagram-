@@ -222,13 +222,39 @@ export function selectNextQuestion(answers: readonly AnswerRecord[]): Assessment
   if (answers.length < FOUNDATION_QUESTIONS.length) return FOUNDATION_QUESTIONS[answers.length];
 
   const asked = new Set(answers.map((answer) => answer.questionId));
-  const unasked = (id: string) => (asked.has(id) ? null : byId(id) ?? null);
 
-  // Slots 1-2, unconditionally. A/T has no foundation coverage since the count moved to 24, and
-  // scoreAssessment calls an axis ambiguous below two answers, so one A/T item would leave every
-  // respondent with a null MBTI type.
-  const atSlot = unasked("c-at") ?? unasked("c-at2");
-  if (atSlot) return atSlot;
+  // One wing item per session, enforced here rather than at each rule that might reach for one.
+  //
+  // A wing item weights the two cores ADJACENT to the core it belongs to, so a second one -- asked
+  // because an adaptive answer moved the lead -- pours points into cores that the new leader is
+  // itself adjacent to. Reproduced: c-wing-6 then c-wing-5, where c-wing-5's options weight cores 4
+  // and 6 and core 6 was the eventual winner, so the wing question for a core the respondent did
+  // not land on handed the core they DID land on extra evidence through the back door. That is the
+  // same duplicated-evidence hazard rule 3 avoids by preferring a non-adjacent rival.
+  //
+  // It became reachable when the MBTI rungs were evenly spaced: axes settle on the foundation block
+  // more often, so more open slots fall through to the Enneagram rules and the second one fires.
+  const wingSpent = [...asked].filter((id) => /^c-wing-/.test(id)).length;
+  const unasked = (id: string) => {
+    if (asked.has(id)) return null;
+    if (wingSpent > 0 && id.startsWith("c-wing-")) return null;
+    return byId(id) ?? null;
+  };
+
+  // Two reserved A/T slots, and they are SPLIT rather than adjacent. A/T has no foundation coverage
+  // since the count moved to 24, and scoreAssessment calls an axis ambiguous below two answers, so
+  // one A/T item would leave every respondent with a null MBTI type -- both must be asked.
+  //
+  // Asking them back to back is what a respondent reported as the test repeating itself. Nothing
+  // was actually repeated (the selector never returns an id twice, and 3000 simulated sessions
+  // confirm it), but c-at and c-at2 both ask how you react once a piece of work is out of your
+  // hands, and landing them at questions 19 and 20 of 24 reads as being asked the same thing twice.
+  // Putting two questions in a row that the ITEM BANK considers different but a person does not is
+  // a defect in the session, not in the bank. So: the first A/T item opens the adaptive block, the
+  // second takes its fourth slot, with other material in between.
+  const adaptiveSlot = answers.length - FOUNDATION_QUESTIONS.length;
+  if (adaptiveSlot === 0) { const first = unasked("c-at"); if (first) return first; }
+  if (adaptiveSlot === 3) { const second = unasked("c-at2"); if (second) return second; }
 
   const result = scoreAssessment(answers);
 
