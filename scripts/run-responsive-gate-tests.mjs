@@ -29,9 +29,12 @@ const OUT_DIR = path.join(projectRoot, "outputs/gate-e");
 // later, which says nothing about the cause — so reachedExpectedType() below checks the score
 // first and fails with an instruction instead.
 //
-// To re-derive: walk selectNextQuestion over random option indexes until scoreAssessment returns
-// mbti INTJ-A, core 2, and a non-ambiguous Enneagram confidence.
-const ANSWERS = [3, 0, 0, 2, 3, 0, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 3, 1, 2, 0, 2, 0, 2, 0];
+// It went stale a third time with batch C (MBTI options re-weighted 3/1/1/3), and that time the
+// check below did not catch it: the page showed "INTP-A / INTJ-A", an unresolved type, and
+// /INTJ-A/ matched the second half. The check is anchored now.
+//
+// To re-derive: `node scripts/find-gate-fixture.mjs` prints a fresh array.
+const ANSWERS = [3, 0, 0, 3, 3, 0, 3, 0, 2, 3, 0, 0, 2, 1, 1, 0, 0, 0, 3, 3, 3, 0, 0, 0];
 
 // The plan's UX PASS names three widths: 360 px, 390 px, and desktop.
 const VIEWPORTS = [
@@ -85,7 +88,7 @@ async function reachResult(page, presentationThai) {
   // score the type this gate is about, the character is a fallback and there is nothing to measure.
   const typeShown = await page.evaluate(() =>
     document.querySelector(".type-code")?.textContent?.replace(/\s+/g, " ").trim() ?? "");
-  if (!/INTJ-A/.test(typeShown)) {
+  if (!/^INTJ-A × Enneagram 2/.test(typeShown)) {
     throw new Error(`ANSWERS no longer score Core 2 x INTJ-A — the page shows "${typeShown}". `
       + "Re-derive the array (see the comment above it) after any change to selection or the item bank.");
   }

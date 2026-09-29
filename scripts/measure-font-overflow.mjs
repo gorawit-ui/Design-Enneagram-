@@ -27,7 +27,9 @@ const WEIGHT = Number(process.env.BODY_WEIGHT ?? 450);
 // welcome layout appears with the narrowest hero column it ever gets. A swap that is clean at 390,
 // 768 and 1280 can still overlap the illustration here, which is how the first look at these
 // screenshots read as "Sarabun overflows" when the measurement at three widths said it did not.
-const VIEWPORTS = [{ w: 390, h: 844 }, { w: 768, h: 1024 }, { w: 900, h: 900 }, { w: 1280, h: 800 }];
+// 320 and 430 were added after Sarabun passed 390 and still ran 5px past a 430px phone: the
+// narrowest and the widest common phones are where a wider face shows first.
+const VIEWPORTS = [{ w: 320, h: 640 }, { w: 390, h: 844 }, { w: 430, h: 932 }, { w: 768, h: 1024 }, { w: 900, h: 900 }, { w: 1280, h: 800 }];
 
 // Two different failures, and they are not the same thing. A nowrap headline wider than its own
 // column overlaps whatever sits beside it -- on the welcome screen, the illustration. Anything

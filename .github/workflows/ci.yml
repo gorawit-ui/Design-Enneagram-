@@ -80,7 +80,7 @@ jobs:
           echo "::group::PDF exports (one-page and full report)"
           npm run gate:print
           echo "::endgroup::"
-          echo "::group::Large print at both scale factors"
+          echo "::group::Large print at 1.25, 320px to desktop"
           npm run gate:largeprint
           echo "::endgroup::"
           echo "::group::The delete route actually deletes"

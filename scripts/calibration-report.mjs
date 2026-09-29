@@ -40,7 +40,6 @@ const data = require(path.join(out, "assessment-data.js"));
 const exporter = require(path.join(out, "session-export.js"));
 
 const AXES = [["I", "E"], ["S", "N"], ["T", "F"], ["J", "P"], ["A", "Turbulent"]];
-const AXIS_NAMES = ["IE", "SN", "TF", "JP", "AT"];
 const byId = Object.fromEntries(
   [...data.FOUNDATION_QUESTIONS, ...data.DIMENSION_CHALLENGES, ...data.CORE_CHALLENGES, ...data.WING_CHALLENGES]
     .map((q) => [q.id, q]),
