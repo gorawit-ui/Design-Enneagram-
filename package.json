@@ -51,7 +51,8 @@
     "items:wingslot": "node scripts/measure-wing-slot.mjs",
     "items:mbti": "node scripts/measure-mbti-evidence.mjs",
     "items:balance": "node scripts/balance-item-order.mjs",
-    "items:mbtiopts": "node scripts/measure-mbti-options.mjs"
+    "items:mbtiopts": "node scripts/measure-mbti-options.mjs",
+    "calib": "node scripts/calibration-report.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
