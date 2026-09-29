@@ -6,6 +6,7 @@ import { LIVING_CHARACTER_PILOT_ENABLED } from "./lib/living-character-flag";
 import { LIVING_CHARACTER_SCHEMA_VERSION, resolveLivingCharacterVisual, type LivingCharacterConfidence } from "./lib/living-character-resolver";
 import type { AnswerRecord, AssessmentResult, Confidence } from "./lib/scoring";
 import { buildSessionExport } from "./lib/session-export";
+import { CLARITY_THAI, mbtiCode, readAxes, unclearAxes } from "./lib/mbti-reading";
 import { CORE_VOICES, POLE_VOICES, WING_VOICES, crossReading } from "./lib/cross-reading";
 import { composeResultNarrative } from "./lib/result-insights";
 import {
@@ -185,6 +186,30 @@ function TensionNote({ tension }: { tension: NonNullable<AssessmentResult["tensi
  * only thing a person can act on: nobody can pick between "ลักษณ์ 5" and "ลักษณ์ 9" as labels, but
  * most people know immediately which of two fears they recognise.
  */
+/**
+ * The five MBTI axes, each with how clear it came out. Inside the summary card because the card is
+ * what a person reads first and what the PDF prints: a letter without its clarity is the claim
+ * this replaces. See lib/mbti-reading.ts for why a coin-flip axis prints both letters.
+ */
+function MbtiAxes({ result }: { result: AssessmentResult }) {
+  const axes = readAxes(result);
+  const open = axes.filter((axis) => axis.clarity === "ambiguous");
+  return <div className="mbti-axes-block">
+    <ol className="mbti-axes" aria-label="MBTI ทีละแกน">
+      {axes.map((axis) => <li key={axis.key} className={`mbti-axis mbti-axis-${axis.clarity}`}>
+        <b>{axis.shown}</b>
+        <span>{axis.shownThai}</span>
+        <small>{CLARITY_THAI[axis.clarity]}</small>
+      </li>)}
+    </ol>
+    {/* PLACEHOLDER wording, pending HR. It says what a coin-flip axis means and what to do with
+        it, and deliberately not that anything went wrong: the person answered both ways. */}
+    {open.length > 0 && <p className="mbti-axes-note">
+      {`${open.map((axis) => `${axis.shown} (${axis.shownThai})`).join(" และ ")} ก้ำกึ่ง — คำตอบของคุณเอนไปทั้งสองทางพอ ๆ กัน ซึ่งเจอได้ปกติ ลองสังเกตในงานจริงว่าคุณใช้ด้านไหนบ่อยกว่า`}
+    </p>}
+  </div>;
+}
+
 function AmbiguousSummaryCard({ result, nickname, team, mbtiLabel }: {
   result: AssessmentResult; nickname: string; team: string; mbtiLabel: string;
 }) {
@@ -206,6 +231,7 @@ function AmbiguousSummaryCard({ result, nickname, team, mbtiLabel }: {
       </div>
     </header>
     <p className="summary-owner">{`${nickname} · ทีม ${team} · ${mbtiLabel}`}</p>
+    <MbtiAxes result={result} />
 
     <dl className="summary-structure">
       {pair.map((candidate) => <div key={`fear-${candidate}`}>
@@ -284,6 +310,7 @@ function SummaryCard({ result, nickname, team, mbtiLabel }: {
       </div>
     </header>
     <p className="summary-owner">{`${nickname} · ทีม ${team} · ${mbtiLabel}`}</p>
+    <MbtiAxes result={result} />
 
     <dl className="summary-structure">
       <div><dt>สิ่งที่กลัวจริง ๆ</dt><dd>{depth.coreFearThai}</dd></div>
@@ -709,11 +736,18 @@ function GateCDevPreview() {
 
 export default function ResultView({ result, answers, character, nickname, team, consent, durations = [], onRestart }: Props) {
   const insight = composeResultNarrative(result);
+  // Two different questions, which this page used to answer with one flag. The character and the
+  // cross-reading are built on the whole four-letter type and the core, so they wait for both. The
+  // core's title is the Enneagram's alone, and hiding it because an MBTI axis came out close
+  // withheld the half of the result that did resolve -- the same mistake the depth section's gate
+  // below was written to avoid.
   const ambiguous = result.mbti.status === "ambiguous" || result.enneagram.status === "ambiguous";
+  const coreOpen = result.enneagram.status === "ambiguous";
+  const openAxes = unclearAxes(result);
   const wingAccent = character.wingStatus === "valid" ? character.wing === character.coreProfile.leftWing.type ? "left" : "right" : null;
   const identity = character.mbtiType.endsWith("-A") ? "A" : character.mbtiType.endsWith("-T") ? "T" : null;
   const sceneKit = resolveCharacterSceneKit(ambiguous ? null : character.mbtiBaseType, ambiguous ? null : wingAccent, ambiguous ? null : identity);
-  const typeLabel = `${result.mbti.type ?? `${result.mbti.candidate} / ${result.mbti.runnerUp}`} × Enneagram ${result.enneagram.core ? `${result.enneagram.core}${result.wingStatus === "valid" ? `w${result.wing}` : ""}` : `${result.enneagram.top.value} / ${result.enneagram.runnerUp.value}`}`;
+  const typeLabel = `${mbtiCode(result)} × Enneagram ${result.enneagram.core ? `${result.enneagram.core}${result.wingStatus === "valid" ? `w${result.wing}` : ""}` : `${result.enneagram.top.value} / ${result.enneagram.runnerUp.value}`}`;
   return <div className="result-wrap result-insights fade-in">
     {/* Before the hero on purpose. The hero is the character and the narrative; this is the answer.
         A reader who stops after one screen should have the answer, not the illustration. */}
@@ -729,8 +763,10 @@ export default function ResultView({ result, answers, character, nickname, team,
     <ScoreRadar scores={result.scores.enneagram} core={result.enneagram.core}
       wing={result.wingStatus === "valid" ? result.wing : null} />
     <ExportRow result={result} answers={answers} durations={durations} />
-    <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{ambiguous ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
-    <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน</p>}</section>
+    <section className={`result-hero ${ambiguous ? "result-ambiguous" : ""}`} aria-labelledby="result-overview-title"><div className="result-copy"><span className="kicker">ภาพรวมของคุณ · {confidenceThai[result.enneagram.confidence]}</span><p className="result-owner">ผลของ {nickname} · ทีม {team}</p><h1 id="result-overview-title">{coreOpen ? "แนวโน้มที่ยังใกล้เคียงกัน" : character.coreProfile.titleThai}</h1><div className="type-code">{typeLabel}</div><p className="character-summary">{insight.narrative}</p><small>ใช้เพื่อการสะท้อนตนเองและพัฒนาการทำงานร่วมกัน ไม่ใช่การวินิจฉัยหรือข้อสรุปตายตัว</small></div><CharacterVisual key={character.assetPath} character={character} ambiguous={ambiguous} sceneKit={sceneKit} mbtiConfidence={result.mbti.confidence} enneagramConfidence={result.enneagram.confidence} /></section>
+    <section className="result-model-note" aria-labelledby="result-model-title"><h2 id="result-model-title">ผลลัพธ์เดียวกัน มองคุณจาก 2 มุม</h2><p><strong>MBTI</strong> ช่วยอธิบายวิธีคิดและการตัดสินใจ ส่วน <strong>Enneagram</strong> สะท้อนแรงขับภายใน โดย <strong>Wing</strong> เป็นรายละเอียดที่ช่วยขยายแนวโน้ม Enneagram ของคุณ</p>{ambiguous && <p className="result-model-caution">{coreOpen
+      ? "ผลครั้งนี้เป็นแนวโน้มเบื้องต้น เพราะบางด้านยังมีคะแนนใกล้เคียงกัน"
+      : `MBTI แกน ${openAxes.map((axis) => axis.shown).join(" และ ")} ยังก้ำกึ่ง ตัวละครและการอ่านคู่ MBTI × Enneagram จึงยังไม่แสดง ส่วนที่เหลือของผลอ่านได้ตามปกติ`}</p>}</section>
     {/* After the hero, because the manual speaks in the voice of a named type and the hero is
         where that type is named. Gated on the core for the same reason. */}
     {result.enneagram.core !== null && result.enneagram.confidence !== "ambiguous"

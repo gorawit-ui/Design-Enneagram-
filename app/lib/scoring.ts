@@ -78,6 +78,19 @@ const questionMap = new Map(ALL_QUESTIONS.map((question) => [question.id, questi
 const pairs = { IE: ["I","E"], SN: ["S","N"], TF: ["T","F"], JP: ["J","P"], AT: ["A","Turbulent"] } as const;
 const cores = [1,2,3,4,5,6,7,8,9] as const;
 
+/**
+ * How far one MBTI axis can be trusted, on the same thresholds that decide whether a type is named.
+ *
+ * Measured by simulation at 75% answer consistency (the calibration run will replace that
+ * assumption with a real number): an axis 4+ points apart is right 98.7% of the time, 2-3 points
+ * 91.1%, and 0-1 points 55.3% -- a coin flip. A type is named only when no axis is in the last band,
+ * and the result page prints each axis's band so a person can see which letter is which.
+ */
+export function axisClarity(dimension: { margin: number; evidence: number }): Confidence {
+  if (dimension.margin < 2 || dimension.evidence < 2) return "ambiguous";
+  return dimension.margin < 4 ? "close" : "clear";
+}
+
 export function scoreAssessment(answers: readonly AnswerRecord[]): AssessmentResult {
   const mbti: Record<string, number> = { I:0,E:0,S:0,N:0,T:0,F:0,J:0,P:0,A:0,Turbulent:0 };
   const enneagram = Object.fromEntries(cores.map((core) => [core, 0])) as Record<EnneagramCore, number>;
@@ -92,8 +105,8 @@ export function scoreAssessment(answers: readonly AnswerRecord[]): AssessmentRes
   const letters = Object.values(pairs).map(([left,right]) => mbti[left] >= mbti[right] ? left : right);
   const base = letters.slice(0,4).join("") as BaseMbtiType;
   const identity = (letters[4] === "Turbulent" ? "T" : "A") as Identity;
-  const unclearDimensions = Object.values(dimensions).filter((dimension) => dimension.margin < 2 || dimension.evidence < 2).length;
-  const mbtiConfidence: Confidence = unclearDimensions > 0 ? "ambiguous" : Object.values(dimensions).some((d) => d.margin < 4) ? "close" : "clear";
+  const clarities = Object.values(dimensions).map(axisClarity);
+  const mbtiConfidence: Confidence = clarities.includes("ambiguous") ? "ambiguous" : clarities.includes("close") ? "close" : "clear";
   const weakest = (Object.entries(dimensions) as [keyof typeof pairs, AssessmentResult["dimensions"]["IE"]][]).sort((a,b) => a[1].margin-b[1].margin)[0][0];
   const runnerLetters = [...letters]; runnerLetters[Object.keys(pairs).indexOf(weakest)] = runnerLetters[Object.keys(pairs).indexOf(weakest)] === pairs[weakest][0] ? pairs[weakest][1] : pairs[weakest][0];
   const candidates = cores.map((value) => ({ value, score: enneagram[value] })).sort((a,b) => b.score-a.score || a.value-b.value);

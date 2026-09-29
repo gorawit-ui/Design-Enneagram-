@@ -17,6 +17,7 @@ const sourceFiles = [
   "app/lib/profile-contract.ts",
   "app/lib/enneagram-depth.ts",
   "app/lib/session-export.ts",
+  "app/lib/mbti-reading.ts",
 ].map((file) => path.join(projectRoot, file));
 
 try {
@@ -48,6 +49,7 @@ try {
   const profileContract = require(path.join(temporaryDirectory, "profile-contract.js"));
   const depth = require(path.join(temporaryDirectory, "enneagram-depth.js"));
   const sessionExport = require(path.join(temporaryDirectory, "session-export.js"));
+  const mbtiReading = require(path.join(temporaryDirectory, "mbti-reading.js"));
 
   assert.deepEqual(profileContract.PROFILE_FIELDS, ["nameAndNickname", "team", "gender"], "three-field profile contract");
   assert.deepEqual(Object.keys(profileContract.INITIAL_PROFILE), profileContract.PROFILE_FIELDS, "profile contains no unapproved fields");
@@ -662,6 +664,42 @@ try {
       .options.find((option) => (option.weights.enneagram ?? {})[core] !== undefined);
     assert.equal(fearOption.text, entry.coreFearThai,
       `core ${core}: the fear on the result page is the same sentence f-e-3 offered`);
+  }
+
+  // The MBTI strip. Its bands must be the scorer's own, or the page could name a type while
+  // printing one of its letters as a coin flip, or refuse a type while every letter reads "clear".
+  {
+    const band = (margin, evidence = 2) => scoring.axisClarity({ margin, evidence });
+    assert.deepEqual([0, 1, 2, 3, 4, 6].map((m) => band(m)), ["ambiguous", "ambiguous", "close", "close", "clear", "clear"],
+      "axis bands: 0-1 coin flip, 2-3 close, 4+ clear");
+    assert.equal(band(6, 1), "ambiguous", "one answer is not enough evidence however wide the margin");
+    const rng = (() => { let a = 20260929; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; })();
+    let named = 0, open = 0;
+    for (let run = 0; run < 400; run += 1) {
+      const answers = [];
+      for (;;) {
+        const question = scoring.selectNextQuestion(answers);
+        if (!question) break;
+        answers.push({ questionId: question.id, optionIndex: Math.floor(rng() * question.options.length) });
+      }
+      const result = scoring.scoreAssessment(answers);
+      const axes = mbtiReading.readAxes(result);
+      const code = mbtiReading.mbtiCode(result);
+      const anyOpen = axes.some((axis) => axis.clarity === "ambiguous");
+      assert.equal(anyOpen, result.mbti.type === null, `run ${run}: a type is named exactly when no axis is a coin flip`);
+      if (result.mbti.type) {
+        named += 1;
+        assert.equal(code, result.mbti.type, `run ${run}: a named type prints as itself`);
+        assert.equal(axes.map((axis) => axis.shown).join("").replace(/^(....)(.)$/, "$1-$2"), result.mbti.type,
+          `run ${run}: the strip spells the same type the scorer named`);
+      } else {
+        open += 1;
+        assert.equal(code.length, 6 + 4 * mbtiReading.unclearAxes(result).length,
+          `run ${run}: every coin-flip axis prints as "(X/Y)" in ${code}`);
+        assert.ok(!code.includes(" / "), `run ${run}: no longer two whole types side by side`);
+      }
+    }
+    assert.ok(named > 0 && open > 0, `the random sessions reached both branches (${named} named, ${open} open)`);
   }
 
   console.log(`Module 1 tests passed: three-field profile contract, ${Object.keys(fixtures.ASSESSMENT_FIXTURES).length} scoring fixtures, confidence boundaries, all wing adjacencies, sequential adaptive selection, the 24-question contract, keyed direction balance, the depth layer's two arrows, lens tension, and export round-trips.`);

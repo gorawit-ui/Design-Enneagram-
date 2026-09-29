@@ -988,6 +988,23 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
 .summary-meta { margin: 8px 0 0; font-size: 13px; letter-spacing: .2px; color: var(--green); font-weight: 600; }
 .summary-owner { margin: 14px 0 0; padding-top: 13px; border-top: 1px solid #eef1ec; font-size: 13.5px; color: #5d6862; }
 
+/* The five MBTI axes. One row, one cell per axis: the letter (or both letters, where the axis is a
+   coin flip), what it means, and how clear it came out. The clarity is carried by the label AND
+   the cell's fill, never by colour alone. */
+/* A/T is set apart by an empty 4px track, the way "-A" is set apart in the type code. */
+.mbti-axes { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 4px minmax(0, 1fr); gap: 6px; }
+.mbti-axis:last-child { grid-column: 6; }
+.mbti-axis { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 8px 4px 7px; border-radius: 11px; border: 1px solid #e7ece5; background: #f5f7f2; text-align: center; min-width: 0; }
+.mbti-axis b { font: 600 17px/1.2 var(--font-display); color: var(--matcha); letter-spacing: .3px; }
+.mbti-axis span { font-size: 12px; line-height: 1.35; color: #4c5b53; overflow-wrap: anywhere; }
+.mbti-axis small { margin-top: 2px; font-size: 12px; font-weight: 700; color: var(--green); }
+.mbti-axis-clear { background: #eef4ef; border-color: #d6e4d9; }
+.mbti-axis-close small { color: #6b7a72; }
+.mbti-axis-ambiguous { background: #fbf7f1; border-color: #ecdfcd; border-style: dashed; }
+.mbti-axis-ambiguous b { font-size: 15px; }
+.mbti-axis-ambiguous small { color: #8a6a3c; }
+.mbti-axes-note { margin: 8px 0 0; font-size: 13px; line-height: 1.55; color: #5c5340; }
+
 .summary-structure { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 14px 0 0; }
 .summary-structure > div { padding: 12px 13px; border-radius: 12px; background: #f5f7f2; border: 1px solid #e7ece5; }
 .summary-structure dt { font-size: 12.5px; font-weight: 700; color: var(--green); letter-spacing: .2px; }
@@ -1042,7 +1059,11 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
      this card is for. What got it under: the structure cells go to two columns rather than stacking
      (they are one line each, so two columns costs nothing in legibility and saves ~170px), the
      arrows become compact rows, and the spacing tightens. Re-measure after any content change --
-     one more line in any of the four blocks puts it back over. */
+     one more line in any of the four blocks puts it back over.
+     The MBTI strip (September 2026) was one such change, made knowingly: measured at 390px it adds
+     66px to the card (773 -> 839) and 129px when two axes are a coin flip and the note shows. The
+     last trait lines now sit below the fold; the letters and how far each can be trusted are what
+     the card gained for it. */
   .summary-card { padding: 15px 15px 12px; border-radius: 18px; }
   .summary-head { gap: 12px; }
   .summary-badge { width: 52px; height: 52px; border-radius: 14px; font-size: 21px; }
@@ -1056,6 +1077,13 @@ label > select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #8ba79b
   .summary-structure > div { padding: 9px 10px; border-radius: 10px; }
   .summary-structure dt { font-size: 11.5px; }
   .summary-structure dd { margin-top: 3px; font-size: 13px; line-height: 1.45; }
+  .mbti-axes { gap: 5px; margin-top: 10px; }
+  .mbti-axis { padding: 6px 2px 5px; border-radius: 10px; }
+  .mbti-axis b { font-size: 16px; }
+  /* A 60px cell cannot hold "เก็บพลังคนเดียว" without breaking the word. On a phone the cell is the
+     letter and its clarity; the meaning of any coin-flip axis is spelled out in the note below. */
+  .mbti-axis span { display: none; }
+  .mbti-axes-note { margin-top: 7px; font-size: 12.5px; line-height: 1.5; }
   .summary-arrows { grid-template-columns: 1fr; gap: 6px; margin-top: 10px; }
   .summary-arrow {
     display: flex; align-items: baseline; justify-content: space-between;
